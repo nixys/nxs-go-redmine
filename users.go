@@ -5,12 +5,14 @@ import (
 	"strings"
 )
 
+// UserStatus const
 const (
 	UserStatusActive     = 1
 	UserStatusRegistered = 2
 	UserStatusLocked     = 3
 )
 
+// UserNotification const
 const (
 	UserNotificationAll          = 1
 	UserNotificationSelected     = 2
@@ -20,12 +22,14 @@ const (
 	UserNotificationOnlyNone     = 6
 )
 
+// UserStatus names in Redmine
 var UserStatus = map[int]string{
 	UserStatusActive:     "active",
 	UserStatusRegistered: "registered",
 	UserStatusLocked:     "locked",
 }
 
+// UserNotification names in Redmine
 var UserNotification = map[int]string{
 	UserNotificationAll:          "all",
 	UserNotificationSelected:     "selected",
@@ -37,6 +41,7 @@ var UserNotification = map[int]string{
 
 /* Get */
 
+// UserObject struct used for users get operations
 type UserObject struct {
 	ID           int                     `json:"id"`
 	Login        string                  `json:"login"`
@@ -45,19 +50,21 @@ type UserObject struct {
 	Mail         string                  `json:"mail"`
 	CreatedOn    string                  `json:"created_on"`
 	LastLoginOn  string                  `json:"last_login_on"`
-	APIKey       string                  `json:"api_key"` /* used only: get single user*/
-	Status       int                     `json:"status"`  /* used only: get single user*/
+	APIKey       string                  `json:"api_key"` // used only: get single user
+	Status       int                     `json:"status"`  // used only: get single user
 	CustomFields []UserCustomFieldObject `json:"custom_fields"`
-	Groups       []IDName                `json:"groups"`      /* used only: get single user*/
-	Memberships  []UserMembershipObject  `json:"memberships"` /* used only: get single user*/
+	Groups       []IDName                `json:"groups"`      // used only: get single user
+	Memberships  []UserMembershipObject  `json:"memberships"` // used only: get single user
 }
 
+// UserCustomFieldObject struct used for users get operations
 type UserCustomFieldObject struct {
 	ID    int    `json:"id"`
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
 
+// UserMembershipObject struct used for users get operations
 type UserMembershipObject struct {
 	ID      int      `json:"id"`
 	Project IDName   `json:"project"`
@@ -66,6 +73,7 @@ type UserMembershipObject struct {
 
 /* Create */
 
+// UserCreateObject struct used for users create operations
 type UserCreateObject struct {
 	Login            string `json:"login"`
 	FirstName        string `json:"firstname"`
@@ -81,6 +89,7 @@ type UserCreateObject struct {
 
 /* Update */
 
+// UserUpdateObject struct used for users update operations
 type UserUpdateObject struct {
 	Login            string `json:"login,omitempty"`
 	FirstName        string `json:"firstname,omitempty"`
@@ -115,12 +124,12 @@ type userUpdate struct {
 	User UserUpdateObject `json:"user"`
 }
 
-/*
-see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#GET
-
-* If `statusFilter` == 0 default users status filter will be used (show active users only)
-* Use `groupIDFilter` == 0 to disable this filter
-*/
+// UserMultiGet gets multiple users info by specific filters
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#GET
+//
+// * If `statusFilter` == 0 default users status filter will be used (show active users only)
+// * Use `groupIDFilter` == 0 to disable this filter
 func (r *Redmine) UserMultiGet(statusFilter int, nameFilter string, groupIDFilter int) ([]UserObject, int, error) {
 
 	var u userMultiResult
@@ -171,13 +180,13 @@ func (r *Redmine) UserMultiGet(statusFilter int, nameFilter string, groupIDFilte
 	return u.Users, status, nil
 }
 
-/*
-see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#GET-2
-
-Available includes:
-* groups
-* memberships
-*/
+// UserSingleGet gets single user info by specific ID
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#GET-2
+//
+// Available includes:
+// * groups
+// * memberships
 func (r *Redmine) UserSingleGet(id int, includes []string) (UserObject, int, error) {
 
 	var u userSingleResult
@@ -194,7 +203,9 @@ func (r *Redmine) UserSingleGet(id int, includes []string) (UserObject, int, err
 	return u.User, status, err
 }
 
-/* see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#POST */
+// UserCreate creates new user
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#POST
 func (r *Redmine) UserCreate(user UserCreateObject) (UserObject, int, error) {
 
 	var u userSingleResult
@@ -206,7 +217,9 @@ func (r *Redmine) UserCreate(user UserCreateObject) (UserObject, int, error) {
 	return u.User, status, err
 }
 
-/* see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#PUT */
+// UserUpdate updates user with specified ID
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#PUT
 func (r *Redmine) UserUpdate(id int, user UserUpdateObject) (int, error) {
 
 	uri := "/users/" + strconv.Itoa(id) + ".json"
@@ -216,7 +229,9 @@ func (r *Redmine) UserUpdate(id int, user UserUpdateObject) (int, error) {
 	return status, err
 }
 
-/* see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#DELETE */
+// UserDelete deletes user with specified ID
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#DELETE
 func (r *Redmine) UserDelete(id int) (int, error) {
 
 	uri := "/users/" + strconv.Itoa(id) + ".json"

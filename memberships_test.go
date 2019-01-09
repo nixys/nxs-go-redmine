@@ -15,7 +15,7 @@ func TestMembershipCRUD(t *testing.T) {
 
 	var r Redmine
 
-	/* Get env variables */
+	// Get env variables
 	testMembershipRoleID1, _ = strconv.Atoi(os.Getenv("REDMINE_ROLE_ID_1"))
 	testMembershipRoleID2, _ = strconv.Atoi(os.Getenv("REDMINE_ROLE_ID_2"))
 
@@ -23,27 +23,27 @@ func TestMembershipCRUD(t *testing.T) {
 		t.Fatal("Membership test error: env variables `REDMINE_ROLE_ID_1` or `REDMINE_ROLE_ID_2` does not set")
 	}
 
-	/* Init Redmine context */
+	// Init Redmine context
 	initTest(&r, t)
 
-	/* Preparing auxiliary data */
+	// Preparing auxiliary data
 	uCreated := testUserCreate(t, r)
 	defer testUserDetele(t, r, uCreated.ID)
 
 	pCreated := testProjectCreate(t, r)
 	defer testProjectDetele(t, r, pCreated.ID)
 
-	/* Add and delete */
+	// Add and delete
 	mCreated := testMembershipAdd(t, r, pCreated.ID, uCreated.ID)
 	defer testMembershipDetele(t, r, mCreated.ID)
 
-	/* Get multi */
+	// Get multi
 	testMembershipMultiGet(t, r, mCreated.ID, pCreated.ID)
 
-	/* Update */
+	// Update
 	testMembershipUpdate(t, r, mCreated.ID)
 
-	/* Get single (check role `testMembershipRoleID2` exists in specified membership) */
+	// Get single (check role `testMembershipRoleID2` exists in specified membership)
 	testMembershipSingleGet(t, r, mCreated.ID)
 }
 

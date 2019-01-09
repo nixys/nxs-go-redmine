@@ -17,18 +17,18 @@ func TestUserCRUD(t *testing.T) {
 
 	var r Redmine
 
-	/* Init Redmine context */
+	// Init Redmine context
 	initTest(&r, t)
 
-	/* Create and delete */
+	// Create and delete
 	uCreated := testUserCreate(t, r)
 	defer testUserDetele(t, r, uCreated.ID)
 
-	/* Get */
+	// Get
 	testUserMultiGet(t, r)
 	testUserSingleGet(t, r, uCreated.ID)
 
-	/* Update */
+	// Update
 	testUserUpdate(t, r, uCreated.ID)
 }
 

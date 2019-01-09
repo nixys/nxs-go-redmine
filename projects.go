@@ -5,12 +5,14 @@ import (
 	"strings"
 )
 
+// ProjectStatus const
 const (
 	ProjectStatusActive   = 1
 	ProjectStatusClosed   = 5
 	ProjectStatusArchived = 9
 )
 
+// ProjectStatus map
 var ProjectStatus = map[int]string{
 	ProjectStatusActive:   "active",
 	ProjectStatusClosed:   "closed",
@@ -19,12 +21,13 @@ var ProjectStatus = map[int]string{
 
 /* Get */
 
+// ProjectObject struct used for projects get operations
 type ProjectObject struct {
 	ID              int                        `json:"id"`
 	Name            string                     `json:"name"`
 	Identifier      string                     `json:"identifier"`
 	Description     string                     `json:"description"`
-	Homepage        string                     `json:"homepage"` /* used only: get single project */
+	Homepage        string                     `json:"homepage"` // used only: get single project
 	Parent          IDName                     `json:"parent"`
 	Status          int                        `json:"status"`
 	CustomFields    []ProjectCustomFieldObject `json:"custom_fields"`
@@ -35,14 +38,16 @@ type ProjectObject struct {
 	UpdatedOn       string                     `json:"updated_on"`
 }
 
+// ProjectCustomFieldObject struct used for projects get operations
 type ProjectCustomFieldObject struct {
 	ID    int    `json:"id"`
 	Name  string `json:"name"`
-	Value string `json:"value"` /* used only: get multi projects */
+	Value string `json:"value"` // used only: get multi projects
 }
 
 /* Create */
 
+// ProjectCreateObject struct used for projects create operations
 type ProjectCreateObject struct {
 	Name                string   `json:"name"`
 	Identifier          string   `json:"identifier"`
@@ -58,6 +63,7 @@ type ProjectCreateObject struct {
 
 /* Update */
 
+// ProjectUpdateObject struct used for projects update operations
 type ProjectUpdateObject struct {
 	Name                string   `json:"name,omitempty"`
 	Description         string   `json:"description,omitempty"`
@@ -91,14 +97,14 @@ type projectUpdate struct {
 	Project ProjectUpdateObject `json:"project"`
 }
 
-/*
-see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Listing-projects
-
-Available includes:
-* trackers
-* issue_categories
-* enabled_modules
-*/
+// ProjectMultiGet gets multiple projects info
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Listing-projects
+//
+// Available includes:
+// * trackers
+// * issue_categories
+// * enabled_modules
 func (r *Redmine) ProjectMultiGet(includes []string) ([]ProjectObject, int, error) {
 
 	var p projectMultiResult
@@ -139,15 +145,15 @@ func (r *Redmine) ProjectMultiGet(includes []string) ([]ProjectObject, int, erro
 	return p.Projects, status, nil
 }
 
-/*
-see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Showing-a-project
-
-Available includes:
-* trackers
-* issue_categories
-* enabled_modules
-* time_entry_activities (since 3.4.0)
-*/
+// ProjectSingleGet gets single project info with specified ID
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Showing-a-project
+//
+// Available includes:
+// * trackers
+// * issue_categories
+// * enabled_modules
+// * time_entry_activities (since 3.4.0)
 func (r *Redmine) ProjectSingleGet(id int, includes []string) (ProjectObject, int, error) {
 
 	var p projectSingleResult
@@ -164,7 +170,9 @@ func (r *Redmine) ProjectSingleGet(id int, includes []string) (ProjectObject, in
 	return p.Project, status, err
 }
 
-/* see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Creating-a-project */
+// ProjectCreate creates new project
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Creating-a-project
 func (r *Redmine) ProjectCreate(project ProjectCreateObject) (ProjectObject, int, error) {
 
 	var p projectSingleResult
@@ -176,7 +184,9 @@ func (r *Redmine) ProjectCreate(project ProjectCreateObject) (ProjectObject, int
 	return p.Project, status, err
 }
 
-/* see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Updating-a-project */
+// ProjectUpdate updates project with specified ID
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Updating-a-project
 func (r *Redmine) ProjectUpdate(id int, project ProjectUpdateObject) (int, error) {
 
 	uri := "/projects/" + strconv.Itoa(id) + ".json"
@@ -186,7 +196,9 @@ func (r *Redmine) ProjectUpdate(id int, project ProjectUpdateObject) (int, error
 	return status, err
 }
 
-/* see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Deleting-a-project */
+// ProjectDelete deletes project with specified ID
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Deleting-a-project
 func (r *Redmine) ProjectDelete(id int) (int, error) {
 
 	uri := "/projects/" + strconv.Itoa(id) + ".json"

@@ -13,30 +13,30 @@ func TestGroupsCRUD(t *testing.T) {
 
 	var r Redmine
 
-	/* Init Redmine context */
+	// Init Redmine context
 	initTest(&r, t)
 
-	/* Preparing auxiliary data */
+	// Preparing auxiliary data
 	uCreated := testUserCreate(t, r)
 	defer testUserDetele(t, r, uCreated.ID)
 
-	/* Create and delete */
+	// Create and delete
 	gCreated := testGroupCreate(t, r)
 	defer testGroupDetele(t, r, gCreated.ID)
 
-	/* Get multi */
+	// Get multi
 	testGroupMultiGet(t, r)
 
-	/* Update */
+	// Update
 	testGroupUpdate(t, r, gCreated.ID, uCreated.ID)
 
-	/* Get single (check user is member of specified group) */
+	// Get single (check user is member of specified group)
 	testGroupSingleGet(t, r, gCreated.ID, uCreated.ID)
 
-	/* Delete user */
+	// Delete user
 	testGroupDeteleUser(t, r, gCreated.ID, uCreated.ID)
 
-	/* Add user */
+	// Add user
 	testGroupAddUser(t, r, gCreated.ID, uCreated.ID)
 }
 
@@ -121,7 +121,7 @@ func testGroupSingleGet(t *testing.T, r Redmine, id, userID int) {
 		t.Fatal("Group get error:", err)
 	}
 
-	/* Check user is a member of specified group (error if not) */
+	// Check user is a member of specified group (error if not)
 
 	for _, e := range g.Users {
 		if e.ID == userID {

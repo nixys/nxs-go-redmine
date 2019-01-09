@@ -14,18 +14,18 @@ func TestProjectsCRUD(t *testing.T) {
 
 	var r Redmine
 
-	/* Init Redmine context */
+	// Init Redmine context
 	initTest(&r, t)
 
-	/* Create and delete */
+	// Create and delete
 	pCreated := testProjectCreate(t, r)
 	defer testProjectDetele(t, r, pCreated.ID)
 
-	/* Get */
+	// Get
 	testProjectMultiGet(t, r)
 	testProjectSingleGet(t, r, pCreated.ID)
 
-	/* Update */
+	// Update
 	testProjectUpdate(t, r, pCreated.ID)
 }
 

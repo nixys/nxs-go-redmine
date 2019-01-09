@@ -30,7 +30,7 @@ func main() {
 
 	var r redmine.Redmine
 
-	/* Get variables from environment for connect to Redmine server */
+	// Get variables from environment for connect to Redmine server 
 	rdmnHost := os.Getenv("REDMINE_HOST")
 	rdmnApiKey := os.Getenv("REDMINE_API_KEY")
 	if rdmnHost == "" || rdmnApiKey == "" {
@@ -38,14 +38,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	/* Init Redmine ctx */
+	// Init Redmine ctx 
 	r.SetEndpoint(rdmnHost)
 	r.SetApiKey(rdmnApiKey)
 	r.SetLimit(100)
 
 	fmt.Println("Init: success")
 
-	/* Get all projects */
+	// Get all projects 
 	p, _, err := r.ProjectMultiGet([]string{"trackers", "issue_categories", "enabled_modules"})
 	if err != nil {
 		fmt.Println("Projects get error:", err)

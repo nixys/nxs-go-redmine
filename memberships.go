@@ -6,6 +6,7 @@ import (
 
 /* Get */
 
+// MembershipObject struct used for project memberships get operations
 type MembershipObject struct {
 	ID      int                    `json:"id"`
 	Project IDName                 `json:"project"`
@@ -14,6 +15,7 @@ type MembershipObject struct {
 	Roles   []MembershipRoleObject `json:"roles"`
 }
 
+// MembershipRoleObject struct used for project memberships get operations
 type MembershipRoleObject struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`
@@ -22,6 +24,7 @@ type MembershipRoleObject struct {
 
 /* Add */
 
+// MembershipAddObject struct used for project memberships add operations
 type MembershipAddObject struct {
 	UserID  int   `json:"user_id"`
 	RoleIDs []int `json:"role_ids"`
@@ -29,6 +32,7 @@ type MembershipAddObject struct {
 
 /* Update */
 
+// MembershipUpdateObject struct used for project memberships update operations
 type MembershipUpdateObject struct {
 	RoleIDs []int `json:"role_ids"`
 }
@@ -54,7 +58,9 @@ type membershipUpdate struct {
 	Membership MembershipUpdateObject `json:"membership"`
 }
 
-/* see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#GET */
+// MembershipMultiGet gets multiple memberships info for project with specified ID
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#GET
 func (r *Redmine) MembershipMultiGet(projectID int) ([]MembershipObject, int, error) {
 
 	var m membershipMultiResult
@@ -90,7 +96,9 @@ func (r *Redmine) MembershipMultiGet(projectID int) ([]MembershipObject, int, er
 	return m.Memberships, status, nil
 }
 
-/* see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#GET-2 */
+// MembershipSingleGet gets single project membership info with specified ID
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#GET-2
 func (r *Redmine) MembershipSingleGet(membershipID int) (MembershipObject, int, error) {
 
 	var m membershipSingleResult
@@ -102,7 +110,9 @@ func (r *Redmine) MembershipSingleGet(membershipID int) (MembershipObject, int, 
 	return m.Membership, status, err
 }
 
-/* see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#POST */
+// MembershipAdd adds new member to project with specified ID
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#POST
 func (r *Redmine) MembershipAdd(projectID int, membership MembershipAddObject) (MembershipObject, int, error) {
 
 	var m membershipSingleResult
@@ -114,7 +124,9 @@ func (r *Redmine) MembershipAdd(projectID int, membership MembershipAddObject) (
 	return m.Membership, status, err
 }
 
-/* see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#PUT */
+// MembershipUpdate updates project membership with specified ID
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#PUT
 func (r *Redmine) MembershipUpdate(membershipID int, membership MembershipUpdateObject) (int, error) {
 
 	uri := "/memberships/" + strconv.Itoa(membershipID) + ".json"
@@ -124,7 +136,9 @@ func (r *Redmine) MembershipUpdate(membershipID int, membership MembershipUpdate
 	return status, err
 }
 
-/* see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#DELETE */
+// MembershipDelete deletes project membership with specified ID
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#DELETE
 func (r *Redmine) MembershipDelete(membershipID int) (int, error) {
 
 	uri := "/memberships/" + strconv.Itoa(membershipID) + ".json"
