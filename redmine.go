@@ -7,33 +7,34 @@ import (
 	"strings"
 )
 
+// Redmine struct used for store settings to communicate with Redmine API
 type Redmine struct {
 	endpoint string
 	apiKey   string
 	limit    int
 }
 
-type errorsResult struct {
-	Errors []string `json:"errors"`
-}
-
-type ID struct {
-	ID int `json:"id"`
-}
-
+// IDName used as embedded struct for other structs within package
 type IDName struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
-func (r *Redmine) SetApiKey(apiKey string) {
+type errorsResult struct {
+	Errors []string `json:"errors"`
+}
+
+// SetAPIKey is used to set Redmine API key in ctx
+func (r *Redmine) SetAPIKey(apiKey string) {
 	r.apiKey = apiKey
 }
 
+// SetEndpoint is used to set Redmine endpoint in ctx
 func (r *Redmine) SetEndpoint(endpoint string) {
 	r.endpoint = endpoint
 }
 
+// SetLimit is used to set elements limit on page
 func (r *Redmine) SetLimit(limit int) {
 	r.limit = limit
 }
@@ -44,16 +45,16 @@ func (r *Redmine) get(out interface{}, uri string, statusExpected int) (int, err
 
 	url := r.endpoint + uri
 
-	/* Create request */
+	// Create request
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return 0, err
 	}
 
-	/* Set headers */
+	// Set headers
 	req.Header.Add("X-Redmine-API-Key", r.apiKey)
 
-	/* Make request */
+	// Make request
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return 0, err
@@ -111,11 +112,11 @@ func (r *Redmine) alter(method string, in interface{}, out interface{}, uri stri
 		return 0, err
 	}
 
-	/* Set headers */
+	// Set headers
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("X-Redmine-API-Key", r.apiKey)
 
-	/* Make request */
+	// Make request
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return 0, err
