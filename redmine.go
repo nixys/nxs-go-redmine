@@ -24,12 +24,12 @@ type errorsResult struct {
 	Errors []string `json:"errors"`
 }
 
-// SetAPIKey is used to set Redmine API key in ctx
+// SetAPIKey is used to set Redmine API key
 func (r *Redmine) SetAPIKey(apiKey string) {
 	r.apiKey = apiKey
 }
 
-// SetEndpoint is used to set Redmine endpoint in ctx
+// SetEndpoint is used to set Redmine endpoint
 func (r *Redmine) SetEndpoint(endpoint string) {
 	r.endpoint = endpoint
 }
