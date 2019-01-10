@@ -32,15 +32,15 @@ func main() {
 
 	// Get variables from environment for connect to Redmine server 
 	rdmnHost := os.Getenv("REDMINE_HOST")
-	rdmnApiKey := os.Getenv("REDMINE_API_KEY")
-	if rdmnHost == "" || rdmnApiKey == "" {
+	rdmnAPIKey := os.Getenv("REDMINE_API_KEY")
+	if rdmnHost == "" || rdmnAPIKey == "" {
 		fmt.Println("Init error: make sure environment variables `REDMINE_HOST` and `REDMINE_API_KEY` are defined")
 		os.Exit(1)
 	}
 
 	// Init Redmine ctx 
 	r.SetEndpoint(rdmnHost)
-	r.SetApiKey(rdmnApiKey)
+	r.SetAPIKey(rdmnAPIKey)
 	r.SetLimit(100)
 
 	fmt.Println("Init: success")
