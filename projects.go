@@ -105,7 +105,7 @@ type projectUpdate struct {
 // * trackers
 // * issue_categories
 // * enabled_modules
-func (r *Redmine) ProjectMultiGet(includes []string) ([]ProjectObject, int, error) {
+func (r *Context) ProjectMultiGet(includes []string) ([]ProjectObject, int, error) {
 
 	var p projectMultiResult
 	var i string
@@ -154,7 +154,7 @@ func (r *Redmine) ProjectMultiGet(includes []string) ([]ProjectObject, int, erro
 // * issue_categories
 // * enabled_modules
 // * time_entry_activities (since 3.4.0)
-func (r *Redmine) ProjectSingleGet(id int, includes []string) (ProjectObject, int, error) {
+func (r *Context) ProjectSingleGet(id int, includes []string) (ProjectObject, int, error) {
 
 	var p projectSingleResult
 	var i string
@@ -173,7 +173,7 @@ func (r *Redmine) ProjectSingleGet(id int, includes []string) (ProjectObject, in
 // ProjectCreate creates new project
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Creating-a-project
-func (r *Redmine) ProjectCreate(project ProjectCreateObject) (ProjectObject, int, error) {
+func (r *Context) ProjectCreate(project ProjectCreateObject) (ProjectObject, int, error) {
 
 	var p projectSingleResult
 
@@ -187,7 +187,7 @@ func (r *Redmine) ProjectCreate(project ProjectCreateObject) (ProjectObject, int
 // ProjectUpdate updates project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Updating-a-project
-func (r *Redmine) ProjectUpdate(id int, project ProjectUpdateObject) (int, error) {
+func (r *Context) ProjectUpdate(id int, project ProjectUpdateObject) (int, error) {
 
 	uri := "/projects/" + strconv.Itoa(id) + ".json"
 
@@ -199,7 +199,7 @@ func (r *Redmine) ProjectUpdate(id int, project ProjectUpdateObject) (int, error
 // ProjectDelete deletes project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Deleting-a-project
-func (r *Redmine) ProjectDelete(id int) (int, error) {
+func (r *Context) ProjectDelete(id int) (int, error) {
 
 	uri := "/projects/" + strconv.Itoa(id) + ".json"
 

@@ -61,7 +61,7 @@ type membershipUpdate struct {
 // MembershipMultiGet gets multiple memberships info for project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#GET
-func (r *Redmine) MembershipMultiGet(projectID int) ([]MembershipObject, int, error) {
+func (r *Context) MembershipMultiGet(projectID int) ([]MembershipObject, int, error) {
 
 	var m membershipMultiResult
 	var status int
@@ -99,7 +99,7 @@ func (r *Redmine) MembershipMultiGet(projectID int) ([]MembershipObject, int, er
 // MembershipSingleGet gets single project membership info with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#GET-2
-func (r *Redmine) MembershipSingleGet(membershipID int) (MembershipObject, int, error) {
+func (r *Context) MembershipSingleGet(membershipID int) (MembershipObject, int, error) {
 
 	var m membershipSingleResult
 
@@ -113,7 +113,7 @@ func (r *Redmine) MembershipSingleGet(membershipID int) (MembershipObject, int, 
 // MembershipAdd adds new member to project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#POST
-func (r *Redmine) MembershipAdd(projectID int, membership MembershipAddObject) (MembershipObject, int, error) {
+func (r *Context) MembershipAdd(projectID int, membership MembershipAddObject) (MembershipObject, int, error) {
 
 	var m membershipSingleResult
 
@@ -127,7 +127,7 @@ func (r *Redmine) MembershipAdd(projectID int, membership MembershipAddObject) (
 // MembershipUpdate updates project membership with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#PUT
-func (r *Redmine) MembershipUpdate(membershipID int, membership MembershipUpdateObject) (int, error) {
+func (r *Context) MembershipUpdate(membershipID int, membership MembershipUpdateObject) (int, error) {
 
 	uri := "/memberships/" + strconv.Itoa(membershipID) + ".json"
 
@@ -139,7 +139,7 @@ func (r *Redmine) MembershipUpdate(membershipID int, membership MembershipUpdate
 // MembershipDelete deletes project membership with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#DELETE
-func (r *Redmine) MembershipDelete(membershipID int) (int, error) {
+func (r *Context) MembershipDelete(membershipID int) (int, error) {
 
 	uri := "/memberships/" + strconv.Itoa(membershipID) + ".json"
 

@@ -15,7 +15,7 @@ const (
 
 func TestUserCRUD(t *testing.T) {
 
-	var r Redmine
+	var r Context
 
 	// Init Redmine context
 	initTest(&r, t)
@@ -32,7 +32,7 @@ func TestUserCRUD(t *testing.T) {
 	testUserUpdate(t, r, uCreated.ID)
 }
 
-func testUserCreate(t *testing.T, r Redmine) UserObject {
+func testUserCreate(t *testing.T, r Context) UserObject {
 
 	u, _, err := r.UserCreate(UserCreateObject{
 		Login:            testUserLogin,
@@ -52,7 +52,7 @@ func testUserCreate(t *testing.T, r Redmine) UserObject {
 	return u
 }
 
-func testUserUpdate(t *testing.T, r Redmine, id int) {
+func testUserUpdate(t *testing.T, r Context, id int) {
 
 	_, err := r.UserUpdate(id, UserUpdateObject{
 		FirstName:        testUserFirstName2,
@@ -66,7 +66,7 @@ func testUserUpdate(t *testing.T, r Redmine, id int) {
 	t.Logf("User update: success")
 }
 
-func testUserDetele(t *testing.T, r Redmine, id int) {
+func testUserDetele(t *testing.T, r Context, id int) {
 
 	_, err := r.UserDelete(id)
 	if err != nil {
@@ -76,7 +76,7 @@ func testUserDetele(t *testing.T, r Redmine, id int) {
 	t.Logf("User delete: success")
 }
 
-func testUserMultiGet(t *testing.T, r Redmine) {
+func testUserMultiGet(t *testing.T, r Context) {
 
 	u, _, err := r.UserMultiGet(UserStatusActive, "", 0)
 	if err != nil {
@@ -93,7 +93,7 @@ func testUserMultiGet(t *testing.T, r Redmine) {
 	t.Fatal("Users get error: can't find created user")
 }
 
-func testUserSingleGet(t *testing.T, r Redmine, id int) {
+func testUserSingleGet(t *testing.T, r Context, id int) {
 
 	_, _, err := r.UserSingleGet(id, []string{"groups", "memberships"})
 	if err != nil {

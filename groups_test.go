@@ -11,7 +11,7 @@ const (
 
 func TestGroupsCRUD(t *testing.T) {
 
-	var r Redmine
+	var r Context
 
 	// Init Redmine context
 	initTest(&r, t)
@@ -40,7 +40,7 @@ func TestGroupsCRUD(t *testing.T) {
 	testGroupAddUser(t, r, gCreated.ID, uCreated.ID)
 }
 
-func testGroupCreate(t *testing.T, r Redmine) GroupObject {
+func testGroupCreate(t *testing.T, r Context) GroupObject {
 
 	g, _, err := r.GroupCreate(GroupCreateObject{
 		Name: testGroupName,
@@ -54,7 +54,7 @@ func testGroupCreate(t *testing.T, r Redmine) GroupObject {
 	return g
 }
 
-func testGroupUpdate(t *testing.T, r Redmine, id, userID int) {
+func testGroupUpdate(t *testing.T, r Context, id, userID int) {
 
 	_, err := r.GroupUpdate(id, GroupUpdateObject{
 		Name:    testGroupName2,
@@ -67,7 +67,7 @@ func testGroupUpdate(t *testing.T, r Redmine, id, userID int) {
 	t.Logf("Group update: success")
 }
 
-func testGroupAddUser(t *testing.T, r Redmine, id, userID int) {
+func testGroupAddUser(t *testing.T, r Context, id, userID int) {
 
 	_, err := r.GroupAddUser(id, GroupAddUserObject{UserID: userID})
 	if err != nil {
@@ -77,7 +77,7 @@ func testGroupAddUser(t *testing.T, r Redmine, id, userID int) {
 	t.Logf("Group add user: success")
 }
 
-func testGroupDeteleUser(t *testing.T, r Redmine, id, userID int) {
+func testGroupDeteleUser(t *testing.T, r Context, id, userID int) {
 
 	_, err := r.GroupDeleteUser(id, userID)
 	if err != nil {
@@ -87,7 +87,7 @@ func testGroupDeteleUser(t *testing.T, r Redmine, id, userID int) {
 	t.Logf("Group delete user: success")
 }
 
-func testGroupDetele(t *testing.T, r Redmine, id int) {
+func testGroupDetele(t *testing.T, r Context, id int) {
 
 	_, err := r.GroupDelete(id)
 	if err != nil {
@@ -97,7 +97,7 @@ func testGroupDetele(t *testing.T, r Redmine, id int) {
 	t.Logf("Group delete: success")
 }
 
-func testGroupMultiGet(t *testing.T, r Redmine) {
+func testGroupMultiGet(t *testing.T, r Context) {
 
 	g, _, err := r.GroupMultiGet()
 	if err != nil {
@@ -114,7 +114,7 @@ func testGroupMultiGet(t *testing.T, r Redmine) {
 	t.Fatal("Groups get error: can't find created group")
 }
 
-func testGroupSingleGet(t *testing.T, r Redmine, id, userID int) {
+func testGroupSingleGet(t *testing.T, r Context, id, userID int) {
 
 	g, _, err := r.GroupSingleGet(id, []string{"users", "memberships"})
 	if err != nil {

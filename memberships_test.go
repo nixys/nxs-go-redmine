@@ -13,7 +13,7 @@ var (
 
 func TestMembershipCRUD(t *testing.T) {
 
-	var r Redmine
+	var r Context
 
 	// Get env variables
 	testMembershipRoleID1, _ = strconv.Atoi(os.Getenv("REDMINE_ROLE_ID_1"))
@@ -47,7 +47,7 @@ func TestMembershipCRUD(t *testing.T) {
 	testMembershipSingleGet(t, r, mCreated.ID)
 }
 
-func testMembershipAdd(t *testing.T, r Redmine, projectID, userID int) MembershipObject {
+func testMembershipAdd(t *testing.T, r Context, projectID, userID int) MembershipObject {
 
 	m, _, err := r.MembershipAdd(projectID, MembershipAddObject{
 		UserID:  userID,
@@ -62,7 +62,7 @@ func testMembershipAdd(t *testing.T, r Redmine, projectID, userID int) Membershi
 	return m
 }
 
-func testMembershipUpdate(t *testing.T, r Redmine, id int) {
+func testMembershipUpdate(t *testing.T, r Context, id int) {
 
 	_, err := r.MembershipUpdate(id, MembershipUpdateObject{
 		RoleIDs: []int{testMembershipRoleID1, testMembershipRoleID2},
@@ -74,7 +74,7 @@ func testMembershipUpdate(t *testing.T, r Redmine, id int) {
 	t.Logf("Membership update: success")
 }
 
-func testMembershipDetele(t *testing.T, r Redmine, id int) {
+func testMembershipDetele(t *testing.T, r Context, id int) {
 
 	_, err := r.MembershipDelete(id)
 	if err != nil {
@@ -84,7 +84,7 @@ func testMembershipDetele(t *testing.T, r Redmine, id int) {
 	t.Logf("Membership delete: success")
 }
 
-func testMembershipMultiGet(t *testing.T, r Redmine, id, projectID int) {
+func testMembershipMultiGet(t *testing.T, r Context, id, projectID int) {
 
 	m, _, err := r.MembershipMultiGet(projectID)
 	if err != nil {
@@ -107,7 +107,7 @@ func testMembershipMultiGet(t *testing.T, r Redmine, id, projectID int) {
 	t.Fatal("Memberships get error: can't find added membership")
 }
 
-func testMembershipSingleGet(t *testing.T, r Redmine, id int) {
+func testMembershipSingleGet(t *testing.T, r Context, id int) {
 
 	m, _, err := r.MembershipSingleGet(id)
 	if err != nil {

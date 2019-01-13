@@ -28,7 +28,7 @@ import (
 
 func main() {
 
-	var r redmine.Redmine
+	var r redmine.Context
 
 	// Get variables from environment for connect to Redmine server 
 	rdmnHost := os.Getenv("REDMINE_HOST")

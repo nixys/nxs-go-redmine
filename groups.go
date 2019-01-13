@@ -69,7 +69,7 @@ type groupUpdate struct {
 // GroupMultiGet gets multiple groups info
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#GET
-func (r *Redmine) GroupMultiGet() ([]GroupObject, int, error) {
+func (r *Context) GroupMultiGet() ([]GroupObject, int, error) {
 
 	var g groupMultiResult
 	var status int
@@ -112,7 +112,7 @@ func (r *Redmine) GroupMultiGet() ([]GroupObject, int, error) {
 // Available includes:
 // * users
 // * memberships
-func (r *Redmine) GroupSingleGet(id int, includes []string) (GroupObject, int, error) {
+func (r *Context) GroupSingleGet(id int, includes []string) (GroupObject, int, error) {
 
 	var g groupSingleResult
 	var i string
@@ -131,7 +131,7 @@ func (r *Redmine) GroupSingleGet(id int, includes []string) (GroupObject, int, e
 // GroupCreate creates new group
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#POST
-func (r *Redmine) GroupCreate(group GroupCreateObject) (GroupObject, int, error) {
+func (r *Context) GroupCreate(group GroupCreateObject) (GroupObject, int, error) {
 
 	var g groupSingleResult
 
@@ -145,7 +145,7 @@ func (r *Redmine) GroupCreate(group GroupCreateObject) (GroupObject, int, error)
 // GroupUpdate updates group with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#PUT
-func (r *Redmine) GroupUpdate(id int, group GroupUpdateObject) (int, error) {
+func (r *Context) GroupUpdate(id int, group GroupUpdateObject) (int, error) {
 
 	uri := "/groups/" + strconv.Itoa(id) + ".json"
 
@@ -157,7 +157,7 @@ func (r *Redmine) GroupUpdate(id int, group GroupUpdateObject) (int, error) {
 // GroupDelete deletes group with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#DELETE
-func (r *Redmine) GroupDelete(id int) (int, error) {
+func (r *Context) GroupDelete(id int) (int, error) {
 
 	uri := "/groups/" + strconv.Itoa(id) + ".json"
 
@@ -169,7 +169,7 @@ func (r *Redmine) GroupDelete(id int) (int, error) {
 // GroupAddUser adds new user into group with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#POST-2
-func (r *Redmine) GroupAddUser(id int, group GroupAddUserObject) (int, error) {
+func (r *Context) GroupAddUser(id int, group GroupAddUserObject) (int, error) {
 
 	uri := "/groups/" + strconv.Itoa(id) + "/users.json"
 
@@ -181,7 +181,7 @@ func (r *Redmine) GroupAddUser(id int, group GroupAddUserObject) (int, error) {
 // GroupDeleteUser deletes user from group with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#DELETE-2
-func (r *Redmine) GroupDeleteUser(id int, userID int) (int, error) {
+func (r *Context) GroupDeleteUser(id int, userID int) (int, error) {
 
 	uri := "/groups/" + strconv.Itoa(id) + "/users/" + strconv.Itoa(userID) + ".json"
 

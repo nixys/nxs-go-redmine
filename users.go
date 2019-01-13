@@ -130,7 +130,7 @@ type userUpdate struct {
 //
 // * If `statusFilter` == 0 default users status filter will be used (show active users only)
 // * Use `groupIDFilter` == 0 to disable this filter
-func (r *Redmine) UserMultiGet(statusFilter int, nameFilter string, groupIDFilter int) ([]UserObject, int, error) {
+func (r *Context) UserMultiGet(statusFilter int, nameFilter string, groupIDFilter int) ([]UserObject, int, error) {
 
 	var u userMultiResult
 	var status int
@@ -187,7 +187,7 @@ func (r *Redmine) UserMultiGet(statusFilter int, nameFilter string, groupIDFilte
 // Available includes:
 // * groups
 // * memberships
-func (r *Redmine) UserSingleGet(id int, includes []string) (UserObject, int, error) {
+func (r *Context) UserSingleGet(id int, includes []string) (UserObject, int, error) {
 
 	var u userSingleResult
 	var i string
@@ -206,7 +206,7 @@ func (r *Redmine) UserSingleGet(id int, includes []string) (UserObject, int, err
 // UserCreate creates new user
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#POST
-func (r *Redmine) UserCreate(user UserCreateObject) (UserObject, int, error) {
+func (r *Context) UserCreate(user UserCreateObject) (UserObject, int, error) {
 
 	var u userSingleResult
 
@@ -220,7 +220,7 @@ func (r *Redmine) UserCreate(user UserCreateObject) (UserObject, int, error) {
 // UserUpdate updates user with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#PUT
-func (r *Redmine) UserUpdate(id int, user UserUpdateObject) (int, error) {
+func (r *Context) UserUpdate(id int, user UserUpdateObject) (int, error) {
 
 	uri := "/users/" + strconv.Itoa(id) + ".json"
 
@@ -232,7 +232,7 @@ func (r *Redmine) UserUpdate(id int, user UserUpdateObject) (int, error) {
 // UserDelete deletes user with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#DELETE
-func (r *Redmine) UserDelete(id int) (int, error) {
+func (r *Context) UserDelete(id int) (int, error) {
 
 	uri := "/users/" + strconv.Itoa(id) + ".json"
 

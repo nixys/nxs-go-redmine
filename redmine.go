@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-// Redmine struct used for store settings to communicate with Redmine API
-type Redmine struct {
+// Context struct used for store settings to communicate with Redmine API
+type Context struct {
 	endpoint string
 	apiKey   string
 	limit    int
@@ -25,21 +25,21 @@ type errorsResult struct {
 }
 
 // SetAPIKey is used to set Redmine API key
-func (r *Redmine) SetAPIKey(apiKey string) {
+func (r *Context) SetAPIKey(apiKey string) {
 	r.apiKey = apiKey
 }
 
 // SetEndpoint is used to set Redmine endpoint
-func (r *Redmine) SetEndpoint(endpoint string) {
+func (r *Context) SetEndpoint(endpoint string) {
 	r.endpoint = endpoint
 }
 
 // SetLimit is used to set elements limit on page
-func (r *Redmine) SetLimit(limit int) {
+func (r *Context) SetLimit(limit int) {
 	r.limit = limit
 }
 
-func (r *Redmine) get(out interface{}, uri string, statusExpected int) (int, error) {
+func (r *Context) get(out interface{}, uri string, statusExpected int) (int, error) {
 
 	var er errorsResult
 
@@ -82,22 +82,22 @@ func (r *Redmine) get(out interface{}, uri string, statusExpected int) (int, err
 	return res.StatusCode, nil
 }
 
-func (r *Redmine) post(in interface{}, out interface{}, uri string, statusExpected int) (int, error) {
+func (r *Context) post(in interface{}, out interface{}, uri string, statusExpected int) (int, error) {
 
 	return r.alter("POST", in, out, uri, statusExpected)
 }
 
-func (r *Redmine) put(in interface{}, out interface{}, uri string, statusExpected int) (int, error) {
+func (r *Context) put(in interface{}, out interface{}, uri string, statusExpected int) (int, error) {
 
 	return r.alter("PUT", in, out, uri, statusExpected)
 }
 
-func (r *Redmine) del(in interface{}, out interface{}, uri string, statusExpected int) (int, error) {
+func (r *Context) del(in interface{}, out interface{}, uri string, statusExpected int) (int, error) {
 
 	return r.alter("DELETE", in, out, uri, statusExpected)
 }
 
-func (r *Redmine) alter(method string, in interface{}, out interface{}, uri string, statusExpected int) (int, error) {
+func (r *Context) alter(method string, in interface{}, out interface{}, uri string, statusExpected int) (int, error) {
 
 	var er errorsResult
 

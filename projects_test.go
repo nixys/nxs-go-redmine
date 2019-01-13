@@ -12,7 +12,7 @@ const (
 
 func TestProjectsCRUD(t *testing.T) {
 
-	var r Redmine
+	var r Context
 
 	// Init Redmine context
 	initTest(&r, t)
@@ -29,7 +29,7 @@ func TestProjectsCRUD(t *testing.T) {
 	testProjectUpdate(t, r, pCreated.ID)
 }
 
-func testProjectCreate(t *testing.T, r Redmine) ProjectObject {
+func testProjectCreate(t *testing.T, r Context) ProjectObject {
 
 	p, _, err := r.ProjectCreate(ProjectCreateObject{
 		Name:           testProjectName,
@@ -46,7 +46,7 @@ func testProjectCreate(t *testing.T, r Redmine) ProjectObject {
 	return p
 }
 
-func testProjectUpdate(t *testing.T, r Redmine, id int) {
+func testProjectUpdate(t *testing.T, r Context, id int) {
 
 	_, err := r.ProjectUpdate(id, ProjectUpdateObject{
 		Name: testProjectName2,
@@ -58,7 +58,7 @@ func testProjectUpdate(t *testing.T, r Redmine, id int) {
 	t.Logf("Project update: success")
 }
 
-func testProjectDetele(t *testing.T, r Redmine, id int) {
+func testProjectDetele(t *testing.T, r Context, id int) {
 
 	_, err := r.ProjectDelete(id)
 	if err != nil {
@@ -68,7 +68,7 @@ func testProjectDetele(t *testing.T, r Redmine, id int) {
 	t.Logf("Project delete: success")
 }
 
-func testProjectMultiGet(t *testing.T, r Redmine) {
+func testProjectMultiGet(t *testing.T, r Context) {
 
 	p, _, err := r.ProjectMultiGet([]string{"trackers", "issue_categories", "enabled_modules"})
 	if err != nil {
@@ -85,7 +85,7 @@ func testProjectMultiGet(t *testing.T, r Redmine) {
 	t.Fatal("Projects get error: can't find created project")
 }
 
-func testProjectSingleGet(t *testing.T, r Redmine, id int) {
+func testProjectSingleGet(t *testing.T, r Context, id int) {
 
 	_, _, err := r.ProjectSingleGet(id, []string{"trackers", "issue_categories", "enabled_modules"})
 	if err != nil {

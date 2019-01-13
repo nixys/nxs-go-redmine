@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func initTest(r *Redmine, t *testing.T) {
+func initTest(r *Context, t *testing.T) {
 
 	rdmnHost := os.Getenv("REDMINE_HOST")
 	if rdmnHost == "" {
