@@ -1,6 +1,8 @@
 package redmine
 
 import (
+	"os"
+	"strconv"
 	"testing"
 )
 
@@ -14,11 +16,17 @@ func TestProjectsCRUD(t *testing.T) {
 
 	var r Context
 
+	// Get env variables
+	testProjectTrackerID, _ := strconv.Atoi(os.Getenv("REDMINE_TRACKER_ID"))
+	if testProjectTrackerID == 0 {
+		t.Fatal("Project test error: env variables `REDMINE_TRACKER_ID` does not set")
+	}
+
 	// Init Redmine context
 	initTest(&r, t)
 
 	// Create and delete
-	pCreated := testProjectCreate(t, r)
+	pCreated := testProjectCreate(t, r, []int{testProjectTrackerID})
 	defer testProjectDetele(t, r, pCreated.ID)
 
 	// Get
@@ -29,13 +37,14 @@ func TestProjectsCRUD(t *testing.T) {
 	testProjectUpdate(t, r, pCreated.ID)
 }
 
-func testProjectCreate(t *testing.T, r Context) ProjectObject {
+func testProjectCreate(t *testing.T, r Context, trackerIDs []int) ProjectObject {
 
 	p, _, err := r.ProjectCreate(ProjectCreateObject{
 		Name:           testProjectName,
 		Identifier:     testProjectIdentifier,
 		IsPublic:       false,
 		InheritMembers: false,
+		TrackerIDs:     trackerIDs,
 	})
 	if err != nil {
 		t.Fatal("Project create error:", err)

@@ -30,7 +30,7 @@ func TestMembershipCRUD(t *testing.T) {
 	uCreated := testUserCreate(t, r)
 	defer testUserDetele(t, r, uCreated.ID)
 
-	pCreated := testProjectCreate(t, r)
+	pCreated := testProjectCreate(t, r, []int{})
 	defer testProjectDetele(t, r, pCreated.ID)
 
 	// Add and delete
