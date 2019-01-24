@@ -16,7 +16,7 @@ type trackerMultiResult struct {
 
 // TrackerMultiGet gets multiple trackers
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Trackers#Rest-Trackers
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Trackers#GET
 func (r *Context) TrackerMultiGet() ([]TrackerObject, int, error) {
 
 	var t trackerMultiResult

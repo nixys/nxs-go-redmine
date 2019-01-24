@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestTrackerCRUD(t *testing.T) {
+func TestTrackersCRUD(t *testing.T) {
 
 	var r Context
 
