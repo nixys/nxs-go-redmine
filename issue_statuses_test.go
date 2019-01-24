@@ -1,7 +1,6 @@
 package redmine
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -22,8 +21,6 @@ func testIssueStatusMultiGet(t *testing.T, r Context) {
 	if err != nil {
 		t.Fatal("Issue statuses get error:", err)
 	}
-
-	fmt.Println(is)
 
 	if len(is) > 0 {
 		t.Logf("Issue statuses get: success")
