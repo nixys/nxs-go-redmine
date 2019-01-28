@@ -1,9 +1,11 @@
 package redmine
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -170,6 +172,52 @@ func (r *Context) alter(method string, in interface{}, out interface{}, uri stri
 
 			if err := dM.Decode(rawConf); err != nil {
 				return res.StatusCode, fmt.Errorf("mapstructure decode error: %v", err)
+			}
+		}
+	}
+
+	return res.StatusCode, err
+}
+
+func (r *Context) uploadFile(filPath string, out interface{}, uri string, statusExpected int) (int, error) {
+
+	var er errorsResult
+
+	u := r.endpoint + uri
+
+	c, err := ioutil.ReadFile(filPath)
+	if err != nil {
+		return 0, err
+	}
+
+	// Create request
+	req, err := http.NewRequest("POST", u, bytes.NewBuffer(c))
+	if err != nil {
+		return 0, err
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/octet-stream")
+	req.Header.Add("X-Redmine-API-Key", r.apiKey)
+
+	// Make request
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return 0, err
+	}
+	defer res.Body.Close()
+
+	dJ := json.NewDecoder(res.Body)
+
+	if res.StatusCode != statusExpected {
+		if err := dJ.Decode(&er); err != nil {
+			return res.StatusCode, err
+		}
+		err = errors.New(strings.Join(er.Errors, "\n"))
+	} else {
+		if out != nil {
+			if err := dJ.Decode(&out); err != nil {
+				return res.StatusCode, fmt.Errorf("json decode error: %v", err)
 			}
 		}
 	}
