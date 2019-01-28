@@ -6,18 +6,13 @@ import (
 	"testing"
 )
 
-var (
-	testMembershipRoleID1 int
-	testMembershipRoleID2 int
-)
-
 func TestMembershipCRUD(t *testing.T) {
 
 	var r Context
 
 	// Get env variables
-	testMembershipRoleID1, _ = strconv.Atoi(os.Getenv("REDMINE_ROLE_ID_1"))
-	testMembershipRoleID2, _ = strconv.Atoi(os.Getenv("REDMINE_ROLE_ID_2"))
+	testMembershipRoleID1, _ := strconv.Atoi(os.Getenv("REDMINE_ROLE_ID_1"))
+	testMembershipRoleID2, _ := strconv.Atoi(os.Getenv("REDMINE_ROLE_ID_2"))
 
 	if testMembershipRoleID1 == 0 || testMembershipRoleID2 == 0 {
 		t.Fatal("Membership test error: env variables `REDMINE_ROLE_ID_1` or `REDMINE_ROLE_ID_2` does not set")
@@ -34,24 +29,24 @@ func TestMembershipCRUD(t *testing.T) {
 	defer testProjectDetele(t, r, pCreated.ID)
 
 	// Add and delete
-	mCreated := testMembershipAdd(t, r, pCreated.ID, uCreated.ID)
+	mCreated := testMembershipAdd(t, r, pCreated.ID, uCreated.ID, testMembershipRoleID1)
 	defer testMembershipDetele(t, r, mCreated.ID)
 
 	// Get multi
-	testMembershipMultiGet(t, r, mCreated.ID, pCreated.ID)
+	testMembershipMultiGet(t, r, mCreated.ID, pCreated.ID, testMembershipRoleID1)
 
 	// Update
-	testMembershipUpdate(t, r, mCreated.ID)
+	testMembershipUpdate(t, r, mCreated.ID, testMembershipRoleID1, testMembershipRoleID2)
 
 	// Get single (check role `testMembershipRoleID2` exists in specified membership)
-	testMembershipSingleGet(t, r, mCreated.ID)
+	testMembershipSingleGet(t, r, mCreated.ID, testMembershipRoleID2)
 }
 
-func testMembershipAdd(t *testing.T, r Context, projectID, userID int) MembershipObject {
+func testMembershipAdd(t *testing.T, r Context, projectID, userID, roleID int) MembershipObject {
 
 	m, _, err := r.MembershipAdd(projectID, MembershipAddObject{
 		UserID:  userID,
-		RoleIDs: []int{testMembershipRoleID1},
+		RoleIDs: []int{roleID},
 	})
 	if err != nil {
 		t.Fatal("Membership add error:", err)
@@ -62,10 +57,10 @@ func testMembershipAdd(t *testing.T, r Context, projectID, userID int) Membershi
 	return m
 }
 
-func testMembershipUpdate(t *testing.T, r Context, id int) {
+func testMembershipUpdate(t *testing.T, r Context, id, roleID1, roleID2 int) {
 
 	_, err := r.MembershipUpdate(id, MembershipUpdateObject{
-		RoleIDs: []int{testMembershipRoleID1, testMembershipRoleID2},
+		RoleIDs: []int{roleID1, roleID2},
 	})
 	if err != nil {
 		t.Fatal("Membership update error:", err)
@@ -84,7 +79,7 @@ func testMembershipDetele(t *testing.T, r Context, id int) {
 	t.Logf("Membership delete: success")
 }
 
-func testMembershipMultiGet(t *testing.T, r Context, id, projectID int) {
+func testMembershipMultiGet(t *testing.T, r Context, id, projectID, roleID int) {
 
 	m, _, err := r.MembershipMultiGet(projectID)
 	if err != nil {
@@ -94,7 +89,7 @@ func testMembershipMultiGet(t *testing.T, r Context, id, projectID int) {
 	for _, e := range m {
 		if e.ID == id {
 			for _, role := range e.Roles {
-				if role.ID == testMembershipRoleID1 {
+				if role.ID == roleID {
 					t.Logf("Memberships get: success")
 					return
 				}
@@ -107,7 +102,7 @@ func testMembershipMultiGet(t *testing.T, r Context, id, projectID int) {
 	t.Fatal("Memberships get error: can't find added membership")
 }
 
-func testMembershipSingleGet(t *testing.T, r Context, id int) {
+func testMembershipSingleGet(t *testing.T, r Context, id, roleID int) {
 
 	m, _, err := r.MembershipSingleGet(id)
 	if err != nil {
@@ -115,7 +110,7 @@ func testMembershipSingleGet(t *testing.T, r Context, id int) {
 	}
 
 	for _, role := range m.Roles {
-		if role.ID == testMembershipRoleID2 {
+		if role.ID == roleID {
 			t.Logf("Membership get: success")
 			return
 		}
