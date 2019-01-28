@@ -23,57 +23,52 @@ var ProjectStatus = map[int]string{
 
 // ProjectObject struct used for projects get operations
 type ProjectObject struct {
-	ID              int                        `json:"id"`
-	Name            string                     `json:"name"`
-	Identifier      string                     `json:"identifier"`
-	Description     string                     `json:"description"`
-	Homepage        string                     `json:"homepage"` // used only: get single project
-	Parent          IDName                     `json:"parent"`
-	Status          int                        `json:"status"`
-	CustomFields    []ProjectCustomFieldObject `json:"custom_fields"`
-	Trackers        []IDName                   `json:"trackers"`
-	IssueCategories []IDName                   `json:"issue_categories"`
-	EnabledModules  []IDName                   `json:"enabled_modules"`
-	CreatedOn       string                     `json:"created_on"`
-	UpdatedOn       string                     `json:"updated_on"`
-}
-
-// ProjectCustomFieldObject struct used for projects get operations
-type ProjectCustomFieldObject struct {
-	ID    int    `json:"id"`
-	Name  string `json:"name"`
-	Value string `json:"value"` // used only: get multi projects
+	ID              int                    `json:"id"`
+	Name            string                 `json:"name"`
+	Identifier      string                 `json:"identifier"`
+	Description     string                 `json:"description"`
+	Homepage        string                 `json:"homepage"` // used only: get single project
+	Parent          IDName                 `json:"parent"`
+	Status          int                    `json:"status"`
+	CustomFields    []CustomFieldGetObject `json:"custom_fields"`
+	Trackers        []IDName               `json:"trackers"`
+	IssueCategories []IDName               `json:"issue_categories"`
+	EnabledModules  []IDName               `json:"enabled_modules"`
+	CreatedOn       string                 `json:"created_on"`
+	UpdatedOn       string                 `json:"updated_on"`
 }
 
 /* Create */
 
 // ProjectCreateObject struct used for projects create operations
 type ProjectCreateObject struct {
-	Name                string   `json:"name"`
-	Identifier          string   `json:"identifier"`
-	Description         string   `json:"description,omitempty"`
-	Homepage            string   `json:"homepage,omitempty"`
-	IsPublic            bool     `json:"is_public,omitempty"`
-	ParentID            int      `json:"parent_id,omitempty"`
-	InheritMembers      bool     `json:"inherit_members,omitempty"`
-	TrackerIDs          []int    `json:"tracker_ids,omitempty"`
-	EnabledModuleNames  []string `json:"enabled_module_names,omitempty"`
-	IssueCustomFieldIDs []int    `json:"issue_custom_field_ids,omitempty"`
+	Name                string                    `json:"name"`
+	Identifier          string                    `json:"identifier"`
+	Description         string                    `json:"description,omitempty"`
+	Homepage            string                    `json:"homepage,omitempty"`
+	IsPublic            bool                      `json:"is_public,omitempty"`
+	ParentID            int                       `json:"parent_id,omitempty"`
+	InheritMembers      bool                      `json:"inherit_members,omitempty"`
+	TrackerIDs          []int                     `json:"tracker_ids,omitempty"`
+	EnabledModuleNames  []string                  `json:"enabled_module_names,omitempty"`
+	IssueCustomFieldIDs []int                     `json:"issue_custom_field_ids,omitempty"`
+	CustomFields        []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
 }
 
 /* Update */
 
 // ProjectUpdateObject struct used for projects update operations
 type ProjectUpdateObject struct {
-	Name                string   `json:"name,omitempty"`
-	Description         string   `json:"description,omitempty"`
-	Homepage            string   `json:"homepage,omitempty"`
-	IsPublic            bool     `json:"is_public,omitempty"`
-	ParentID            int      `json:"parent_id,omitempty"`
-	InheritMembers      bool     `json:"inherit_members,omitempty"`
-	TrackerIDs          []int    `json:"tracker_ids,omitempty"`
-	EnabledModuleNames  []string `json:"enabled_module_names,omitempty"`
-	IssueCustomFieldIDs []int    `json:"issue_custom_field_ids,omitempty"`
+	Name                string                    `json:"name,omitempty"`
+	Description         string                    `json:"description,omitempty"`
+	Homepage            string                    `json:"homepage,omitempty"`
+	IsPublic            bool                      `json:"is_public,omitempty"`
+	ParentID            int                       `json:"parent_id,omitempty"`
+	InheritMembers      bool                      `json:"inherit_members,omitempty"`
+	TrackerIDs          []int                     `json:"tracker_ids,omitempty"`
+	EnabledModuleNames  []string                  `json:"enabled_module_names,omitempty"`
+	IssueCustomFieldIDs []int                     `json:"issue_custom_field_ids,omitempty"`
+	CustomFields        []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
 }
 
 /* Internal types */
