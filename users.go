@@ -43,25 +43,18 @@ var UserNotification = map[int]string{
 
 // UserObject struct used for users get operations
 type UserObject struct {
-	ID           int                     `json:"id"`
-	Login        string                  `json:"login"`
-	FirstName    string                  `json:"firstname"`
-	LastName     string                  `json:"lastname"`
-	Mail         string                  `json:"mail"`
-	CreatedOn    string                  `json:"created_on"`
-	LastLoginOn  string                  `json:"last_login_on"`
-	APIKey       string                  `json:"api_key"` // used only: get single user
-	Status       int                     `json:"status"`  // used only: get single user
-	CustomFields []UserCustomFieldObject `json:"custom_fields"`
-	Groups       []IDName                `json:"groups"`      // used only: get single user
-	Memberships  []UserMembershipObject  `json:"memberships"` // used only: get single user
-}
-
-// UserCustomFieldObject struct used for users get operations
-type UserCustomFieldObject struct {
-	ID    int    `json:"id"`
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	ID           int                    `json:"id"`
+	Login        string                 `json:"login"`
+	FirstName    string                 `json:"firstname"`
+	LastName     string                 `json:"lastname"`
+	Mail         string                 `json:"mail"`
+	CreatedOn    string                 `json:"created_on"`
+	LastLoginOn  string                 `json:"last_login_on"`
+	APIKey       string                 `json:"api_key"` // used only: get single user
+	Status       int                    `json:"status"`  // used only: get single user
+	CustomFields []CustomFieldGetObject `json:"custom_fields"`
+	Groups       []IDName               `json:"groups"`      // used only: get single user
+	Memberships  []UserMembershipObject `json:"memberships"` // used only: get single user
 }
 
 // UserMembershipObject struct used for users get operations
@@ -75,32 +68,34 @@ type UserMembershipObject struct {
 
 // UserCreateObject struct used for users create operations
 type UserCreateObject struct {
-	Login            string `json:"login"`
-	FirstName        string `json:"firstname"`
-	LastName         string `json:"lastname"`
-	Mail             string `json:"mail"`
-	Password         string `json:"password,omitempty"`
-	AuthSourceID     int    `json:"auth_source_id,omitempty"`
-	MailNotification string `json:"mail_notification,omitempty"`
-	MustChangePasswd bool   `json:"must_change_passwd,omitempty"`
-	GeneratePassword bool   `json:"generate_password,omitempty"`
-	SendInformation  bool   `json:"send_information,omitempty"`
+	Login            string                    `json:"login"`
+	FirstName        string                    `json:"firstname"`
+	LastName         string                    `json:"lastname"`
+	Mail             string                    `json:"mail"`
+	Password         string                    `json:"password,omitempty"`
+	AuthSourceID     int                       `json:"auth_source_id,omitempty"`
+	MailNotification string                    `json:"mail_notification,omitempty"`
+	MustChangePasswd bool                      `json:"must_change_passwd,omitempty"`
+	GeneratePassword bool                      `json:"generate_password,omitempty"`
+	SendInformation  bool                      `json:"send_information,omitempty"`
+	CustomFields     []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
 }
 
 /* Update */
 
 // UserUpdateObject struct used for users update operations
 type UserUpdateObject struct {
-	Login            string `json:"login,omitempty"`
-	FirstName        string `json:"firstname,omitempty"`
-	LastName         string `json:"lastname,omitempty"`
-	Mail             string `json:"mail,omitempty"`
-	Password         string `json:"password,omitempty"`
-	AuthSourceID     int    `json:"auth_source_id,omitempty"`
-	MailNotification string `json:"mail_notification,omitempty"`
-	MustChangePasswd bool   `json:"must_change_passwd,omitempty"`
-	GeneratePassword bool   `json:"generate_password,omitempty"`
-	SendInformation  bool   `json:"send_information,omitempty"`
+	Login            string                    `json:"login,omitempty"`
+	FirstName        string                    `json:"firstname,omitempty"`
+	LastName         string                    `json:"lastname,omitempty"`
+	Mail             string                    `json:"mail,omitempty"`
+	Password         string                    `json:"password,omitempty"`
+	AuthSourceID     int                       `json:"auth_source_id,omitempty"`
+	MailNotification string                    `json:"mail_notification,omitempty"`
+	MustChangePasswd bool                      `json:"must_change_passwd,omitempty"`
+	GeneratePassword bool                      `json:"generate_password,omitempty"`
+	SendInformation  bool                      `json:"send_information,omitempty"`
+	CustomFields     []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
 }
 
 /* Internal types */
