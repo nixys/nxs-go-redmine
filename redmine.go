@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/mitchellh/mapstructure"
@@ -223,4 +224,13 @@ func (r *Context) uploadFile(filPath string, out interface{}, uri string, status
 	}
 
 	return res.StatusCode, err
+}
+
+func urlIncludes(urlParams *url.Values, includes []string) {
+
+	if len(includes) == 0 {
+		return
+	}
+
+	urlParams.Add("include", strings.Join(includes, ","))
 }
