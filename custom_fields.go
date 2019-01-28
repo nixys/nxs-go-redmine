@@ -27,6 +27,22 @@ type CustomFieldPossibleValueObject struct {
 	Value string `json:"value"`
 }
 
+// CustomFieldGetObject struct used for custom fields get operations in other methods
+type CustomFieldGetObject struct {
+	ID       int      `json:"id"`
+	Name     string   `json:"name"`
+	Multiple bool     `json:"multiple"`
+	Value    []string `json:"value"`
+}
+
+/* Update */
+
+// CustomFieldUpdateObject struct used for custom fields insert and update operations in other methods
+type CustomFieldUpdateObject struct {
+	ID    int         `json:"id"`
+	Value interface{} `json:"value"` // can be a string or strings slice
+}
+
 /* Internal types */
 
 type customFieldMultiResult struct {
