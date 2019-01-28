@@ -3,8 +3,15 @@ package redmine
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/mitchellh/mapstructure"
+)
+
+const (
+	limitDefault = 100
 )
 
 // Context struct used for store settings to communicate with Redmine API
@@ -43,10 +50,10 @@ func (r *Context) get(out interface{}, uri string, statusExpected int) (int, err
 
 	var er errorsResult
 
-	url := r.endpoint + uri
+	u := r.endpoint + uri
 
 	// Create request
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return 0, err
 	}
@@ -59,27 +66,40 @@ func (r *Context) get(out interface{}, uri string, statusExpected int) (int, err
 	if err != nil {
 		return 0, err
 	}
-
 	defer res.Body.Close()
 
-	decoder := json.NewDecoder(res.Body)
+	dJ := json.NewDecoder(res.Body)
 
 	if res.StatusCode != statusExpected {
-		err = decoder.Decode(&er)
-		if err == nil {
-			err = errors.New(strings.Join(er.Errors, "\n"))
+		if err := dJ.Decode(&er); err != nil {
+			return res.StatusCode, err
 		}
+		err = errors.New(strings.Join(er.Errors, "\n"))
 	} else {
 		if out != nil {
-			err = decoder.Decode(out)
+
+			rawConf := make(map[string]interface{})
+
+			if err := dJ.Decode(&rawConf); err != nil {
+				return res.StatusCode, fmt.Errorf("json decode error: %v", err)
+			}
+
+			dM, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
+				WeaklyTypedInput: true,
+				Result:           out,
+				TagName:          "json",
+			})
+			if err != nil {
+				return res.StatusCode, fmt.Errorf("mapstructure create decoder error: %v", err)
+			}
+
+			if err := dM.Decode(rawConf); err != nil {
+				return res.StatusCode, fmt.Errorf("mapstructure decode error: %v", err)
+			}
 		}
 	}
 
-	if err != nil {
-		return res.StatusCode, err
-	}
-
-	return res.StatusCode, nil
+	return res.StatusCode, err
 }
 
 func (r *Context) post(in interface{}, out interface{}, uri string, statusExpected int) (int, error) {
@@ -101,13 +121,13 @@ func (r *Context) alter(method string, in interface{}, out interface{}, uri stri
 
 	var er errorsResult
 
-	url := r.endpoint + uri
+	u := r.endpoint + uri
 
 	s, err := json.Marshal(in)
 	if err != nil {
 		return 0, err
 	}
-	req, err := http.NewRequest(method, url, strings.NewReader(string(s)))
+	req, err := http.NewRequest(method, u, strings.NewReader(string(s)))
 	if err != nil {
 		return 0, err
 	}
@@ -121,25 +141,38 @@ func (r *Context) alter(method string, in interface{}, out interface{}, uri stri
 	if err != nil {
 		return 0, err
 	}
-
 	defer res.Body.Close()
 
-	decoder := json.NewDecoder(res.Body)
+	dJ := json.NewDecoder(res.Body)
 
 	if res.StatusCode != statusExpected {
-		err = decoder.Decode(&er)
-		if err == nil {
-			err = errors.New(strings.Join(er.Errors, "\n"))
+		if err := dJ.Decode(&er); err != nil {
+			return res.StatusCode, err
 		}
+		err = errors.New(strings.Join(er.Errors, "\n"))
 	} else {
 		if out != nil {
-			err = decoder.Decode(out)
+
+			rawConf := make(map[string]interface{})
+
+			if err := dJ.Decode(&rawConf); err != nil {
+				return res.StatusCode, fmt.Errorf("json decode error: %v", err)
+			}
+
+			dM, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
+				WeaklyTypedInput: true,
+				Result:           out,
+				TagName:          "json",
+			})
+			if err != nil {
+				return res.StatusCode, fmt.Errorf("mapstructure create decoder error: %v", err)
+			}
+
+			if err := dM.Decode(rawConf); err != nil {
+				return res.StatusCode, fmt.Errorf("mapstructure decode error: %v", err)
+			}
 		}
 	}
 
-	if err != nil {
-		return res.StatusCode, err
-	}
-
-	return res.StatusCode, nil
+	return res.StatusCode, err
 }
