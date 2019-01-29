@@ -134,13 +134,13 @@ type IssueUpdateObject struct {
 // IssueAllGetRequest contains data for making request to get all issues satisfying specified filters
 type IssueAllGetRequest struct {
 	Includes []string
-	Fitlers  IssueGetRequestFilters
+	Filters  IssueGetRequestFilters
 }
 
 // IssueMultiGetRequest contains data for making request to get limited issues count satisfying specified filters
 type IssueMultiGetRequest struct {
 	Includes []string
-	Fitlers  IssueGetRequestFilters
+	Filters  IssueGetRequestFilters
 	Offset   int
 	Limit    int
 }
@@ -202,7 +202,7 @@ func (r *Context) IssuesAllGet(request IssueAllGetRequest) (IssueResult, int, er
 	)
 
 	m := IssueMultiGetRequest{
-		Fitlers:  request.Fitlers,
+		Filters:  request.Filters,
 		Includes: request.Includes,
 		Limit:    limitDefault,
 	}
@@ -244,7 +244,7 @@ func (r *Context) IssuesAllGet(request IssueAllGetRequest) (IssueResult, int, er
 // * children
 func (r *Context) IssuesMultiGet(request IssueMultiGetRequest) (IssueResult, int, error) {
 
-	var issues IssueResult
+	var i IssueResult
 
 	urlParams := url.Values{}
 	urlParams.Add("limit", strconv.Itoa(request.Limit))
@@ -254,16 +254,16 @@ func (r *Context) IssuesMultiGet(request IssueMultiGetRequest) (IssueResult, int
 	urlIncludes(&urlParams, request.Includes)
 
 	// Preparing filters
-	issueURLFilters(&urlParams, request.Fitlers)
+	issueURLFilters(&urlParams, request.Filters)
 
-	u := url.URL{
+	ur := url.URL{
 		Path:     "/issues.json",
 		RawQuery: urlParams.Encode(),
 	}
 
-	s, err := r.get(&issues, u.String(), 200)
+	s, err := r.get(&i, ur.String(), 200)
 
-	return issues, s, err
+	return i, s, err
 }
 
 // IssueSingleGet gets single issue info
@@ -286,12 +286,12 @@ func (r *Context) IssueSingleGet(id int, includes []string) (IssueObject, int, e
 	// Preparing includes
 	urlIncludes(&urlParams, includes)
 
-	u := url.URL{
+	ur := url.URL{
 		Path:     "/issues/" + strconv.Itoa(id) + ".json",
 		RawQuery: urlParams.Encode(),
 	}
 
-	status, err := r.get(&i, u.String(), 200)
+	status, err := r.get(&i, ur.String(), 200)
 
 	return i.Issue, status, err
 }
@@ -303,11 +303,11 @@ func (r *Context) IssueCreate(issue IssueCreateObject) (IssueObject, int, error)
 
 	var i issueSingleResult
 
-	u := url.URL{
+	ur := url.URL{
 		Path: "/issues.json",
 	}
 
-	status, err := r.post(issueCreate{Issue: issue}, &i, u.String(), 201)
+	status, err := r.post(issueCreate{Issue: issue}, &i, ur.String(), 201)
 
 	return i.Issue, status, err
 }
@@ -317,11 +317,11 @@ func (r *Context) IssueCreate(issue IssueCreateObject) (IssueObject, int, error)
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Updating-a-project
 func (r *Context) IssueUpdate(id int, issue IssueUpdateObject) (int, error) {
 
-	u := url.URL{
+	ur := url.URL{
 		Path: "/issues/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.put(issueUpdate{Issue: issue}, nil, u.String(), 200)
+	status, err := r.put(issueUpdate{Issue: issue}, nil, ur.String(), 200)
 
 	return status, err
 }
@@ -331,11 +331,11 @@ func (r *Context) IssueUpdate(id int, issue IssueUpdateObject) (int, error) {
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Issues#Deleting-an-issue
 func (r *Context) IssueDelete(id int) (int, error) {
 
-	u := url.URL{
+	ur := url.URL{
 		Path: "/issues/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.del(nil, nil, u.String(), 200)
+	status, err := r.del(nil, nil, ur.String(), 200)
 
 	return status, err
 }
@@ -345,13 +345,13 @@ func (r *Context) IssueDelete(id int) (int, error) {
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Issues#Adding-a-watcher
 func (r *Context) IssueWatcherAdd(id int, userID int) (int, error) {
 
-	u := url.URL{
+	ur := url.URL{
 		Path: "/issues/" + strconv.Itoa(id) + "/watchers.json",
 	}
 
 	status, err := r.post(issueWatcherAdd{
 		UserID: userID,
-	}, nil, u.String(), 200)
+	}, nil, ur.String(), 200)
 
 	return status, err
 }
@@ -361,11 +361,11 @@ func (r *Context) IssueWatcherAdd(id int, userID int) (int, error) {
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Issues#Removing-a-watcher
 func (r *Context) IssueWatcherDelete(id int, userID int) (int, error) {
 
-	u := url.URL{
+	ur := url.URL{
 		Path: "/issues/" + strconv.Itoa(id) + "/watchers/" + strconv.Itoa(userID) + ".json",
 	}
 
-	status, err := r.del(nil, nil, u.String(), 200)
+	status, err := r.del(nil, nil, ur.String(), 200)
 
 	return status, err
 }

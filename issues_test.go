@@ -119,7 +119,7 @@ func testIssueAllGet(t *testing.T, r Context, id int) {
 
 	i, s, err := r.IssuesAllGet(IssueAllGetRequest{
 		Includes: []string{"relations", "attachments"},
-		Fitlers: IssueGetRequestFilters{
+		Filters: IssueGetRequestFilters{
 			Fields: map[string][]string{
 				"issue_id":    []string{strconv.Itoa(id)},
 				"subject":     []string{testIssueSubject2},
@@ -142,7 +142,7 @@ func testIssueMultiGet(t *testing.T, r Context, id int) {
 
 	i, s, err := r.IssuesMultiGet(IssueMultiGetRequest{
 		Includes: []string{"relations", "attachments"},
-		Fitlers: IssueGetRequestFilters{
+		Filters: IssueGetRequestFilters{
 			Fields: map[string][]string{
 				"issue_id":    []string{strconv.Itoa(id)},
 				"subject":     []string{testIssueSubject2},
