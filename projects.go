@@ -71,14 +71,17 @@ type ProjectUpdateObject struct {
 	CustomFields        []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
 }
 
-/* Internal types */
+/* Results */
 
-type projectMultiResult struct {
+// ProjectResult stores projects requests processing result
+type ProjectResult struct {
 	Projects   []ProjectObject `json:"projects"`
 	TotalCount int             `json:"total_count"`
 	Offset     int             `json:"offset"`
 	Limit      int             `json:"limit"`
 }
+
+/* Internal types */
 
 type projectSingleResult struct {
 	Project ProjectObject `json:"project"`
@@ -92,7 +95,7 @@ type projectUpdate struct {
 	Project ProjectUpdateObject `json:"project"`
 }
 
-// ProjectMultiGet gets multiple projects info
+// ProjectAllGet gets info for all projects
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Listing-projects
 //
@@ -100,44 +103,59 @@ type projectUpdate struct {
 // * trackers
 // * issue_categories
 // * enabled_modules
-func (r *Context) ProjectMultiGet(includes []string) ([]ProjectObject, int, error) {
+func (r *Context) ProjectAllGet(includes []string) (ProjectResult, int, error) {
 
-	var p projectMultiResult
+	var (
+		projects       ProjectResult
+		offset, status int
+	)
+
+	for {
+
+		p, s, err := r.ProjectMultiGet(includes, offset, limitDefault)
+		if err != nil {
+			return projects, s, err
+		}
+
+		status = s
+
+		projects.Projects = append(projects.Projects, p.Projects...)
+
+		if offset+p.Limit >= p.TotalCount {
+			projects.TotalCount = p.TotalCount
+			projects.Limit = p.TotalCount
+
+			break
+		}
+
+		offset += p.Limit
+	}
+
+	return projects, status, nil
+}
+
+// ProjectMultiGet gets info for multiple projects
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Listing-projects
+//
+// Available includes:
+// * trackers
+// * issue_categories
+// * enabled_modules
+func (r *Context) ProjectMultiGet(includes []string, offset, limit int) (ProjectResult, int, error) {
+
+	var p ProjectResult
 	var i string
-	var status int
 
 	if len(includes) != 0 {
 		i = "&include=" + strings.Join(includes, ",")
 	}
 
-	offset := 0
+	uri := "/projects.json?limit=" + strconv.Itoa(limit) + "&offset=" + strconv.Itoa(offset) + i
 
-	for {
-		uri := "/projects.json?limit=" + strconv.Itoa(r.limit) + "&offset=" + strconv.Itoa(offset) + i
+	s, err := r.get(&p, uri, 200)
 
-		pt := projectMultiResult{}
-
-		s, err := r.get(&pt, uri, 200)
-		if err != nil {
-			return p.Projects, s, err
-		}
-
-		status = s
-
-		for _, e := range pt.Projects {
-			p.Projects = append(p.Projects, e)
-		}
-
-		if offset+pt.Limit >= pt.TotalCount {
-			p.TotalCount = pt.TotalCount
-			p.Limit = pt.TotalCount
-			break
-		}
-
-		offset += pt.Limit
-	}
-
-	return p.Projects, status, nil
+	return p, s, err
 }
 
 // ProjectSingleGet gets single project info with specified ID

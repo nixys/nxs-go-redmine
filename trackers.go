@@ -10,16 +10,16 @@ type TrackerObject struct {
 
 /* Internal types */
 
-type trackerMultiResult struct {
+type trackerAllResult struct {
 	Trackers []TrackerObject `json:"trackers"`
 }
 
-// TrackerMultiGet gets multiple trackers
+// TrackerAllGet gets info for all trackers
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Trackers#GET
-func (r *Context) TrackerMultiGet() ([]TrackerObject, int, error) {
+func (r *Context) TrackerAllGet() ([]TrackerObject, int, error) {
 
-	var t trackerMultiResult
+	var t trackerAllResult
 
 	uri := "/trackers.json"
 

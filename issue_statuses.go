@@ -12,16 +12,16 @@ type IssueStatusObject struct {
 
 /* Internal types */
 
-type issueStatusMultiResult struct {
+type issueStatusAllResult struct {
 	IssueStatuses []IssueStatusObject `json:"issue_statuses"`
 }
 
-// IssueStatusMultiGet gets multiple issue statuses
+// IssueStatusAllGet gets info for all issue statuses
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_IssueStatuses#GET
-func (r *Context) IssueStatusMultiGet() ([]IssueStatusObject, int, error) {
+func (r *Context) IssueStatusAllGet() ([]IssueStatusObject, int, error) {
 
-	var i issueStatusMultiResult
+	var i issueStatusAllResult
 
 	uri := "/issue_statuses.json"
 

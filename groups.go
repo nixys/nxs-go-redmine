@@ -45,14 +45,17 @@ type GroupAddUserObject struct {
 	UserID int `json:"user_id"`
 }
 
-/* Internal types */
+/* Results */
 
-type groupMultiResult struct {
+// GroupResult stores groups requests processing result
+type GroupResult struct {
 	Groups     []GroupObject `json:"groups"`
 	TotalCount int           `json:"total_count"`
 	Offset     int           `json:"offset"`
 	Limit      int           `json:"limit"`
 }
+
+/* Internal types */
 
 type groupSingleResult struct {
 	Group GroupObject `json:"group"`
@@ -66,43 +69,52 @@ type groupUpdate struct {
 	Group GroupUpdateObject `json:"group"`
 }
 
-// GroupMultiGet gets multiple groups info
+// GroupAllGet gets info for all groups
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#GET
-func (r *Context) GroupMultiGet() ([]GroupObject, int, error) {
+func (r *Context) GroupAllGet() (GroupResult, int, error) {
 
-	var g groupMultiResult
-	var status int
-
-	offset := 0
+	var (
+		groups         GroupResult
+		offset, status int
+	)
 
 	for {
 
-		uri := "/groups.json?limit=" + strconv.Itoa(r.limit) + "&offset=" + strconv.Itoa(offset)
-
-		gt := groupMultiResult{}
-
-		s, err := r.get(&gt, uri, 200)
+		g, s, err := r.GroupMultiGet(offset, limitDefault)
 		if err != nil {
-			return g.Groups, s, err
+			return groups, s, err
 		}
 
 		status = s
 
-		for _, e := range gt.Groups {
-			g.Groups = append(g.Groups, e)
-		}
+		groups.Groups = append(groups.Groups, g.Groups...)
 
-		if offset+gt.Limit >= gt.TotalCount {
-			g.TotalCount = gt.TotalCount
-			g.Limit = gt.TotalCount
+		if offset+g.Limit >= g.TotalCount {
+			groups.TotalCount = g.TotalCount
+			groups.Limit = g.TotalCount
+
 			break
 		}
 
-		offset += gt.Limit
+		offset += g.Limit
 	}
 
-	return g.Groups, status, nil
+	return groups, status, nil
+}
+
+// GroupMultiGet gets info for multiple groups
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#GET
+func (r *Context) GroupMultiGet(offset, limit int) (GroupResult, int, error) {
+
+	var g GroupResult
+
+	uri := "/groups.json?limit=" + strconv.Itoa(limit) + "&offset=" + strconv.Itoa(offset)
+
+	s, err := r.get(&g, uri, 200)
+
+	return g, s, err
 }
 
 // GroupSingleGet gets single group info by specific ID

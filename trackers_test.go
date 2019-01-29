@@ -12,12 +12,12 @@ func TestTrackersCRUD(t *testing.T) {
 	initTest(&r, t)
 
 	// Get
-	testTrackerMultiGet(t, r)
+	testTrackerAllGet(t, r)
 }
 
-func testTrackerMultiGet(t *testing.T, r Context) {
+func testTrackerAllGet(t *testing.T, r Context) {
 
-	tr, _, err := r.TrackerMultiGet()
+	tr, _, err := r.TrackerAllGet()
 	if err != nil {
 		t.Fatal("Trackers get error:", err)
 	}

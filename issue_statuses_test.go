@@ -12,12 +12,12 @@ func TestIssueStatusesCRUD(t *testing.T) {
 	initTest(&r, t)
 
 	// Get
-	testIssueStatusMultiGet(t, r)
+	testIssueStatusAllGet(t, r)
 }
 
-func testIssueStatusMultiGet(t *testing.T, r Context) {
+func testIssueStatusAllGet(t *testing.T, r Context) {
 
-	is, _, err := r.IssueStatusMultiGet()
+	is, _, err := r.IssueStatusAllGet()
 	if err != nil {
 		t.Fatal("Issue statuses get error:", err)
 	}

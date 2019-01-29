@@ -30,7 +30,7 @@ func TestProjectsCRUD(t *testing.T) {
 	defer testProjectDetele(t, r, pCreated.ID)
 
 	// Get
-	testProjectMultiGet(t, r)
+	testProjectAllGet(t, r)
 	testProjectSingleGet(t, r, pCreated.ID)
 
 	// Update
@@ -77,14 +77,14 @@ func testProjectDetele(t *testing.T, r Context, id int) {
 	t.Logf("Project delete: success")
 }
 
-func testProjectMultiGet(t *testing.T, r Context) {
+func testProjectAllGet(t *testing.T, r Context) {
 
-	p, _, err := r.ProjectMultiGet([]string{"trackers", "issue_categories", "enabled_modules"})
+	p, _, err := r.ProjectAllGet([]string{"trackers", "issue_categories", "enabled_modules"})
 	if err != nil {
 		t.Fatal("Projects get error:", err)
 	}
 
-	for _, e := range p {
+	for _, e := range p.Projects {
 		if e.Name == testProjectName {
 			t.Logf("Projects get: success")
 			return

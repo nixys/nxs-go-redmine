@@ -12,12 +12,12 @@ func TestCustomFieldsCRUD(t *testing.T) {
 	initTest(&r, t)
 
 	// Get
-	testCustomFieldMultiGet(t, r)
+	testCustomFieldAllGet(t, r)
 }
 
-func testCustomFieldMultiGet(t *testing.T, r Context) {
+func testCustomFieldAllGet(t *testing.T, r Context) {
 
-	cf, _, err := r.CustomFieldMultiGet()
+	cf, _, err := r.CustomFieldAllGet()
 	if err != nil {
 		t.Fatal("Custom fields get error:", err)
 	}

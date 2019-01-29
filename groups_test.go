@@ -24,8 +24,8 @@ func TestGroupsCRUD(t *testing.T) {
 	gCreated := testGroupCreate(t, r)
 	defer testGroupDetele(t, r, gCreated.ID)
 
-	// Get multi
-	testGroupMultiGet(t, r)
+	// Get all
+	testGroupAllGet(t, r)
 
 	// Update
 	testGroupUpdate(t, r, gCreated.ID, uCreated.ID)
@@ -97,14 +97,14 @@ func testGroupDetele(t *testing.T, r Context, id int) {
 	t.Logf("Group delete: success")
 }
 
-func testGroupMultiGet(t *testing.T, r Context) {
+func testGroupAllGet(t *testing.T, r Context) {
 
-	g, _, err := r.GroupMultiGet()
+	g, _, err := r.GroupAllGet()
 	if err != nil {
 		t.Fatal("Groups get error:", err)
 	}
 
-	for _, e := range g {
+	for _, e := range g.Groups {
 		if e.Name == testGroupName {
 			t.Logf("Groups get: success")
 			return

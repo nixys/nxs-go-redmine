@@ -25,7 +25,7 @@ func TestUserCRUD(t *testing.T) {
 	defer testUserDetele(t, r, uCreated.ID)
 
 	// Get
-	testUserMultiGet(t, r)
+	testUserAllGet(t, r)
 	testUserSingleGet(t, r, uCreated.ID)
 
 	// Update
@@ -76,14 +76,20 @@ func testUserDetele(t *testing.T, r Context, id int) {
 	t.Logf("User delete: success")
 }
 
-func testUserMultiGet(t *testing.T, r Context) {
+func testUserAllGet(t *testing.T, r Context) {
 
-	u, _, err := r.UserMultiGet(UserStatusActive, "", 0)
+	u, _, err := r.UserAllGet(UserAllGetRequest{
+		Filters: UserGetRequestFilters{
+			UserStatusActive,
+			"",
+			0,
+		},
+	})
 	if err != nil {
 		t.Fatal("Users get error:", err)
 	}
 
-	for _, e := range u {
+	for _, e := range u.Users {
 		if e.Login == testUserLogin {
 			t.Logf("Users get: success")
 			return

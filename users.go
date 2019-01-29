@@ -98,14 +98,38 @@ type UserUpdateObject struct {
 	CustomFields     []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
 }
 
-/* Internal types */
+/* Requests */
 
-type userMultiResult struct {
+// UserAllGetRequest contains data for making request to get all users satisfying specified filters
+type UserAllGetRequest struct {
+	Filters UserGetRequestFilters
+}
+
+// UserMultiGetRequest contains data for making request to get limited users count satisfying specified filters
+type UserMultiGetRequest struct {
+	Filters UserGetRequestFilters
+	Offset  int
+	Limit   int
+}
+
+// UserGetRequestFilters contains data for making users get request
+type UserGetRequestFilters struct {
+	Status  int
+	Name    string
+	GroupID int
+}
+
+/* Results */
+
+// UserResult stores users requests processing result
+type UserResult struct {
 	Users      []UserObject `json:"users"`
 	TotalCount int          `json:"total_count"`
 	Offset     int          `json:"offset"`
 	Limit      int          `json:"limit"`
 }
+
+/* Internal types */
 
 type userSingleResult struct {
 	User UserObject `json:"user"`
@@ -119,60 +143,79 @@ type userUpdate struct {
 	User UserUpdateObject `json:"user"`
 }
 
-// UserMultiGet gets multiple users info by specific filters
+// UserAllGet gets info for all users satisfying specified filters
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#GET
 //
 // * If `statusFilter` == 0 default users status filter will be used (show active users only)
 // * Use `groupIDFilter` == 0 to disable this filter
-func (r *Context) UserMultiGet(statusFilter int, nameFilter string, groupIDFilter int) ([]UserObject, int, error) {
+func (r *Context) UserAllGet(request UserAllGetRequest) (UserResult, int, error) {
 
-	var u userMultiResult
-	var status int
+	var (
+		users          UserResult
+		offset, status int
+	)
 
-	if statusFilter == 0 {
-		statusFilter = 1
+	m := UserMultiGetRequest{
+		Filters: request.Filters,
+		Limit:   limitDefault,
 	}
-
-	filters := "&status=" + strconv.Itoa(statusFilter)
-
-	if len(nameFilter) > 0 {
-		filters += "&name=" + nameFilter
-	}
-
-	if groupIDFilter > 0 {
-		filters += "&group_id=" + strconv.Itoa(groupIDFilter)
-	}
-
-	offset := 0
 
 	for {
 
-		uri := "/users.json?limit=" + strconv.Itoa(r.limit) + "&offset=" + strconv.Itoa(offset) + filters
+		m.Offset = offset
 
-		ut := userMultiResult{}
-
-		s, err := r.get(&ut, uri, 200)
+		u, s, err := r.UserMultiGet(m)
 		if err != nil {
-			return u.Users, s, err
+			return users, s, err
 		}
 
 		status = s
 
-		for _, e := range ut.Users {
-			u.Users = append(u.Users, e)
-		}
+		users.Users = append(users.Users, u.Users...)
 
-		if offset+ut.Limit >= ut.TotalCount {
-			u.TotalCount = ut.TotalCount
-			u.Limit = ut.TotalCount
+		if offset+u.Limit >= u.TotalCount {
+			users.TotalCount = u.TotalCount
+			users.Limit = u.TotalCount
+
 			break
 		}
 
-		offset += ut.Limit
+		offset += u.Limit
 	}
 
-	return u.Users, status, nil
+	return users, status, nil
+}
+
+// UserMultiGet gets info for multiple users satisfying specified filters
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#GET
+//
+// * If `statusFilter` == 0 default users status filter will be used (show active users only)
+// * Use `groupIDFilter` == 0 to disable this filter
+func (r *Context) UserMultiGet(request UserMultiGetRequest) (UserResult, int, error) {
+
+	var u UserResult
+
+	if request.Filters.Status == 0 {
+		request.Filters.Status = 1
+	}
+
+	filters := "&status=" + strconv.Itoa(request.Filters.Status)
+
+	if len(request.Filters.Name) > 0 {
+		filters += "&name=" + request.Filters.Name
+	}
+
+	if request.Filters.GroupID > 0 {
+		filters += "&group_id=" + strconv.Itoa(request.Filters.GroupID)
+	}
+
+	uri := "/users.json?limit=" + strconv.Itoa(request.Limit) + "&offset=" + strconv.Itoa(request.Offset) + filters
+
+	s, err := r.get(&u, uri, 200)
+
+	return u, s, err
 }
 
 // UserSingleGet gets single user info by specific ID

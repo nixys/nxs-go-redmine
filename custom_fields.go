@@ -45,16 +45,16 @@ type CustomFieldUpdateObject struct {
 
 /* Internal types */
 
-type customFieldMultiResult struct {
+type customFieldAllResult struct {
 	CustomFields []CustomFieldObject `json:"custom_fields"`
 }
 
-// CustomFieldMultiGet gets multiple custom fields
+// CustomFieldAllGet gets info for all custom fields
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_CustomFields#GET
-func (r *Context) CustomFieldMultiGet() ([]CustomFieldObject, int, error) {
+func (r *Context) CustomFieldAllGet() ([]CustomFieldObject, int, error) {
 
-	var c customFieldMultiResult
+	var c customFieldAllResult
 
 	uri := "/custom_fields.json"
 

@@ -37,14 +37,17 @@ type MembershipUpdateObject struct {
 	RoleIDs []int `json:"role_ids"`
 }
 
-/* Internal types */
+/* Results */
 
-type membershipMultiResult struct {
+// MembershipResult stores project memberships requests processing result
+type MembershipResult struct {
 	Memberships []MembershipObject `json:"memberships"`
 	TotalCount  int                `json:"total_count"`
 	Offset      int                `json:"offset"`
 	Limit       int                `json:"limit"`
 }
+
+/* Internal types */
 
 type membershipSingleResult struct {
 	Membership MembershipObject `json:"membership"`
@@ -58,42 +61,52 @@ type membershipUpdate struct {
 	Membership MembershipUpdateObject `json:"membership"`
 }
 
-// MembershipMultiGet gets multiple memberships info for project with specified ID
+// MembershipAllGet gets info for all memberships for project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#GET
-func (r *Context) MembershipMultiGet(projectID int) ([]MembershipObject, int, error) {
+func (r *Context) MembershipAllGet(projectID int) (MembershipResult, int, error) {
 
-	var m membershipMultiResult
-	var status int
-
-	offset := 0
+	var (
+		membership     MembershipResult
+		offset, status int
+	)
 
 	for {
-		uri := "/projects/" + strconv.Itoa(projectID) + "/memberships.json?limit=" + strconv.Itoa(r.limit) + "&offset=" + strconv.Itoa(offset)
 
-		mt := membershipMultiResult{}
-
-		s, err := r.get(&mt, uri, 200)
+		m, s, err := r.MembershipMultiGet(projectID, offset, limitDefault)
 		if err != nil {
-			return m.Memberships, s, err
+			return membership, s, err
 		}
 
 		status = s
 
-		for _, e := range mt.Memberships {
-			m.Memberships = append(m.Memberships, e)
-		}
+		membership.Memberships = append(membership.Memberships, m.Memberships...)
 
-		if offset+mt.Limit >= mt.TotalCount {
-			m.TotalCount = mt.TotalCount
-			m.Limit = mt.TotalCount
+		if offset+m.Limit >= m.TotalCount {
+			membership.TotalCount = m.TotalCount
+			membership.Limit = m.TotalCount
+
 			break
 		}
 
-		offset += mt.Limit
+		offset += m.Limit
 	}
 
-	return m.Memberships, status, nil
+	return membership, status, nil
+}
+
+// MembershipMultiGet gets info for multiple memberships for project with specified ID
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#GET
+func (r *Context) MembershipMultiGet(projectID, offset, limit int) (MembershipResult, int, error) {
+
+	var m MembershipResult
+
+	uri := "/projects/" + strconv.Itoa(projectID) + "/memberships.json?limit=" + strconv.Itoa(limit) + "&offset=" + strconv.Itoa(offset)
+
+	s, err := r.get(&m, uri, 200)
+
+	return m, s, err
 }
 
 // MembershipSingleGet gets single project membership info with specified ID

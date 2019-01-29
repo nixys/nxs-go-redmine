@@ -32,8 +32,8 @@ func TestMembershipCRUD(t *testing.T) {
 	mCreated := testMembershipAdd(t, r, pCreated.ID, uCreated.ID, testMembershipRoleID1)
 	defer testMembershipDetele(t, r, mCreated.ID)
 
-	// Get multi
-	testMembershipMultiGet(t, r, mCreated.ID, pCreated.ID, testMembershipRoleID1)
+	// Get all
+	testMembershipAllGet(t, r, mCreated.ID, pCreated.ID, testMembershipRoleID1)
 
 	// Update
 	testMembershipUpdate(t, r, mCreated.ID, testMembershipRoleID1, testMembershipRoleID2)
@@ -79,14 +79,14 @@ func testMembershipDetele(t *testing.T, r Context, id int) {
 	t.Logf("Membership delete: success")
 }
 
-func testMembershipMultiGet(t *testing.T, r Context, id, projectID, roleID int) {
+func testMembershipAllGet(t *testing.T, r Context, id, projectID, roleID int) {
 
-	m, _, err := r.MembershipMultiGet(projectID)
+	m, _, err := r.MembershipAllGet(projectID)
 	if err != nil {
 		t.Fatal("Memberships get error:", err)
 	}
 
-	for _, e := range m {
+	for _, e := range m.Memberships {
 		if e.ID == id {
 			for _, role := range e.Roles {
 				if role.ID == roleID {
