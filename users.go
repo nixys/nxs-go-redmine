@@ -1,8 +1,8 @@
 package redmine
 
 import (
+	"net/url"
 	"strconv"
-	"strings"
 )
 
 // UserStatus const
@@ -197,23 +197,19 @@ func (r *Context) UserMultiGet(request UserMultiGetRequest) (UserResult, int, er
 
 	var u UserResult
 
-	if request.Filters.Status == 0 {
-		request.Filters.Status = 1
+	urlParams := url.Values{}
+	urlParams.Add("offset", strconv.Itoa(request.Offset))
+	urlParams.Add("limit", strconv.Itoa(request.Limit))
+
+	// Preparing filters
+	userURLFilters(&urlParams, request.Filters)
+
+	ur := url.URL{
+		Path:     "/users.json",
+		RawQuery: urlParams.Encode(),
 	}
 
-	filters := "&status=" + strconv.Itoa(request.Filters.Status)
-
-	if len(request.Filters.Name) > 0 {
-		filters += "&name=" + request.Filters.Name
-	}
-
-	if request.Filters.GroupID > 0 {
-		filters += "&group_id=" + strconv.Itoa(request.Filters.GroupID)
-	}
-
-	uri := "/users.json?limit=" + strconv.Itoa(request.Limit) + "&offset=" + strconv.Itoa(request.Offset) + filters
-
-	s, err := r.get(&u, uri, 200)
+	s, err := r.get(&u, ur, 200)
 
 	return u, s, err
 }
@@ -228,15 +224,18 @@ func (r *Context) UserMultiGet(request UserMultiGetRequest) (UserResult, int, er
 func (r *Context) UserSingleGet(id int, includes []string) (UserObject, int, error) {
 
 	var u userSingleResult
-	var i string
 
-	if len(includes) != 0 {
-		i = "?include=" + strings.Join(includes, ",")
+	urlParams := url.Values{}
+
+	// Preparing includes
+	urlIncludes(&urlParams, includes)
+
+	ur := url.URL{
+		Path:     "/users/" + strconv.Itoa(id) + ".json",
+		RawQuery: urlParams.Encode(),
 	}
 
-	uri := "/users/" + strconv.Itoa(id) + ".json" + i
-
-	status, err := r.get(&u, uri, 200)
+	status, err := r.get(&u, ur, 200)
 
 	return u.User, status, err
 }
@@ -248,9 +247,11 @@ func (r *Context) UserCreate(user UserCreateObject) (UserObject, int, error) {
 
 	var u userSingleResult
 
-	uri := "/users.json"
+	ur := url.URL{
+		Path: "/users.json",
+	}
 
-	status, err := r.post(userCreate{User: user}, &u, uri, 201)
+	status, err := r.post(userCreate{User: user}, &u, ur, 201)
 
 	return u.User, status, err
 }
@@ -260,9 +261,11 @@ func (r *Context) UserCreate(user UserCreateObject) (UserObject, int, error) {
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#PUT
 func (r *Context) UserUpdate(id int, user UserUpdateObject) (int, error) {
 
-	uri := "/users/" + strconv.Itoa(id) + ".json"
+	ur := url.URL{
+		Path: "/users/" + strconv.Itoa(id) + ".json",
+	}
 
-	status, err := r.put(userUpdate{User: user}, nil, uri, 200)
+	status, err := r.put(userUpdate{User: user}, nil, ur, 200)
 
 	return status, err
 }
@@ -272,9 +275,28 @@ func (r *Context) UserUpdate(id int, user UserUpdateObject) (int, error) {
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#DELETE
 func (r *Context) UserDelete(id int) (int, error) {
 
-	uri := "/users/" + strconv.Itoa(id) + ".json"
+	ur := url.URL{
+		Path: "/users/" + strconv.Itoa(id) + ".json",
+	}
 
-	status, err := r.del(nil, nil, uri, 200)
+	status, err := r.del(nil, nil, ur, 200)
 
 	return status, err
+}
+
+func userURLFilters(urlParams *url.Values, filters UserGetRequestFilters) {
+
+	if filters.Status == 0 {
+		filters.Status = 1
+	}
+
+	urlParams.Add("status", strconv.Itoa(filters.Status))
+
+	if len(filters.Name) > 0 {
+		urlParams.Add("name", filters.Name)
+	}
+
+	if filters.GroupID > 0 {
+		urlParams.Add("group_id", strconv.Itoa(filters.GroupID))
+	}
 }

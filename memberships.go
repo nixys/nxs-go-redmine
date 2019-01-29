@@ -1,6 +1,7 @@
 package redmine
 
 import (
+	"net/url"
 	"strconv"
 )
 
@@ -102,9 +103,16 @@ func (r *Context) MembershipMultiGet(projectID, offset, limit int) (MembershipRe
 
 	var m MembershipResult
 
-	uri := "/projects/" + strconv.Itoa(projectID) + "/memberships.json?limit=" + strconv.Itoa(limit) + "&offset=" + strconv.Itoa(offset)
+	urlParams := url.Values{}
+	urlParams.Add("offset", strconv.Itoa(offset))
+	urlParams.Add("limit", strconv.Itoa(limit))
 
-	s, err := r.get(&m, uri, 200)
+	ur := url.URL{
+		Path:     "/projects/" + strconv.Itoa(projectID) + "/memberships.json",
+		RawQuery: urlParams.Encode(),
+	}
+
+	s, err := r.get(&m, ur, 200)
 
 	return m, s, err
 }
@@ -116,9 +124,11 @@ func (r *Context) MembershipSingleGet(membershipID int) (MembershipObject, int, 
 
 	var m membershipSingleResult
 
-	uri := "/memberships/" + strconv.Itoa(membershipID) + ".json"
+	ur := url.URL{
+		Path: "/memberships/" + strconv.Itoa(membershipID) + ".json",
+	}
 
-	status, err := r.get(&m, uri, 200)
+	status, err := r.get(&m, ur, 200)
 
 	return m.Membership, status, err
 }
@@ -130,9 +140,11 @@ func (r *Context) MembershipAdd(projectID int, membership MembershipAddObject) (
 
 	var m membershipSingleResult
 
-	uri := "/projects/" + strconv.Itoa(projectID) + "/memberships.json"
+	ur := url.URL{
+		Path: "/projects/" + strconv.Itoa(projectID) + "/memberships.json",
+	}
 
-	status, err := r.post(membershipAdd{Membership: membership}, &m, uri, 201)
+	status, err := r.post(membershipAdd{Membership: membership}, &m, ur, 201)
 
 	return m.Membership, status, err
 }
@@ -142,9 +154,11 @@ func (r *Context) MembershipAdd(projectID int, membership MembershipAddObject) (
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#PUT
 func (r *Context) MembershipUpdate(membershipID int, membership MembershipUpdateObject) (int, error) {
 
-	uri := "/memberships/" + strconv.Itoa(membershipID) + ".json"
+	ur := url.URL{
+		Path: "/memberships/" + strconv.Itoa(membershipID) + ".json",
+	}
 
-	status, err := r.put(membershipUpdate{Membership: membership}, nil, uri, 200)
+	status, err := r.put(membershipUpdate{Membership: membership}, nil, ur, 200)
 
 	return status, err
 }
@@ -154,9 +168,11 @@ func (r *Context) MembershipUpdate(membershipID int, membership MembershipUpdate
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#DELETE
 func (r *Context) MembershipDelete(membershipID int) (int, error) {
 
-	uri := "/memberships/" + strconv.Itoa(membershipID) + ".json"
+	ur := url.URL{
+		Path: "/memberships/" + strconv.Itoa(membershipID) + ".json",
+	}
 
-	status, err := r.del(nil, nil, uri, 200)
+	status, err := r.del(nil, nil, ur, 200)
 
 	return status, err
 }

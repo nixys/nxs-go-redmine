@@ -43,11 +43,11 @@ func (r *Context) SetEndpoint(endpoint string) {
 	r.endpoint = endpoint
 }
 
-func (r *Context) get(out interface{}, uri string, statusExpected int) (int, error) {
+func (r *Context) get(out interface{}, uri url.URL, statusExpected int) (int, error) {
 
 	var er errorsResult
 
-	u := r.endpoint + uri
+	u := r.endpoint + uri.String()
 
 	// Create request
 	req, err := http.NewRequest("GET", u, nil)
@@ -99,26 +99,26 @@ func (r *Context) get(out interface{}, uri string, statusExpected int) (int, err
 	return res.StatusCode, err
 }
 
-func (r *Context) post(in interface{}, out interface{}, uri string, statusExpected int) (int, error) {
+func (r *Context) post(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
 
 	return r.alter("POST", in, out, uri, statusExpected)
 }
 
-func (r *Context) put(in interface{}, out interface{}, uri string, statusExpected int) (int, error) {
+func (r *Context) put(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
 
 	return r.alter("PUT", in, out, uri, statusExpected)
 }
 
-func (r *Context) del(in interface{}, out interface{}, uri string, statusExpected int) (int, error) {
+func (r *Context) del(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
 
 	return r.alter("DELETE", in, out, uri, statusExpected)
 }
 
-func (r *Context) alter(method string, in interface{}, out interface{}, uri string, statusExpected int) (int, error) {
+func (r *Context) alter(method string, in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
 
 	var er errorsResult
 
-	u := r.endpoint + uri
+	u := r.endpoint + uri.String()
 
 	s, err := json.Marshal(in)
 	if err != nil {
@@ -174,11 +174,11 @@ func (r *Context) alter(method string, in interface{}, out interface{}, uri stri
 	return res.StatusCode, err
 }
 
-func (r *Context) uploadFile(filPath string, out interface{}, uri string, statusExpected int) (int, error) {
+func (r *Context) uploadFile(filPath string, out interface{}, uri url.URL, statusExpected int) (int, error) {
 
 	var er errorsResult
 
-	u := r.endpoint + uri
+	u := r.endpoint + uri.String()
 
 	c, err := ioutil.ReadFile(filPath)
 	if err != nil {

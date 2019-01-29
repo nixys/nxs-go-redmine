@@ -1,5 +1,7 @@
 package redmine
 
+import "net/url"
+
 /* Get */
 
 // IssueStatusObject struct used for issue_statuses get operations
@@ -23,9 +25,11 @@ func (r *Context) IssueStatusAllGet() ([]IssueStatusObject, int, error) {
 
 	var i issueStatusAllResult
 
-	uri := "/issue_statuses.json"
+	ur := url.URL{
+		Path: "/issue_statuses.json",
+	}
 
-	status, err := r.get(&i, uri, 200)
+	status, err := r.get(&i, ur, 200)
 
 	return i.IssueStatuses, status, err
 }

@@ -1,5 +1,7 @@
 package redmine
 
+import "net/url"
+
 /* Get */
 
 // CustomFieldObject struct used for custom fields get operations
@@ -56,9 +58,11 @@ func (r *Context) CustomFieldAllGet() ([]CustomFieldObject, int, error) {
 
 	var c customFieldAllResult
 
-	uri := "/custom_fields.json"
+	ur := url.URL{
+		Path: "/custom_fields.json",
+	}
 
-	status, err := r.get(&c, uri, 200)
+	status, err := r.get(&c, ur, 200)
 
 	return c.CustomFields, status, err
 }

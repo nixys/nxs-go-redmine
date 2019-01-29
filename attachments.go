@@ -49,11 +49,11 @@ func (r *Context) AttachmentSingleGet(id int) (AttachmentObject, int, error) {
 
 	var a attachmentSingleResult
 
-	u := url.URL{
+	ur := url.URL{
 		Path: "/attachments/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.get(&a, u.String(), 200)
+	status, err := r.get(&a, ur, 200)
 
 	return a.Attachment, status, err
 }
@@ -65,11 +65,11 @@ func (r *Context) AttachmentUpload(filePath string) (AttachmentUploadObject, int
 
 	var a attachmentUploadResult
 
-	u := url.URL{
+	ur := url.URL{
 		Path: "/uploads.json",
 	}
 
-	status, err := r.uploadFile(filePath, &a, u.String(), 201)
+	status, err := r.uploadFile(filePath, &a, ur, 201)
 	if err != nil {
 		return a.Upload, status, err
 	}

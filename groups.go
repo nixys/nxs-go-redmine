@@ -1,8 +1,8 @@
 package redmine
 
 import (
+	"net/url"
 	"strconv"
-	"strings"
 )
 
 /* Get */
@@ -110,9 +110,16 @@ func (r *Context) GroupMultiGet(offset, limit int) (GroupResult, int, error) {
 
 	var g GroupResult
 
-	uri := "/groups.json?limit=" + strconv.Itoa(limit) + "&offset=" + strconv.Itoa(offset)
+	urlParams := url.Values{}
+	urlParams.Add("offset", strconv.Itoa(offset))
+	urlParams.Add("limit", strconv.Itoa(limit))
 
-	s, err := r.get(&g, uri, 200)
+	ur := url.URL{
+		Path:     "/groups.json",
+		RawQuery: urlParams.Encode(),
+	}
+
+	s, err := r.get(&g, ur, 200)
 
 	return g, s, err
 }
@@ -127,15 +134,18 @@ func (r *Context) GroupMultiGet(offset, limit int) (GroupResult, int, error) {
 func (r *Context) GroupSingleGet(id int, includes []string) (GroupObject, int, error) {
 
 	var g groupSingleResult
-	var i string
 
-	if len(includes) != 0 {
-		i = "?include=" + strings.Join(includes, ",")
+	urlParams := url.Values{}
+
+	// Preparing includes
+	urlIncludes(&urlParams, includes)
+
+	ur := url.URL{
+		Path:     "/groups/" + strconv.Itoa(id) + ".json",
+		RawQuery: urlParams.Encode(),
 	}
 
-	uri := "/groups/" + strconv.Itoa(id) + ".json" + i
-
-	status, err := r.get(&g, uri, 200)
+	status, err := r.get(&g, ur, 200)
 
 	return g.Group, status, err
 }
@@ -147,9 +157,11 @@ func (r *Context) GroupCreate(group GroupCreateObject) (GroupObject, int, error)
 
 	var g groupSingleResult
 
-	uri := "/groups.json"
+	ur := url.URL{
+		Path: "/groups.json",
+	}
 
-	status, err := r.post(groupCreate{Group: group}, &g, uri, 201)
+	status, err := r.post(groupCreate{Group: group}, &g, ur, 201)
 
 	return g.Group, status, err
 }
@@ -159,9 +171,11 @@ func (r *Context) GroupCreate(group GroupCreateObject) (GroupObject, int, error)
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#PUT
 func (r *Context) GroupUpdate(id int, group GroupUpdateObject) (int, error) {
 
-	uri := "/groups/" + strconv.Itoa(id) + ".json"
+	ur := url.URL{
+		Path: "/groups/" + strconv.Itoa(id) + ".json",
+	}
 
-	status, err := r.put(groupUpdate{Group: group}, nil, uri, 200)
+	status, err := r.put(groupUpdate{Group: group}, nil, ur, 200)
 
 	return status, err
 }
@@ -171,9 +185,11 @@ func (r *Context) GroupUpdate(id int, group GroupUpdateObject) (int, error) {
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#DELETE
 func (r *Context) GroupDelete(id int) (int, error) {
 
-	uri := "/groups/" + strconv.Itoa(id) + ".json"
+	ur := url.URL{
+		Path: "/groups/" + strconv.Itoa(id) + ".json",
+	}
 
-	status, err := r.del(nil, nil, uri, 200)
+	status, err := r.del(nil, nil, ur, 200)
 
 	return status, err
 }
@@ -183,9 +199,11 @@ func (r *Context) GroupDelete(id int) (int, error) {
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#POST-2
 func (r *Context) GroupAddUser(id int, group GroupAddUserObject) (int, error) {
 
-	uri := "/groups/" + strconv.Itoa(id) + "/users.json"
+	ur := url.URL{
+		Path: "/groups/" + strconv.Itoa(id) + "/users.json",
+	}
 
-	status, err := r.post(group, nil, uri, 200)
+	status, err := r.post(group, nil, ur, 200)
 
 	return status, err
 }
@@ -195,9 +213,11 @@ func (r *Context) GroupAddUser(id int, group GroupAddUserObject) (int, error) {
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#DELETE-2
 func (r *Context) GroupDeleteUser(id int, userID int) (int, error) {
 
-	uri := "/groups/" + strconv.Itoa(id) + "/users/" + strconv.Itoa(userID) + ".json"
+	ur := url.URL{
+		Path: "/groups/" + strconv.Itoa(id) + "/users/" + strconv.Itoa(userID) + ".json",
+	}
 
-	status, err := r.del(nil, nil, uri, 200)
+	status, err := r.del(nil, nil, ur, 200)
 
 	return status, err
 }

@@ -1,5 +1,7 @@
 package redmine
 
+import "net/url"
+
 /* Get */
 
 // TrackerObject struct used for trackers get operations
@@ -21,9 +23,11 @@ func (r *Context) TrackerAllGet() ([]TrackerObject, int, error) {
 
 	var t trackerAllResult
 
-	uri := "/trackers.json"
+	ur := url.URL{
+		Path: "/trackers.json",
+	}
 
-	status, err := r.get(&t, uri, 200)
+	status, err := r.get(&t, ur, 200)
 
 	return t.Trackers, status, err
 }

@@ -1,8 +1,8 @@
 package redmine
 
 import (
+	"net/url"
 	"strconv"
-	"strings"
 )
 
 // ProjectStatus const
@@ -145,15 +145,20 @@ func (r *Context) ProjectAllGet(includes []string) (ProjectResult, int, error) {
 func (r *Context) ProjectMultiGet(includes []string, offset, limit int) (ProjectResult, int, error) {
 
 	var p ProjectResult
-	var i string
 
-	if len(includes) != 0 {
-		i = "&include=" + strings.Join(includes, ",")
+	urlParams := url.Values{}
+	urlParams.Add("offset", strconv.Itoa(offset))
+	urlParams.Add("limit", strconv.Itoa(limit))
+
+	// Preparing includes
+	urlIncludes(&urlParams, includes)
+
+	ur := url.URL{
+		Path:     "/projects.json",
+		RawQuery: urlParams.Encode(),
 	}
 
-	uri := "/projects.json?limit=" + strconv.Itoa(limit) + "&offset=" + strconv.Itoa(offset) + i
-
-	s, err := r.get(&p, uri, 200)
+	s, err := r.get(&p, ur, 200)
 
 	return p, s, err
 }
@@ -170,15 +175,18 @@ func (r *Context) ProjectMultiGet(includes []string, offset, limit int) (Project
 func (r *Context) ProjectSingleGet(id int, includes []string) (ProjectObject, int, error) {
 
 	var p projectSingleResult
-	var i string
 
-	if len(includes) != 0 {
-		i = "?include=" + strings.Join(includes, ",")
+	urlParams := url.Values{}
+
+	// Preparing includes
+	urlIncludes(&urlParams, includes)
+
+	ur := url.URL{
+		Path:     "/projects/" + strconv.Itoa(id) + ".json",
+		RawQuery: urlParams.Encode(),
 	}
 
-	uri := "/projects/" + strconv.Itoa(id) + ".json" + i
-
-	status, err := r.get(&p, uri, 200)
+	status, err := r.get(&p, ur, 200)
 
 	return p.Project, status, err
 }
@@ -190,9 +198,11 @@ func (r *Context) ProjectCreate(project ProjectCreateObject) (ProjectObject, int
 
 	var p projectSingleResult
 
-	uri := "/projects.json"
+	ur := url.URL{
+		Path: "/projects.json",
+	}
 
-	status, err := r.post(projectCreate{Project: project}, &p, uri, 201)
+	status, err := r.post(projectCreate{Project: project}, &p, ur, 201)
 
 	return p.Project, status, err
 }
@@ -202,9 +212,11 @@ func (r *Context) ProjectCreate(project ProjectCreateObject) (ProjectObject, int
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Updating-a-project
 func (r *Context) ProjectUpdate(id int, project ProjectUpdateObject) (int, error) {
 
-	uri := "/projects/" + strconv.Itoa(id) + ".json"
+	ur := url.URL{
+		Path: "/projects/" + strconv.Itoa(id) + ".json",
+	}
 
-	status, err := r.put(projectUpdate{Project: project}, nil, uri, 200)
+	status, err := r.put(projectUpdate{Project: project}, nil, ur, 200)
 
 	return status, err
 }
@@ -214,9 +226,11 @@ func (r *Context) ProjectUpdate(id int, project ProjectUpdateObject) (int, error
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Deleting-a-project
 func (r *Context) ProjectDelete(id int) (int, error) {
 
-	uri := "/projects/" + strconv.Itoa(id) + ".json"
+	ur := url.URL{
+		Path: "/projects/" + strconv.Itoa(id) + ".json",
+	}
 
-	status, err := r.del(nil, nil, uri, 200)
+	status, err := r.del(nil, nil, ur, 200)
 
 	return status, err
 }
