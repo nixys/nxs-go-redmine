@@ -105,6 +105,7 @@ type IssueCreateObject struct {
 	IsPrivate      bool                      `json:"is_private,omitempty"`
 	EstimatedHours float64                   `json:"estimated_hours,omitempty"`
 	CustomFields   []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
+	Uploads        []AttachmentUploadObject  `json:"uploads,omitempty"`
 }
 
 /* Update */
@@ -124,6 +125,7 @@ type IssueUpdateObject struct {
 	IsPrivate      bool                      `json:"is_private,omitempty"`
 	EstimatedHours float64                   `json:"estimated_hours,omitempty"`
 	CustomFields   []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
+	Uploads        []AttachmentUploadObject  `json:"uploads,omitempty"`
 	Notes          string                    `json:"notes,omitempty"`
 }
 

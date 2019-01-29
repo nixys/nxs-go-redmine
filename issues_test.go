@@ -20,13 +20,11 @@ func TestIssuesCRUD(t *testing.T) {
 
 	// Get env variables
 	testIssueTrackerID, _ := strconv.Atoi(os.Getenv("REDMINE_TRACKER_ID"))
-	testIssueCustomFieldID, _ := strconv.Atoi(os.Getenv("REDMINE_CUSTOM_FIELD_ID"))
 	testMembershipRoleID, _ := strconv.Atoi(os.Getenv("REDMINE_ROLE_ID_1"))
 
 	if testIssueTrackerID == 0 ||
-		testIssueCustomFieldID == 0 ||
 		testMembershipRoleID == 0 {
-		t.Fatal("Issue test error: env variables `REDMINE_TRACKER_ID`, `REDMINE_CUSTOM_FIELD_ID` or `REDMINE_ROLE_ID_1` does not set")
+		t.Fatal("Issue test error: env variables `REDMINE_TRACKER_ID` or `REDMINE_ROLE_ID_1` does not set")
 	}
 
 	// Init Redmine context
@@ -42,7 +40,7 @@ func TestIssuesCRUD(t *testing.T) {
 	testMembershipAdd(t, r, pCreated.ID, uCreated.ID, testMembershipRoleID)
 
 	// Add and delete
-	iCreated := testIssueCreate(t, r, pCreated.ID, uCreated.ID)
+	iCreated := testIssueCreate(t, r, pCreated.ID, uCreated.ID, nil)
 	defer testIssueDetele(t, r, iCreated.ID)
 
 	// Signle get
@@ -62,13 +60,27 @@ func TestIssuesCRUD(t *testing.T) {
 	testIssueWatcherAdd(t, r, iCreated.ID, uCreated.ID)
 }
 
-func testIssueCreate(t *testing.T, r Context, projectID, userID int) IssueObject {
+func testIssueCreate(t *testing.T, r Context, projectID, userID int, upload *AttachmentUploadObject) IssueObject {
+
+	var (
+		u []AttachmentUploadObject
+		w []int
+	)
+
+	if upload != nil {
+		u = append(u, *upload)
+	}
+
+	if userID > 0 {
+		w = append(w, userID)
+	}
 
 	i, s, err := r.IssueCreate(IssueCreateObject{
 		ProjectID:      projectID,
 		Subject:        testIssueSubject,
-		WatcherUserIDs: []int{userID},
+		WatcherUserIDs: w,
 		Description:    testIssueDescription,
+		Uploads:        u,
 	})
 	if err != nil {
 		t.Fatal("Issue create error:", err, s)
