@@ -6,8 +6,9 @@ import "net/url"
 
 // TrackerObject struct used for trackers get operations
 type TrackerObject struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID            int    `json:"id"`
+	Name          string `json:"name"`
+	DefaultStatus IDName `json:"default_status"` // Since 3.0
 }
 
 /* Internal types */

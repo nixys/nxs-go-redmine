@@ -1,6 +1,7 @@
 package redmine
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -22,10 +23,11 @@ func testTrackerAllGet(t *testing.T, r Context) {
 		t.Fatal("Trackers get error:", err)
 	}
 
-	if len(tr) > 0 {
-		t.Logf("Trackers get: success")
-		return
+	if len(tr) == 0 {
+		t.Fatal("Trackers get error: can't find any trackers")
 	}
 
-	t.Fatal("Trackers get error: can't find any trackers")
+	fmt.Println(tr)
+
+	t.Logf("Trackers get: success")
 }
