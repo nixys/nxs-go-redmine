@@ -21,7 +21,6 @@ const (
 type Context struct {
 	endpoint string
 	apiKey   string
-	limit    int
 }
 
 // IDName used as embedded struct for other structs within package
@@ -42,11 +41,6 @@ func (r *Context) SetAPIKey(apiKey string) {
 // SetEndpoint is used to set Redmine endpoint
 func (r *Context) SetEndpoint(endpoint string) {
 	r.endpoint = endpoint
-}
-
-// SetLimit is used to set elements limit on page
-func (r *Context) SetLimit(limit int) {
-	r.limit = limit
 }
 
 func (r *Context) get(out interface{}, uri string, statusExpected int) (int, error) {

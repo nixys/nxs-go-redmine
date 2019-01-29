@@ -19,7 +19,6 @@ func initTest(r *Context, t *testing.T) {
 
 	r.SetEndpoint(rdmnHost)
 	r.SetAPIKey(rdmnAPIKey)
-	r.SetLimit(100)
 
 	t.Logf("Init: success")
 }
