@@ -240,6 +240,32 @@ func (r *Context) UserSingleGet(id int, includes []string) (UserObject, int, err
 	return u.User, status, err
 }
 
+// UserCurrentGet gets current user info
+//
+// see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#GET-2
+//
+// Available includes:
+// * groups
+// * memberships
+func (r *Context) UserCurrentGet(includes []string) (UserObject, int, error) {
+
+	var u userSingleResult
+
+	urlParams := url.Values{}
+
+	// Preparing includes
+	urlIncludes(&urlParams, includes)
+
+	ur := url.URL{
+		Path:     "/users/current.json",
+		RawQuery: urlParams.Encode(),
+	}
+
+	status, err := r.get(&u, ur, 200)
+
+	return u.User, status, err
+}
+
 // UserCreate creates new user
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#POST

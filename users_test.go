@@ -30,6 +30,9 @@ func TestUserCRUD(t *testing.T) {
 
 	// Update
 	testUserUpdate(t, r, uCreated.ID)
+
+	// Current
+	testUserCurrentGet(t, r)
 }
 
 func testUserCreate(t *testing.T, r Context) UserObject {
@@ -107,4 +110,14 @@ func testUserSingleGet(t *testing.T, r Context, id int) {
 	}
 
 	t.Logf("User get: success")
+}
+
+func testUserCurrentGet(t *testing.T, r Context) {
+
+	_, _, err := r.UserCurrentGet([]string{"groups", "memberships"})
+	if err != nil {
+		t.Fatal("Current user get error:", err)
+	}
+
+	t.Logf("Current user get: success")
 }
