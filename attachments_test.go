@@ -65,9 +65,13 @@ func testAttachmentUpload(t *testing.T, r Context, projectID, userID int) int {
 
 func testAttachmentGetSingle(t *testing.T, r Context, id int) {
 
-	_, s, err := r.AttachmentSingleGet(id)
+	a, s, err := r.AttachmentSingleGet(id)
 	if err != nil {
 		t.Fatal("Attachment get error:", err, s)
+	}
+
+	if a.FileName != testAttachmentFileUpload {
+		t.Fatal("Attachment get error: wrong attachment file name")
 	}
 
 	t.Logf("Attachment get: success")
