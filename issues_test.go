@@ -121,9 +121,9 @@ func testIssueAllGet(t *testing.T, r Context, id int) {
 		Includes: []string{"relations", "attachments"},
 		Filters: IssueGetRequestFilters{
 			Fields: map[string][]string{
-				"issue_id":    []string{strconv.Itoa(id)},
-				"subject":     []string{testIssueSubject2},
-				"description": []string{testIssueDescription2},
+				"issue_id":    {strconv.Itoa(id)},
+				"subject":     {testIssueSubject2},
+				"description": {testIssueDescription2},
 			},
 		},
 	})
@@ -144,9 +144,9 @@ func testIssueMultiGet(t *testing.T, r Context, id int) {
 		Includes: []string{"relations", "attachments"},
 		Filters: IssueGetRequestFilters{
 			Fields: map[string][]string{
-				"issue_id":    []string{strconv.Itoa(id)},
-				"subject":     []string{testIssueSubject2},
-				"description": []string{testIssueDescription2},
+				"issue_id":    {strconv.Itoa(id)},
+				"subject":     {testIssueSubject2},
+				"description": {testIssueDescription2},
 			},
 		},
 		Limit:  100,
