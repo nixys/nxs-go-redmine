@@ -3,15 +3,16 @@
 This Go package provides access to Redmine API.
 
 Follows Redmine resources are fully implemented at this moment:
-- [Issues](http://www.redmine.org/projects/redmine/wiki/Rest_Issues)
-- [Projects](http://www.redmine.org/projects/redmine/wiki/Rest_Projects)
-- [Project Memberships](http://www.redmine.org/projects/redmine/wiki/Rest_Memberships)
-- [Users](http://www.redmine.org/projects/redmine/wiki/Rest_Users)
-- [Attachments](http://www.redmine.org/projects/redmine/wiki/Rest_Attachments)
-- [Issue Statuses](http://www.redmine.org/projects/redmine/wiki/Rest_IssueStatuses)
-- [Trackers](http://www.redmine.org/projects/redmine/wiki/Rest_Trackers)
-- [Groups](http://www.redmine.org/projects/redmine/wiki/Rest_Groups)
-- [Custom Fields](http://www.redmine.org/projects/redmine/wiki/Rest_CustomFields)
+- [Issues](https://www.redmine.org/projects/redmine/wiki/Rest_Issues)
+- [Projects](https://www.redmine.org/projects/redmine/wiki/Rest_Projects)
+- [Project Memberships](https://www.redmine.org/projects/redmine/wiki/Rest_Memberships)
+- [Users](https://www.redmine.org/projects/redmine/wiki/Rest_Users)
+- [Attachments](https://www.redmine.org/projects/redmine/wiki/Rest_Attachments)
+- [Issue Statuses](https://www.redmine.org/projects/redmine/wiki/Rest_IssueStatuses)
+- [Trackers](https://www.redmine.org/projects/redmine/wiki/Rest_Trackers)
+- [Enumerations](https://www.redmine.org/projects/redmine/wiki/Rest_Enumerations)
+- [Groups](https://www.redmine.org/projects/redmine/wiki/Rest_Groups)
+- [Custom Fields](https://www.redmine.org/projects/redmine/wiki/Rest_CustomFields)
 
 ## Install
 
