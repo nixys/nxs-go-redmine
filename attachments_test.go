@@ -35,7 +35,6 @@ func TestAttachmentsCRUD(t *testing.T) {
 
 	// Get single
 	testAttachmentGetSingle(t, r, aCreated)
-
 }
 
 func testAttachmentUpload(t *testing.T, r Context, projectID, userID int) int {

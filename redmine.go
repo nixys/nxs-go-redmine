@@ -1,11 +1,10 @@
 package redmine
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -174,19 +173,14 @@ func (r *Context) alter(method string, in interface{}, out interface{}, uri url.
 	return res.StatusCode, err
 }
 
-func (r *Context) uploadFile(filPath string, out interface{}, uri url.URL, statusExpected int) (int, error) {
+func (r *Context) uploadFile(f io.Reader, out interface{}, uri url.URL, statusExpected int) (int, error) {
 
 	var er errorsResult
 
 	u := r.endpoint + uri.String()
 
-	c, err := ioutil.ReadFile(filPath)
-	if err != nil {
-		return 0, err
-	}
-
 	// Create request
-	req, err := http.NewRequest("POST", u, bytes.NewBuffer(c))
+	req, err := http.NewRequest("POST", u, f)
 	if err != nil {
 		return 0, err
 	}

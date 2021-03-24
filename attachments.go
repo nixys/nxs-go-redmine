@@ -1,11 +1,13 @@
 package redmine
 
 import (
-	"net/http"
+	"io"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/nixys/nxs-go-redmine/mimereader"
 )
 
 /* Get */
@@ -58,7 +60,7 @@ func (r *Context) AttachmentSingleGet(id int) (AttachmentObject, int, error) {
 	return a.Attachment, status, err
 }
 
-// AttachmentUpload gets multiple issues info
+// AttachmentUpload uploads file
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_api#Attaching-files
 func (r *Context) AttachmentUpload(filePath string) (AttachmentUploadObject, int, error) {
@@ -69,35 +71,43 @@ func (r *Context) AttachmentUpload(filePath string) (AttachmentUploadObject, int
 		Path: "/uploads.json",
 	}
 
-	status, err := r.uploadFile(filePath, &a, ur, 201)
+	f, err := os.Open(filePath)
+	if err != nil {
+		return a.Upload, 0, err
+	}
+	defer f.Close()
+
+	mr := mimereader.New(f)
+
+	status, err := r.uploadFile(mr, &a, ur, 201)
 	if err != nil {
 		return a.Upload, status, err
 	}
 
-	if err := attachmentGetFileProp(filePath, &a.Upload); err != nil {
-		return a.Upload, status, err
-	}
+	a.Upload.ContentType = mr.DetectContentType()
+	a.Upload.Filename = filepath.Base(filePath)
 
 	return a.Upload, status, nil
 }
 
-// attachmentGetFileProp sets the file properties, such as filename and content type
-func attachmentGetFileProp(filePath string, f *AttachmentUploadObject) error {
+// AttachmentUploadStream uploads file as a stream.
+func (r *Context) AttachmentUploadStream(f io.Reader, fileName string) (AttachmentUploadObject, int, error) {
 
-	file, err := os.Open(filePath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
+	var a attachmentUploadResult
 
-	buffer := make([]byte, 512)
-	n, err := file.Read(buffer)
-	if err != nil {
-		return err
+	ur := url.URL{
+		Path: "/uploads.json",
 	}
 
-	f.ContentType = http.DetectContentType(buffer[:n])
-	f.Filename = filepath.Base(filePath)
+	mr := mimereader.New(f)
 
-	return nil
+	status, err := r.uploadFile(mr, &a, ur, 201)
+	if err != nil {
+		return a.Upload, status, err
+	}
+
+	a.Upload.ContentType = mr.DetectContentType()
+	a.Upload.Filename = filepath.Base(fileName)
+
+	return a.Upload, status, nil
 }
