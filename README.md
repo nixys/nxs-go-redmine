@@ -19,7 +19,7 @@ Follows Redmine resources are fully implemented at this moment:
 ## Install
 
 ```
-go get github.com/nixys/nxs-go-redmine
+go get github.com/nixys/nxs-go-redmine/v2
 ```
 
 ## Example of usage
@@ -35,7 +35,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/nixys/nxs-go-redmine"
+	"github.com/nixys/nxs-go-redmine/v2"
 )
 
 func main() {
