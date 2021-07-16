@@ -1,6 +1,7 @@
 package redmine
 
 import (
+	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
@@ -261,7 +262,7 @@ func (r *Context) IssuesMultiGet(request IssueMultiGetRequest) (IssueResult, int
 		RawQuery: urlParams.Encode(),
 	}
 
-	s, err := r.get(&i, ur, 200)
+	s, err := r.get(&i, ur, http.StatusOK)
 
 	return i, s, err
 }
@@ -291,7 +292,7 @@ func (r *Context) IssueSingleGet(id int, includes []string) (IssueObject, int, e
 		RawQuery: urlParams.Encode(),
 	}
 
-	status, err := r.get(&i, ur, 200)
+	status, err := r.get(&i, ur, http.StatusOK)
 
 	return i.Issue, status, err
 }
@@ -307,7 +308,7 @@ func (r *Context) IssueCreate(issue IssueCreateObject) (IssueObject, int, error)
 		Path: "/issues.json",
 	}
 
-	status, err := r.post(issueCreate{Issue: issue}, &i, ur, 201)
+	status, err := r.post(issueCreate{Issue: issue}, &i, ur, http.StatusCreated)
 
 	return i.Issue, status, err
 }
@@ -321,7 +322,7 @@ func (r *Context) IssueUpdate(id int, issue IssueUpdateObject) (int, error) {
 		Path: "/issues/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.put(issueUpdate{Issue: issue}, nil, ur, 200)
+	status, err := r.put(issueUpdate{Issue: issue}, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
@@ -335,7 +336,7 @@ func (r *Context) IssueDelete(id int) (int, error) {
 		Path: "/issues/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.del(nil, nil, ur, 200)
+	status, err := r.del(nil, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
@@ -351,7 +352,7 @@ func (r *Context) IssueWatcherAdd(id int, userID int) (int, error) {
 
 	status, err := r.post(issueWatcherAdd{
 		UserID: userID,
-	}, nil, ur, 200)
+	}, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
@@ -365,7 +366,7 @@ func (r *Context) IssueWatcherDelete(id int, userID int) (int, error) {
 		Path: "/issues/" + strconv.Itoa(id) + "/watchers/" + strconv.Itoa(userID) + ".json",
 	}
 
-	status, err := r.del(nil, nil, ur, 200)
+	status, err := r.del(nil, nil, ur, http.StatusNoContent)
 
 	return status, err
 }

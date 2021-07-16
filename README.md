@@ -2,6 +2,8 @@
 
 This Go package provides access to Redmine API.
 
+Compatible with Redmine 4.2+
+
 Follows Redmine resources are fully implemented at this moment:
 - [Issues](https://www.redmine.org/projects/redmine/wiki/Rest_Issues)
 - [Projects](https://www.redmine.org/projects/redmine/wiki/Rest_Projects)

@@ -1,6 +1,9 @@
 package redmine
 
-import "net/url"
+import (
+	"net/http"
+	"net/url"
+)
 
 /* Get */
 
@@ -29,7 +32,7 @@ func (r *Context) IssueStatusAllGet() ([]IssueStatusObject, int, error) {
 		Path: "/issue_statuses.json",
 	}
 
-	status, err := r.get(&i, ur, 200)
+	status, err := r.get(&i, ur, http.StatusOK)
 
 	return i.IssueStatuses, status, err
 }

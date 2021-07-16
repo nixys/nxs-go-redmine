@@ -1,6 +1,9 @@
 package redmine
 
-import "net/url"
+import (
+	"net/http"
+	"net/url"
+)
 
 /* Get */
 
@@ -50,7 +53,7 @@ func (r *Context) EnumerationPrioritiesAllGet() ([]EnumerationPriorityObject, in
 		Path: "/enumerations/issue_priorities.json",
 	}
 
-	status, err := r.get(&e, ur, 200)
+	status, err := r.get(&e, ur, http.StatusOK)
 
 	return e.Priorities, status, err
 }
@@ -66,7 +69,7 @@ func (r *Context) EnumerationTimeEntryActivitiesAllGet() ([]EnumerationTimeEntry
 		Path: "/enumerations/time_entry_activities.json",
 	}
 
-	status, err := r.get(&e, ur, 200)
+	status, err := r.get(&e, ur, http.StatusOK)
 
 	return e.TimeEntryActivities, status, err
 }
@@ -82,7 +85,7 @@ func (r *Context) EnumerationDocumentCategoriesAllGet() ([]EnumerationDocumentCa
 		Path: "/enumerations/document_categories.json",
 	}
 
-	status, err := r.get(&e, ur, 200)
+	status, err := r.get(&e, ur, http.StatusOK)
 
 	return e.DocumentCategories, status, err
 }

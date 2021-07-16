@@ -2,6 +2,7 @@ package redmine
 
 import (
 	"io"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -28,7 +29,7 @@ type AttachmentObject struct {
 
 // AttachmentUploadObject struct used for attachments upload operations
 type AttachmentUploadObject struct {
-	ID          string `json:"id,omitempty"`
+	ID          int    `json:"id,omitempty"`
 	Token       string `json:"token"`
 	Filename    string `json:"filename"`     // This field fills in AttachmentUpload() function, not by Redmine. User can redefine this value manually
 	ContentType string `json:"content_type"` // This field fills in AttachmentUpload() function, not by Redmine. User can redefine this value manually
@@ -55,7 +56,7 @@ func (r *Context) AttachmentSingleGet(id int) (AttachmentObject, int, error) {
 		Path: "/attachments/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.get(&a, ur, 200)
+	status, err := r.get(&a, ur, http.StatusOK)
 
 	return a.Attachment, status, err
 }
@@ -79,7 +80,7 @@ func (r *Context) AttachmentUpload(filePath string) (AttachmentUploadObject, int
 
 	mr := mimereader.New(f)
 
-	status, err := r.uploadFile(mr, &a, ur, 201)
+	status, err := r.uploadFile(mr, &a, ur, http.StatusCreated)
 	if err != nil {
 		return a.Upload, status, err
 	}
@@ -101,7 +102,7 @@ func (r *Context) AttachmentUploadStream(f io.Reader, fileName string) (Attachme
 
 	mr := mimereader.New(f)
 
-	status, err := r.uploadFile(mr, &a, ur, 201)
+	status, err := r.uploadFile(mr, &a, ur, http.StatusCreated)
 	if err != nil {
 		return a.Upload, status, err
 	}

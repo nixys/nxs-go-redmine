@@ -1,6 +1,7 @@
 package redmine
 
 import (
+	"net/http"
 	"net/url"
 	"strconv"
 )
@@ -112,7 +113,7 @@ func (r *Context) MembershipMultiGet(projectID, offset, limit int) (MembershipRe
 		RawQuery: urlParams.Encode(),
 	}
 
-	s, err := r.get(&m, ur, 200)
+	s, err := r.get(&m, ur, http.StatusOK)
 
 	return m, s, err
 }
@@ -128,7 +129,7 @@ func (r *Context) MembershipSingleGet(membershipID int) (MembershipObject, int, 
 		Path: "/memberships/" + strconv.Itoa(membershipID) + ".json",
 	}
 
-	status, err := r.get(&m, ur, 200)
+	status, err := r.get(&m, ur, http.StatusOK)
 
 	return m.Membership, status, err
 }
@@ -144,7 +145,7 @@ func (r *Context) MembershipAdd(projectID int, membership MembershipAddObject) (
 		Path: "/projects/" + strconv.Itoa(projectID) + "/memberships.json",
 	}
 
-	status, err := r.post(membershipAdd{Membership: membership}, &m, ur, 201)
+	status, err := r.post(membershipAdd{Membership: membership}, &m, ur, http.StatusCreated)
 
 	return m.Membership, status, err
 }
@@ -158,7 +159,7 @@ func (r *Context) MembershipUpdate(membershipID int, membership MembershipUpdate
 		Path: "/memberships/" + strconv.Itoa(membershipID) + ".json",
 	}
 
-	status, err := r.put(membershipUpdate{Membership: membership}, nil, ur, 200)
+	status, err := r.put(membershipUpdate{Membership: membership}, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
@@ -172,7 +173,7 @@ func (r *Context) MembershipDelete(membershipID int) (int, error) {
 		Path: "/memberships/" + strconv.Itoa(membershipID) + ".json",
 	}
 
-	status, err := r.del(nil, nil, ur, 200)
+	status, err := r.del(nil, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
