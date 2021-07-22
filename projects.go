@@ -6,19 +6,15 @@ import (
 	"strconv"
 )
 
+// ProjectStatus defines project status type
+type ProjectStatus int
+
 // ProjectStatus const
 const (
-	ProjectStatusActive   = 1
-	ProjectStatusClosed   = 5
-	ProjectStatusArchived = 9
+	ProjectStatusActive   ProjectStatus = 1
+	ProjectStatusClosed   ProjectStatus = 5
+	ProjectStatusArchived ProjectStatus = 9
 )
-
-// ProjectStatus map
-var ProjectStatus = map[int]string{
-	ProjectStatusActive:   "active",
-	ProjectStatusClosed:   "closed",
-	ProjectStatusArchived: "archived",
-}
 
 /* Get */
 
@@ -30,7 +26,7 @@ type ProjectObject struct {
 	Description     string                 `json:"description"`
 	Homepage        string                 `json:"homepage"` // used only: get single project
 	Parent          IDName                 `json:"parent"`
-	Status          int                    `json:"status"`
+	Status          ProjectStatus          `json:"status"`
 	CustomFields    []CustomFieldGetObject `json:"custom_fields"`
 	Trackers        []IDName               `json:"trackers"`
 	IssueCategories []IDName               `json:"issue_categories"`
@@ -72,6 +68,32 @@ type ProjectUpdateObject struct {
 	CustomFields        []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
 }
 
+/* Requests */
+
+// ProjectAllGetRequest contains data for making request to get all projects satisfying specified filters
+type ProjectAllGetRequest struct {
+	Includes []string
+	Filters  ProjectGetRequestFilters
+}
+
+// ProjectMultiGetRequest contains data for making request to get limited projects count satisfying specified filters
+type ProjectMultiGetRequest struct {
+	Includes []string
+	Filters  ProjectGetRequestFilters
+	Offset   int
+	Limit    int
+}
+
+// ProjectSingleGetRequest contains data for making request to get specified project
+type ProjectSingleGetRequest struct {
+	Includes []string
+}
+
+// ProjectGetRequestFilters contains data for making projects get request
+type ProjectGetRequestFilters struct {
+	Status ProjectStatus
+}
+
 /* Results */
 
 // ProjectResult stores projects requests processing result
@@ -96,6 +118,22 @@ type projectUpdate struct {
 	Project ProjectUpdateObject `json:"project"`
 }
 
+func (p ProjectStatus) String() string {
+
+	status := map[ProjectStatus]string{
+		ProjectStatusActive:   "active",
+		ProjectStatusClosed:   "closed",
+		ProjectStatusArchived: "archived",
+	}
+
+	s, b := status[p]
+	if b == false {
+		return "unknown"
+	}
+
+	return s
+}
+
 // ProjectAllGet gets info for all projects
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Listing-projects
@@ -104,16 +142,24 @@ type projectUpdate struct {
 // * trackers
 // * issue_categories
 // * enabled_modules
-func (r *Context) ProjectAllGet(includes []string) (ProjectResult, int, error) {
+func (r *Context) ProjectAllGet(request ProjectAllGetRequest) (ProjectResult, int, error) {
 
 	var (
 		projects       ProjectResult
 		offset, status int
 	)
 
+	m := ProjectMultiGetRequest{
+		Filters:  request.Filters,
+		Includes: request.Includes,
+		Limit:    limitDefault,
+	}
+
 	for {
 
-		p, s, err := r.ProjectMultiGet(includes, offset, limitDefault)
+		m.Offset = offset
+
+		p, s, err := r.ProjectMultiGet(m)
 		if err != nil {
 			return projects, s, err
 		}
@@ -143,16 +189,22 @@ func (r *Context) ProjectAllGet(includes []string) (ProjectResult, int, error) {
 // * trackers
 // * issue_categories
 // * enabled_modules
-func (r *Context) ProjectMultiGet(includes []string, offset, limit int) (ProjectResult, int, error) {
+func (r *Context) ProjectMultiGet(request ProjectMultiGetRequest) (ProjectResult, int, error) {
 
 	var p ProjectResult
 
+	status := ProjectStatusActive
+	if request.Filters.Status != 0 {
+		status = request.Filters.Status
+	}
+
 	urlParams := url.Values{}
-	urlParams.Add("offset", strconv.Itoa(offset))
-	urlParams.Add("limit", strconv.Itoa(limit))
+	urlParams.Add("offset", strconv.Itoa(request.Offset))
+	urlParams.Add("limit", strconv.Itoa(request.Limit))
+	urlParams.Add("status", strconv.Itoa(int(status)))
 
 	// Preparing includes
-	urlIncludes(&urlParams, includes)
+	urlIncludes(&urlParams, request.Includes)
 
 	ur := url.URL{
 		Path:     "/projects.json",
@@ -173,14 +225,14 @@ func (r *Context) ProjectMultiGet(includes []string, offset, limit int) (Project
 // * issue_categories
 // * enabled_modules
 // * time_entry_activities (since 3.4.0)
-func (r *Context) ProjectSingleGet(id int, includes []string) (ProjectObject, int, error) {
+func (r *Context) ProjectSingleGet(id int, request ProjectSingleGetRequest) (ProjectObject, int, error) {
 
 	var p projectSingleResult
 
 	urlParams := url.Values{}
 
 	// Preparing includes
-	urlIncludes(&urlParams, includes)
+	urlIncludes(&urlParams, request.Includes)
 
 	ur := url.URL{
 		Path:     "/projects/" + strconv.Itoa(id) + ".json",
