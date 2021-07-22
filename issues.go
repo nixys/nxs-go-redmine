@@ -146,6 +146,11 @@ type IssueMultiGetRequest struct {
 	Limit    int
 }
 
+// IssueSingleGetRequest contains data for making request to get specified issue
+type IssueSingleGetRequest struct {
+	Includes []string
+}
+
 // IssueGetRequestFilters contains data for making issues get request
 type IssueGetRequestFilters struct {
 	Fields map[string][]string
@@ -278,14 +283,14 @@ func (r *Context) IssuesMultiGet(request IssueMultiGetRequest) (IssueResult, int
 // * changesets
 // * journals
 // * watchers - Since 2.3.0
-func (r *Context) IssueSingleGet(id int, includes []string) (IssueObject, int, error) {
+func (r *Context) IssueSingleGet(id int, request IssueSingleGetRequest) (IssueObject, int, error) {
 
 	var i issueSingleResult
 
 	urlParams := url.Values{}
 
 	// Preparing includes
-	urlIncludes(&urlParams, includes)
+	urlIncludes(&urlParams, request.Includes)
 
 	ur := url.URL{
 		Path:     "/issues/" + strconv.Itoa(id) + ".json",

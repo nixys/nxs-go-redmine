@@ -165,7 +165,9 @@ func testIssueMultiGet(t *testing.T, r Context, id int) {
 
 func testIssueSingleGet(t *testing.T, r Context, id, userID int) {
 
-	i, s, err := r.IssueSingleGet(id, []string{"children", "attachments", "relations", "changesets", "journals", "watchers"})
+	i, s, err := r.IssueSingleGet(id, IssueSingleGetRequest{
+		Includes: []string{"children", "attachments", "relations", "changesets", "journals", "watchers"},
+	})
 	if err != nil {
 		t.Fatal("Issue get error:", err, s)
 	}
