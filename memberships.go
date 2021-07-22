@@ -39,6 +39,14 @@ type MembershipUpdateObject struct {
 	RoleIDs []int `json:"role_ids"`
 }
 
+/* Requests */
+
+// MembershipMultiGetRequest contains data for making request to get limited memberships count
+type MembershipMultiGetRequest struct {
+	Offset int
+	Limit  int
+}
+
 /* Results */
 
 // MembershipResult stores project memberships requests processing result
@@ -73,9 +81,15 @@ func (r *Context) MembershipAllGet(projectID int) (MembershipResult, int, error)
 		offset, status int
 	)
 
+	m := MembershipMultiGetRequest{
+		Limit: limitDefault,
+	}
+
 	for {
 
-		m, s, err := r.MembershipMultiGet(projectID, offset, limitDefault)
+		m.Offset = offset
+
+		m, s, err := r.MembershipMultiGet(projectID, m)
 		if err != nil {
 			return membership, s, err
 		}
@@ -100,13 +114,13 @@ func (r *Context) MembershipAllGet(projectID int) (MembershipResult, int, error)
 // MembershipMultiGet gets info for multiple memberships for project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#GET
-func (r *Context) MembershipMultiGet(projectID, offset, limit int) (MembershipResult, int, error) {
+func (r *Context) MembershipMultiGet(projectID int, request MembershipMultiGetRequest) (MembershipResult, int, error) {
 
 	var m MembershipResult
 
 	urlParams := url.Values{}
-	urlParams.Add("offset", strconv.Itoa(offset))
-	urlParams.Add("limit", strconv.Itoa(limit))
+	urlParams.Add("offset", strconv.Itoa(request.Offset))
+	urlParams.Add("limit", strconv.Itoa(request.Limit))
 
 	ur := url.URL{
 		Path:     "/projects/" + strconv.Itoa(projectID) + "/memberships.json",
