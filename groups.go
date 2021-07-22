@@ -46,6 +46,19 @@ type GroupAddUserObject struct {
 	UserID int `json:"user_id"`
 }
 
+/* Requests */
+
+// GroupMultiGetRequest contains data for making request to get limited groups count
+type GroupMultiGetRequest struct {
+	Offset int
+	Limit  int
+}
+
+// GroupSingleGetRequest contains data for making request to get specified group
+type GroupSingleGetRequest struct {
+	Includes []string
+}
+
 /* Results */
 
 // GroupResult stores groups requests processing result
@@ -80,9 +93,15 @@ func (r *Context) GroupAllGet() (GroupResult, int, error) {
 		offset, status int
 	)
 
+	m := GroupMultiGetRequest{
+		Limit: limitDefault,
+	}
+
 	for {
 
-		g, s, err := r.GroupMultiGet(offset, limitDefault)
+		m.Offset = offset
+
+		g, s, err := r.GroupMultiGet(m)
 		if err != nil {
 			return groups, s, err
 		}
@@ -107,13 +126,13 @@ func (r *Context) GroupAllGet() (GroupResult, int, error) {
 // GroupMultiGet gets info for multiple groups
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#GET
-func (r *Context) GroupMultiGet(offset, limit int) (GroupResult, int, error) {
+func (r *Context) GroupMultiGet(request GroupMultiGetRequest) (GroupResult, int, error) {
 
 	var g GroupResult
 
 	urlParams := url.Values{}
-	urlParams.Add("offset", strconv.Itoa(offset))
-	urlParams.Add("limit", strconv.Itoa(limit))
+	urlParams.Add("offset", strconv.Itoa(request.Offset))
+	urlParams.Add("limit", strconv.Itoa(request.Limit))
 
 	ur := url.URL{
 		Path:     "/groups.json",
@@ -132,14 +151,14 @@ func (r *Context) GroupMultiGet(offset, limit int) (GroupResult, int, error) {
 // Available includes:
 // * users
 // * memberships
-func (r *Context) GroupSingleGet(id int, includes []string) (GroupObject, int, error) {
+func (r *Context) GroupSingleGet(id int, request GroupSingleGetRequest) (GroupObject, int, error) {
 
 	var g groupSingleResult
 
 	urlParams := url.Values{}
 
 	// Preparing includes
-	urlIncludes(&urlParams, includes)
+	urlIncludes(&urlParams, request.Includes)
 
 	ur := url.URL{
 		Path:     "/groups/" + strconv.Itoa(id) + ".json",
