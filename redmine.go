@@ -49,7 +49,7 @@ func (r *Context) get(out interface{}, uri url.URL, statusExpected int) (int, er
 	u := r.endpoint + uri.String()
 
 	// Create request
-	req, err := http.NewRequest("GET", u, nil)
+	req, err := http.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
 		return 0, err
 	}
@@ -68,8 +68,10 @@ func (r *Context) get(out interface{}, uri url.URL, statusExpected int) (int, er
 
 	if res.StatusCode != statusExpected {
 		if err := dJ.Decode(&er); err != nil {
-			return res.StatusCode, err
+			er.Errors = append(er.Errors, fmt.Sprintf("json decode error: %v", err))
 		}
+		er.Errors = append(er.Errors, fmt.Sprintf("unexpected status code has been returned (expected: %d, returned: %d, url: %s, method: %s)", statusExpected, res.StatusCode, u, http.MethodGet))
+
 		err = errors.New(strings.Join(er.Errors, "\n"))
 	} else {
 		if out != nil {
@@ -100,17 +102,17 @@ func (r *Context) get(out interface{}, uri url.URL, statusExpected int) (int, er
 
 func (r *Context) post(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
 
-	return r.alter("POST", in, out, uri, statusExpected)
+	return r.alter(http.MethodPost, in, out, uri, statusExpected)
 }
 
 func (r *Context) put(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
 
-	return r.alter("PUT", in, out, uri, statusExpected)
+	return r.alter(http.MethodPut, in, out, uri, statusExpected)
 }
 
 func (r *Context) del(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
 
-	return r.alter("DELETE", in, out, uri, statusExpected)
+	return r.alter(http.MethodDelete, in, out, uri, statusExpected)
 }
 
 func (r *Context) alter(method string, in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
@@ -142,9 +144,12 @@ func (r *Context) alter(method string, in interface{}, out interface{}, uri url.
 	dJ := json.NewDecoder(res.Body)
 
 	if res.StatusCode != statusExpected {
+
 		if err := dJ.Decode(&er); err != nil {
-			return res.StatusCode, err
+			er.Errors = append(er.Errors, fmt.Sprintf("json decode error: %v", err))
 		}
+		er.Errors = append(er.Errors, fmt.Sprintf("unexpected status code has been returned (expected: %d, returned: %d, url: %s, method: %s)", statusExpected, res.StatusCode, u, method))
+
 		err = errors.New(strings.Join(er.Errors, "\n"))
 	} else {
 		if out != nil {
@@ -180,7 +185,7 @@ func (r *Context) uploadFile(f io.Reader, out interface{}, uri url.URL, statusEx
 	u := r.endpoint + uri.String()
 
 	// Create request
-	req, err := http.NewRequest("POST", u, f)
+	req, err := http.NewRequest(http.MethodPost, u, f)
 	if err != nil {
 		return 0, err
 	}
@@ -200,8 +205,10 @@ func (r *Context) uploadFile(f io.Reader, out interface{}, uri url.URL, statusEx
 
 	if res.StatusCode != statusExpected {
 		if err := dJ.Decode(&er); err != nil {
-			return res.StatusCode, err
+			er.Errors = append(er.Errors, fmt.Sprintf("json decode error: %v", err))
 		}
+		er.Errors = append(er.Errors, fmt.Sprintf("unexpected status code has been returned (expected: %d, returned: %d, url: %s, method: %s)", statusExpected, res.StatusCode, u, http.MethodPost))
+
 		err = errors.New(strings.Join(er.Errors, "\n"))
 	} else {
 		if out != nil {

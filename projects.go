@@ -1,6 +1,7 @@
 package redmine
 
 import (
+	"net/http"
 	"net/url"
 	"strconv"
 )
@@ -158,7 +159,7 @@ func (r *Context) ProjectMultiGet(includes []string, offset, limit int) (Project
 		RawQuery: urlParams.Encode(),
 	}
 
-	s, err := r.get(&p, ur, 200)
+	s, err := r.get(&p, ur, http.StatusOK)
 
 	return p, s, err
 }
@@ -186,7 +187,7 @@ func (r *Context) ProjectSingleGet(id int, includes []string) (ProjectObject, in
 		RawQuery: urlParams.Encode(),
 	}
 
-	status, err := r.get(&p, ur, 200)
+	status, err := r.get(&p, ur, http.StatusOK)
 
 	return p.Project, status, err
 }
@@ -202,7 +203,7 @@ func (r *Context) ProjectCreate(project ProjectCreateObject) (ProjectObject, int
 		Path: "/projects.json",
 	}
 
-	status, err := r.post(projectCreate{Project: project}, &p, ur, 201)
+	status, err := r.post(projectCreate{Project: project}, &p, ur, http.StatusCreated)
 
 	return p.Project, status, err
 }
@@ -216,7 +217,7 @@ func (r *Context) ProjectUpdate(id int, project ProjectUpdateObject) (int, error
 		Path: "/projects/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.put(projectUpdate{Project: project}, nil, ur, 200)
+	status, err := r.put(projectUpdate{Project: project}, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
@@ -230,7 +231,7 @@ func (r *Context) ProjectDelete(id int) (int, error) {
 		Path: "/projects/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.del(nil, nil, ur, 200)
+	status, err := r.del(nil, nil, ur, http.StatusNoContent)
 
 	return status, err
 }

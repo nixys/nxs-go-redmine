@@ -1,6 +1,9 @@
 package redmine
 
-import "net/url"
+import (
+	"net/http"
+	"net/url"
+)
 
 /* Get */
 
@@ -28,7 +31,7 @@ func (r *Context) TrackerAllGet() ([]TrackerObject, int, error) {
 		Path: "/trackers.json",
 	}
 
-	status, err := r.get(&t, ur, 200)
+	status, err := r.get(&t, ur, http.StatusOK)
 
 	return t.Trackers, status, err
 }

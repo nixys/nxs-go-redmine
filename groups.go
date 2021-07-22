@@ -1,6 +1,7 @@
 package redmine
 
 import (
+	"net/http"
 	"net/url"
 	"strconv"
 )
@@ -119,7 +120,7 @@ func (r *Context) GroupMultiGet(offset, limit int) (GroupResult, int, error) {
 		RawQuery: urlParams.Encode(),
 	}
 
-	s, err := r.get(&g, ur, 200)
+	s, err := r.get(&g, ur, http.StatusOK)
 
 	return g, s, err
 }
@@ -145,7 +146,7 @@ func (r *Context) GroupSingleGet(id int, includes []string) (GroupObject, int, e
 		RawQuery: urlParams.Encode(),
 	}
 
-	status, err := r.get(&g, ur, 200)
+	status, err := r.get(&g, ur, http.StatusOK)
 
 	return g.Group, status, err
 }
@@ -161,7 +162,7 @@ func (r *Context) GroupCreate(group GroupCreateObject) (GroupObject, int, error)
 		Path: "/groups.json",
 	}
 
-	status, err := r.post(groupCreate{Group: group}, &g, ur, 201)
+	status, err := r.post(groupCreate{Group: group}, &g, ur, http.StatusCreated)
 
 	return g.Group, status, err
 }
@@ -175,7 +176,7 @@ func (r *Context) GroupUpdate(id int, group GroupUpdateObject) (int, error) {
 		Path: "/groups/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.put(groupUpdate{Group: group}, nil, ur, 200)
+	status, err := r.put(groupUpdate{Group: group}, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
@@ -189,7 +190,7 @@ func (r *Context) GroupDelete(id int) (int, error) {
 		Path: "/groups/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.del(nil, nil, ur, 200)
+	status, err := r.del(nil, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
@@ -203,7 +204,7 @@ func (r *Context) GroupAddUser(id int, group GroupAddUserObject) (int, error) {
 		Path: "/groups/" + strconv.Itoa(id) + "/users.json",
 	}
 
-	status, err := r.post(group, nil, ur, 200)
+	status, err := r.post(group, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
@@ -217,7 +218,7 @@ func (r *Context) GroupDeleteUser(id int, userID int) (int, error) {
 		Path: "/groups/" + strconv.Itoa(id) + "/users/" + strconv.Itoa(userID) + ".json",
 	}
 
-	status, err := r.del(nil, nil, ur, 200)
+	status, err := r.del(nil, nil, ur, http.StatusNoContent)
 
 	return status, err
 }

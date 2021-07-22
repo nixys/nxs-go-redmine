@@ -2,6 +2,8 @@
 
 This Go package provides access to Redmine API.
 
+Compatible with Redmine 4.2+
+
 Follows Redmine resources are fully implemented at this moment:
 - [Issues](https://www.redmine.org/projects/redmine/wiki/Rest_Issues)
 - [Projects](https://www.redmine.org/projects/redmine/wiki/Rest_Projects)
@@ -17,7 +19,7 @@ Follows Redmine resources are fully implemented at this moment:
 ## Install
 
 ```
-go get github.com/nixys/nxs-go-redmine
+go get github.com/nixys/nxs-go-redmine/v2
 ```
 
 ## Example of usage
@@ -33,7 +35,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/nixys/nxs-go-redmine"
+	"github.com/nixys/nxs-go-redmine/v2"
 )
 
 func main() {

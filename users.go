@@ -1,6 +1,7 @@
 package redmine
 
 import (
+	"net/http"
 	"net/url"
 	"strconv"
 )
@@ -209,7 +210,7 @@ func (r *Context) UserMultiGet(request UserMultiGetRequest) (UserResult, int, er
 		RawQuery: urlParams.Encode(),
 	}
 
-	s, err := r.get(&u, ur, 200)
+	s, err := r.get(&u, ur, http.StatusOK)
 
 	return u, s, err
 }
@@ -235,7 +236,7 @@ func (r *Context) UserSingleGet(id int, includes []string) (UserObject, int, err
 		RawQuery: urlParams.Encode(),
 	}
 
-	status, err := r.get(&u, ur, 200)
+	status, err := r.get(&u, ur, http.StatusOK)
 
 	return u.User, status, err
 }
@@ -261,7 +262,7 @@ func (r *Context) UserCurrentGet(includes []string) (UserObject, int, error) {
 		RawQuery: urlParams.Encode(),
 	}
 
-	status, err := r.get(&u, ur, 200)
+	status, err := r.get(&u, ur, http.StatusOK)
 
 	return u.User, status, err
 }
@@ -277,7 +278,7 @@ func (r *Context) UserCreate(user UserCreateObject) (UserObject, int, error) {
 		Path: "/users.json",
 	}
 
-	status, err := r.post(userCreate{User: user}, &u, ur, 201)
+	status, err := r.post(userCreate{User: user}, &u, ur, http.StatusCreated)
 
 	return u.User, status, err
 }
@@ -291,7 +292,7 @@ func (r *Context) UserUpdate(id int, user UserUpdateObject) (int, error) {
 		Path: "/users/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.put(userUpdate{User: user}, nil, ur, 200)
+	status, err := r.put(userUpdate{User: user}, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
@@ -305,7 +306,7 @@ func (r *Context) UserDelete(id int) (int, error) {
 		Path: "/users/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.del(nil, nil, ur, 200)
+	status, err := r.del(nil, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
