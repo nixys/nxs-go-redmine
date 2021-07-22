@@ -48,7 +48,9 @@ func testAttachmentUpload(t *testing.T, r Context, projectID, userID int) int {
 	i := testIssueCreate(t, r, projectID, userID, &u)
 
 	// Request single issue to get Attachment ID
-	j, s, err := r.IssueSingleGet(i.ID, []string{"attachments"})
+	j, s, err := r.IssueSingleGet(i.ID, IssueSingleGetRequest{
+		Includes: []string{"attachments"},
+	})
 	if err != nil {
 		t.Fatal("Issue get error:", err, s)
 	}
