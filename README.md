@@ -19,7 +19,7 @@ Follows Redmine resources are fully implemented at this moment:
 ## Install
 
 ```
-go get github.com/nixys/nxs-go-redmine/v2
+go get github.com/nixys/nxs-go-redmine/v3
 ```
 
 ## Example of usage
@@ -35,7 +35,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/nixys/nxs-go-redmine/v2"
+	"github.com/nixys/nxs-go-redmine/v3"
 )
 
 func main() {
@@ -57,7 +57,12 @@ func main() {
 	fmt.Println("Init: success")
 
 	// Get all projects 
-	p, _, err := r.ProjectAllGet([]string{"trackers", "issue_categories", "enabled_modules"})
+	p, _, err := r.ProjectAllGet(ProjectAllGetRequest{
+		Includes: []string{"trackers", "issue_categories", "enabled_modules"},
+		Filters: ProjectGetRequestFilters{
+			Status: ProjectStatusActive,
+		},
+	})
 	if err != nil {
 		fmt.Println("Projects get error:", err)
 		os.Exit(1)
