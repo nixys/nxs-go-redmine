@@ -225,7 +225,7 @@ func (r *Context) ProjectMultiGet(request ProjectMultiGetRequest) (ProjectResult
 // * issue_categories
 // * enabled_modules
 // * time_entry_activities (since 3.4.0)
-func (r *Context) ProjectSingleGet(id int, request ProjectSingleGetRequest) (ProjectObject, int, error) {
+func (r *Context) ProjectSingleGet(id string, request ProjectSingleGetRequest) (ProjectObject, int, error) {
 
 	var p projectSingleResult
 
@@ -235,7 +235,7 @@ func (r *Context) ProjectSingleGet(id int, request ProjectSingleGetRequest) (Pro
 	urlIncludes(&urlParams, request.Includes)
 
 	ur := url.URL{
-		Path:     "/projects/" + strconv.Itoa(id) + ".json",
+		Path:     "/projects/" + id + ".json",
 		RawQuery: urlParams.Encode(),
 	}
 
@@ -263,10 +263,10 @@ func (r *Context) ProjectCreate(project ProjectCreateObject) (ProjectObject, int
 // ProjectUpdate updates project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Updating-a-project
-func (r *Context) ProjectUpdate(id int, project ProjectUpdateObject) (int, error) {
+func (r *Context) ProjectUpdate(id string, project ProjectUpdateObject) (int, error) {
 
 	ur := url.URL{
-		Path: "/projects/" + strconv.Itoa(id) + ".json",
+		Path: "/projects/" + id + ".json",
 	}
 
 	status, err := r.put(projectUpdate{Project: project}, nil, ur, http.StatusNoContent)
@@ -277,10 +277,10 @@ func (r *Context) ProjectUpdate(id int, project ProjectUpdateObject) (int, error
 // ProjectDelete deletes project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Deleting-a-project
-func (r *Context) ProjectDelete(id int) (int, error) {
+func (r *Context) ProjectDelete(id string) (int, error) {
 
 	ur := url.URL{
-		Path: "/projects/" + strconv.Itoa(id) + ".json",
+		Path: "/projects/" + id + ".json",
 	}
 
 	status, err := r.del(nil, nil, ur, http.StatusNoContent)

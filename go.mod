@@ -1,4 +1,4 @@
-module github.com/nixys/nxs-go-redmine/v3
+module github.com/nixys/nxs-go-redmine/v4
 
 go 1.14
 

@@ -74,7 +74,7 @@ type membershipUpdate struct {
 // MembershipAllGet gets info for all memberships for project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#GET
-func (r *Context) MembershipAllGet(projectID int) (MembershipResult, int, error) {
+func (r *Context) MembershipAllGet(projectID string) (MembershipResult, int, error) {
 
 	var (
 		membership     MembershipResult
@@ -114,7 +114,7 @@ func (r *Context) MembershipAllGet(projectID int) (MembershipResult, int, error)
 // MembershipMultiGet gets info for multiple memberships for project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#GET
-func (r *Context) MembershipMultiGet(projectID int, request MembershipMultiGetRequest) (MembershipResult, int, error) {
+func (r *Context) MembershipMultiGet(projectID string, request MembershipMultiGetRequest) (MembershipResult, int, error) {
 
 	var m MembershipResult
 
@@ -123,7 +123,7 @@ func (r *Context) MembershipMultiGet(projectID int, request MembershipMultiGetRe
 	urlParams.Add("limit", strconv.Itoa(request.Limit))
 
 	ur := url.URL{
-		Path:     "/projects/" + strconv.Itoa(projectID) + "/memberships.json",
+		Path:     "/projects/" + projectID + "/memberships.json",
 		RawQuery: urlParams.Encode(),
 	}
 
@@ -151,12 +151,12 @@ func (r *Context) MembershipSingleGet(membershipID int) (MembershipObject, int, 
 // MembershipAdd adds new member to project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#POST
-func (r *Context) MembershipAdd(projectID int, membership MembershipAddObject) (MembershipObject, int, error) {
+func (r *Context) MembershipAdd(projectID string, membership MembershipAddObject) (MembershipObject, int, error) {
 
 	var m membershipSingleResult
 
 	ur := url.URL{
-		Path: "/projects/" + strconv.Itoa(projectID) + "/memberships.json",
+		Path: "/projects/" + projectID + "/memberships.json",
 	}
 
 	status, err := r.post(membershipAdd{Membership: membership}, &m, ur, http.StatusCreated)

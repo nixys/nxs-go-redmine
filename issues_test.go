@@ -32,12 +32,12 @@ func TestIssuesCRUD(t *testing.T) {
 
 	// Preparing auxiliary data
 	pCreated := testProjectCreate(t, r, []int{testIssueTrackerID})
-	defer testProjectDetele(t, r, pCreated.ID)
+	defer testProjectDetele(t, r, pCreated.Identifier)
 
 	uCreated := testUserCreate(t, r)
 	defer testUserDetele(t, r, uCreated.ID)
 
-	testMembershipAdd(t, r, pCreated.ID, uCreated.ID, testMembershipRoleID)
+	testMembershipAdd(t, r, pCreated.Identifier, uCreated.ID, testMembershipRoleID)
 
 	// Add and delete
 	iCreated := testIssueCreate(t, r, pCreated.ID, uCreated.ID, nil)

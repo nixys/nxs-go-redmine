@@ -26,7 +26,7 @@ func TestAttachmentsCRUD(t *testing.T) {
 
 	// Preparing auxiliary data
 	pCreated := testProjectCreate(t, r, []int{testIssueTrackerID})
-	defer testProjectDetele(t, r, pCreated.ID)
+	defer testProjectDetele(t, r, pCreated.Identifier)
 
 	// Get multi
 

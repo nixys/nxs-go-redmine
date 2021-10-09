@@ -26,14 +26,14 @@ func TestMembershipCRUD(t *testing.T) {
 	defer testUserDetele(t, r, uCreated.ID)
 
 	pCreated := testProjectCreate(t, r, []int{})
-	defer testProjectDetele(t, r, pCreated.ID)
+	defer testProjectDetele(t, r, pCreated.Identifier)
 
 	// Add and delete
-	mCreated := testMembershipAdd(t, r, pCreated.ID, uCreated.ID, testMembershipRoleID1)
+	mCreated := testMembershipAdd(t, r, pCreated.Identifier, uCreated.ID, testMembershipRoleID1)
 	defer testMembershipDetele(t, r, mCreated.ID)
 
 	// Get all
-	testMembershipAllGet(t, r, mCreated.ID, pCreated.ID, testMembershipRoleID1)
+	testMembershipAllGet(t, r, mCreated.ID, pCreated.Identifier, testMembershipRoleID1)
 
 	// Update
 	testMembershipUpdate(t, r, mCreated.ID, testMembershipRoleID1, testMembershipRoleID2)
@@ -42,7 +42,7 @@ func TestMembershipCRUD(t *testing.T) {
 	testMembershipSingleGet(t, r, mCreated.ID, testMembershipRoleID2)
 }
 
-func testMembershipAdd(t *testing.T, r Context, projectID, userID, roleID int) MembershipObject {
+func testMembershipAdd(t *testing.T, r Context, projectID string, userID, roleID int) MembershipObject {
 
 	m, _, err := r.MembershipAdd(projectID, MembershipAddObject{
 		UserID:  userID,
@@ -79,7 +79,7 @@ func testMembershipDetele(t *testing.T, r Context, id int) {
 	t.Logf("Membership delete: success")
 }
 
-func testMembershipAllGet(t *testing.T, r Context, id, projectID, roleID int) {
+func testMembershipAllGet(t *testing.T, r Context, id int, projectID string, roleID int) {
 
 	m, _, err := r.MembershipAllGet(projectID)
 	if err != nil {
