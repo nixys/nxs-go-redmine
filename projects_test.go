@@ -79,14 +79,19 @@ func testProjectDetele(t *testing.T, r Context, id int) {
 
 func testProjectAllGet(t *testing.T, r Context) {
 
-	p, _, err := r.ProjectAllGet([]string{"trackers", "issue_categories", "enabled_modules"})
+	p, _, err := r.ProjectAllGet(ProjectAllGetRequest{
+		Includes: []string{"trackers", "issue_categories", "enabled_modules"},
+		Filters: ProjectGetRequestFilters{
+			Status: ProjectStatusActive,
+		},
+	})
 	if err != nil {
 		t.Fatal("Projects get error:", err)
 	}
 
 	for _, e := range p.Projects {
 		if e.Name == testProjectName {
-			t.Logf("Projects get: success")
+			t.Logf("Projects all get: success")
 			return
 		}
 	}
@@ -96,7 +101,9 @@ func testProjectAllGet(t *testing.T, r Context) {
 
 func testProjectSingleGet(t *testing.T, r Context, id int) {
 
-	_, _, err := r.ProjectSingleGet(id, []string{"trackers", "issue_categories", "enabled_modules"})
+	_, _, err := r.ProjectSingleGet(id, ProjectSingleGetRequest{
+		Includes: []string{"trackers", "issue_categories", "enabled_modules"},
+	})
 	if err != nil {
 		t.Fatal("Project get error:", err)
 	}

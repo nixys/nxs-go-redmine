@@ -116,7 +116,9 @@ func testGroupAllGet(t *testing.T, r Context) {
 
 func testGroupSingleGet(t *testing.T, r Context, id, userID int) {
 
-	g, _, err := r.GroupSingleGet(id, []string{"users", "memberships"})
+	g, _, err := r.GroupSingleGet(id, GroupSingleGetRequest{
+		Includes: []string{"users", "memberships"},
+	})
 	if err != nil {
 		t.Fatal("Group get error:", err)
 	}

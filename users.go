@@ -6,39 +6,29 @@ import (
 	"strconv"
 )
 
+// UserStatus defines user status type
+type UserStatus int
+
+// UserNotification defines user notification type
+type UserNotification string
+
 // UserStatus const
 const (
-	UserStatusActive     = 1
-	UserStatusRegistered = 2
-	UserStatusLocked     = 3
+	UserStatusAnonymous  UserStatus = 0
+	UserStatusActive     UserStatus = 1
+	UserStatusRegistered UserStatus = 2
+	UserStatusLocked     UserStatus = 3
 )
 
 // UserNotification const
 const (
-	UserNotificationAll          = 1
-	UserNotificationSelected     = 2
-	UserNotificationOnlyMyEvents = 3
-	UserNotificationOnlyAssigned = 4
-	UserNotificationOnlyOwner    = 5
-	UserNotificationOnlyNone     = 6
+	UserNotificationAll          UserNotification = "all"
+	UserNotificationSelected     UserNotification = "selected"
+	UserNotificationOnlyMyEvents UserNotification = "only_my_events"
+	UserNotificationOnlyAssigned UserNotification = "only_assigned"
+	UserNotificationOnlyOwner    UserNotification = "only_owner"
+	UserNotificationOnlyNone     UserNotification = "none"
 )
-
-// UserStatus names in Redmine
-var UserStatus = map[int]string{
-	UserStatusActive:     "active",
-	UserStatusRegistered: "registered",
-	UserStatusLocked:     "locked",
-}
-
-// UserNotification names in Redmine
-var UserNotification = map[int]string{
-	UserNotificationAll:          "all",
-	UserNotificationSelected:     "selected",
-	UserNotificationOnlyMyEvents: "only_my_events",
-	UserNotificationOnlyAssigned: "only_assigned",
-	UserNotificationOnlyOwner:    "only_owner",
-	UserNotificationOnlyNone:     "none",
-}
 
 /* Get */
 
@@ -52,7 +42,7 @@ type UserObject struct {
 	CreatedOn    string                 `json:"created_on"`
 	LastLoginOn  string                 `json:"last_login_on"`
 	APIKey       string                 `json:"api_key"` // used only: get single user
-	Status       int                    `json:"status"`  // used only: get single user
+	Status       UserStatus             `json:"status"`  // used only: get single user
 	CustomFields []CustomFieldGetObject `json:"custom_fields"`
 	Groups       []IDName               `json:"groups"`      // used only: get single user
 	Memberships  []UserMembershipObject `json:"memberships"` // used only: get single user
@@ -113,9 +103,19 @@ type UserMultiGetRequest struct {
 	Limit   int
 }
 
+// UserSingleGetRequest contains data for making request to get specified user
+type UserSingleGetRequest struct {
+	Includes []string
+}
+
+// UserCurrentGetRequest contains data for making request to get current user
+type UserCurrentGetRequest struct {
+	Includes []string
+}
+
 // UserGetRequestFilters contains data for making users get request
 type UserGetRequestFilters struct {
-	Status  int
+	Status  UserStatus
 	Name    string
 	GroupID int
 }
@@ -142,6 +142,27 @@ type userCreate struct {
 
 type userUpdate struct {
 	User UserUpdateObject `json:"user"`
+}
+
+func (u UserStatus) String() string {
+
+	status := map[UserStatus]string{
+		UserStatusAnonymous:  "anonymous",
+		UserStatusActive:     "active",
+		UserStatusRegistered: "registered",
+		UserStatusLocked:     "locked",
+	}
+
+	s, b := status[u]
+	if b == false {
+		return "unknown"
+	}
+
+	return s
+}
+
+func (u UserNotification) String() string {
+	return string(u)
 }
 
 // UserAllGet gets info for all users satisfying specified filters
@@ -222,14 +243,14 @@ func (r *Context) UserMultiGet(request UserMultiGetRequest) (UserResult, int, er
 // Available includes:
 // * groups
 // * memberships
-func (r *Context) UserSingleGet(id int, includes []string) (UserObject, int, error) {
+func (r *Context) UserSingleGet(id int, request UserSingleGetRequest) (UserObject, int, error) {
 
 	var u userSingleResult
 
 	urlParams := url.Values{}
 
 	// Preparing includes
-	urlIncludes(&urlParams, includes)
+	urlIncludes(&urlParams, request.Includes)
 
 	ur := url.URL{
 		Path:     "/users/" + strconv.Itoa(id) + ".json",
@@ -248,14 +269,14 @@ func (r *Context) UserSingleGet(id int, includes []string) (UserObject, int, err
 // Available includes:
 // * groups
 // * memberships
-func (r *Context) UserCurrentGet(includes []string) (UserObject, int, error) {
+func (r *Context) UserCurrentGet(request UserCurrentGetRequest) (UserObject, int, error) {
 
 	var u userSingleResult
 
 	urlParams := url.Values{}
 
 	// Preparing includes
-	urlIncludes(&urlParams, includes)
+	urlIncludes(&urlParams, request.Includes)
 
 	ur := url.URL{
 		Path:     "/users/current.json",
@@ -317,7 +338,7 @@ func userURLFilters(urlParams *url.Values, filters UserGetRequestFilters) {
 		filters.Status = 1
 	}
 
-	urlParams.Add("status", strconv.Itoa(filters.Status))
+	urlParams.Add("status", strconv.Itoa(int(filters.Status)))
 
 	if len(filters.Name) > 0 {
 		urlParams.Add("name", filters.Name)

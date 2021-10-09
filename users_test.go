@@ -42,7 +42,7 @@ func testUserCreate(t *testing.T, r Context) UserObject {
 		FirstName:        testUserFirstName,
 		LastName:         testUserLastName,
 		Mail:             testUserMail,
-		MailNotification: UserNotification[UserNotificationOnlyAssigned],
+		MailNotification: UserNotificationOnlyAssigned.String(),
 		MustChangePasswd: true,
 		GeneratePassword: true,
 	})
@@ -60,7 +60,7 @@ func testUserUpdate(t *testing.T, r Context, id int) {
 	_, err := r.UserUpdate(id, UserUpdateObject{
 		FirstName:        testUserFirstName2,
 		LastName:         testUserLastName2,
-		MailNotification: UserNotification[UserNotificationOnlyNone],
+		MailNotification: UserNotificationOnlyNone.String(),
 	})
 	if err != nil {
 		t.Fatal("User update error:", err)
@@ -104,7 +104,9 @@ func testUserAllGet(t *testing.T, r Context) {
 
 func testUserSingleGet(t *testing.T, r Context, id int) {
 
-	_, _, err := r.UserSingleGet(id, []string{"groups", "memberships"})
+	_, _, err := r.UserSingleGet(id, UserSingleGetRequest{
+		Includes: []string{"groups", "memberships"},
+	})
 	if err != nil {
 		t.Fatal("User get error:", err)
 	}
@@ -114,7 +116,9 @@ func testUserSingleGet(t *testing.T, r Context, id int) {
 
 func testUserCurrentGet(t *testing.T, r Context) {
 
-	_, _, err := r.UserCurrentGet([]string{"groups", "memberships"})
+	_, _, err := r.UserCurrentGet(UserCurrentGetRequest{
+		Includes: []string{"groups", "memberships"},
+	})
 	if err != nil {
 		t.Fatal("Current user get error:", err)
 	}
