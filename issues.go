@@ -99,6 +99,8 @@ type IssueCreateObject struct {
 	PriorityID     int                       `json:"priority_id,omitempty"`
 	Subject        string                    `json:"subject"`
 	Description    string                    `json:"description,omitempty"`
+	StartDate      string                    `json:"start_date,omitempty"`
+	DueDate        string                    `json:"due_date,omitempty"`
 	CategoryID     int                       `json:"category_id,omitempty"`
 	FixedVersionID int                       `json:"fixed_version_id,omitempty"`
 	AssignedToID   int                       `json:"assigned_to_id,omitempty"`
@@ -120,6 +122,8 @@ type IssueUpdateObject struct {
 	PriorityID     int                       `json:"priority_id,omitempty"`
 	Subject        string                    `json:"subject,omitempty"`
 	Description    string                    `json:"description,omitempty"`
+	StartDate      *string                   `json:"start_date,omitempty"`
+	DueDate        *string                   `json:"due_date,omitempty"`
 	CategoryID     int                       `json:"category_id,omitempty"`
 	FixedVersionID int                       `json:"fixed_version_id,omitempty"`
 	AssignedToID   int                       `json:"assigned_to_id,omitempty"`

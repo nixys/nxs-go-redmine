@@ -15,6 +15,12 @@ var (
 
 	testIssueNote        = "Test issue note"
 	testIssuePrivateNote = "Test issue private note"
+
+	testIssueStartDate = "2022-07-01"
+	testIssueDueDate   = "2022-07-02"
+
+	testIssueStartDate2 = "2022-07-03"
+	testIssueDueDate2   = "2022-07-04"
 )
 
 func TestIssuesCRUD(t *testing.T) {
@@ -85,10 +91,21 @@ func testIssueCreate(t *testing.T, r Context, projectID, userID int, upload *Att
 		Subject:        testIssueSubject,
 		WatcherUserIDs: w,
 		Description:    testIssueDescription,
+		StartDate:      testIssueStartDate,
+		DueDate:        testIssueDueDate,
 		Uploads:        u,
 	})
 	if err != nil {
 		t.Fatal("Issue create error:", err, s)
+	}
+
+	o, s, err := r.IssueSingleGet(i.ID, IssueSingleGetRequest{})
+	if err != nil {
+		t.Fatal("Issue create error:", err, s)
+	}
+
+	if o.StartDate != testIssueStartDate || o.DueDate != testIssueDueDate {
+		t.Fatal("Issue create error: incorrect issue start or due date")
 	}
 
 	t.Logf("Issue create: success")
@@ -101,10 +118,21 @@ func testIssueUpdate(t *testing.T, r Context, id int) {
 	s, err := r.IssueUpdate(id, IssueUpdateObject{
 		Subject:     testIssueSubject2,
 		Description: testIssueDescription2,
+		StartDate:   &testIssueStartDate2,
+		DueDate:     &testIssueDueDate2,
 		IsPrivate:   true,
 	})
 	if err != nil {
 		t.Fatal("Issue update error:", err, s)
+	}
+
+	o, s, err := r.IssueSingleGet(id, IssueSingleGetRequest{})
+	if err != nil {
+		t.Fatal("Issue update error:", err, s)
+	}
+
+	if o.StartDate != testIssueStartDate2 || o.DueDate != testIssueDueDate2 {
+		t.Fatal("Issue update error: incorrect issue start or due date")
 	}
 
 	t.Logf("Issue update: success")
