@@ -73,11 +73,12 @@ type IssueRelationObject struct {
 
 // IssueJournalObject struct used for issues get operations
 type IssueJournalObject struct {
-	ID        int                        `json:"id"`
-	User      IDName                     `json:"user"`
-	Notes     string                     `json:"notes"`
-	CreatedOn string                     `json:"created_on"`
-	Details   []IssueJournalDetailObject `json:"details"`
+	ID           int                        `json:"id"`
+	User         IDName                     `json:"user"`
+	Notes        string                     `json:"notes"`
+	CreatedOn    string                     `json:"created_on"`
+	PrivateNotes bool                       `json:"private_notes"`
+	Details      []IssueJournalDetailObject `json:"details"`
 }
 
 // IssueJournalDetailObject struct used for issues get operations
@@ -128,6 +129,7 @@ type IssueUpdateObject struct {
 	CustomFields   []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
 	Uploads        []AttachmentUploadObject  `json:"uploads,omitempty"`
 	Notes          string                    `json:"notes,omitempty"`
+	PrivateNotes   bool                      `json:"private_notes,omitempty"`
 }
 
 /* Requests */

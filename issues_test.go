@@ -12,6 +12,9 @@ var (
 
 	testIssueSubject2     = "Test issue subject2"
 	testIssueDescription2 = "Test issue description2"
+
+	testIssueNote        = "Test issue note"
+	testIssuePrivateNote = "Test issue private note"
 )
 
 func TestIssuesCRUD(t *testing.T) {
@@ -47,6 +50,8 @@ func TestIssuesCRUD(t *testing.T) {
 	testIssueSingleGet(t, r, iCreated.ID, uCreated.ID)
 
 	// Update
+	testIssueNoteAdd(t, r, iCreated.ID, testIssueNote, false)
+	testIssueNoteAdd(t, r, iCreated.ID, testIssuePrivateNote, true)
 	testIssueUpdate(t, r, iCreated.ID)
 
 	// Get multi
@@ -103,6 +108,36 @@ func testIssueUpdate(t *testing.T, r Context, id int) {
 	}
 
 	t.Logf("Issue update: success")
+}
+
+func testIssueNoteAdd(t *testing.T, r Context, id int, notes string, privateNotes bool) {
+
+	s, err := r.IssueUpdate(id, IssueUpdateObject{
+		Notes:        notes,
+		PrivateNotes: privateNotes,
+	})
+	if err != nil {
+		t.Fatal("Issue notes add error:", err, s)
+	}
+
+	o, s, err := r.IssueSingleGet(id, IssueSingleGetRequest{
+		Includes: []string{"journals"},
+	})
+	if err != nil {
+		t.Fatal("Issue notes add error:", err, s)
+	}
+
+	if len(o.Journals) == 0 {
+		t.Fatal("Issue notes add error: bad journals count")
+	}
+
+	j := o.Journals[len(o.Journals)-1]
+
+	if j.Notes != notes || j.PrivateNotes != privateNotes {
+		t.Fatal("Issue notes add error: incorrect comment text or notes privacy")
+	}
+
+	t.Logf("Issue notes add: success")
 }
 
 func testIssueDetele(t *testing.T, r Context, id int) {
