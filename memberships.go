@@ -74,7 +74,7 @@ type membershipUpdate struct {
 // MembershipAllGet gets info for all memberships for project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#GET
-func (r *Context) MembershipAllGet(projectID int) (MembershipResult, int, error) {
+func (r *Context) MembershipAllGet(projectID string) (MembershipResult, int, error) {
 
 	var (
 		membership     MembershipResult
@@ -114,7 +114,7 @@ func (r *Context) MembershipAllGet(projectID int) (MembershipResult, int, error)
 // MembershipMultiGet gets info for multiple memberships for project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#GET
-func (r *Context) MembershipMultiGet(projectID int, request MembershipMultiGetRequest) (MembershipResult, int, error) {
+func (r *Context) MembershipMultiGet(projectID string, request MembershipMultiGetRequest) (MembershipResult, int, error) {
 
 	var m MembershipResult
 
@@ -123,11 +123,11 @@ func (r *Context) MembershipMultiGet(projectID int, request MembershipMultiGetRe
 	urlParams.Add("limit", strconv.Itoa(request.Limit))
 
 	ur := url.URL{
-		Path:     "/projects/" + strconv.Itoa(projectID) + "/memberships.json",
+		Path:     "/projects/" + projectID + "/memberships.json",
 		RawQuery: urlParams.Encode(),
 	}
 
-	s, err := r.get(&m, ur, http.StatusOK)
+	s, err := r.Get(&m, ur, http.StatusOK)
 
 	return m, s, err
 }
@@ -143,7 +143,7 @@ func (r *Context) MembershipSingleGet(membershipID int) (MembershipObject, int, 
 		Path: "/memberships/" + strconv.Itoa(membershipID) + ".json",
 	}
 
-	status, err := r.get(&m, ur, http.StatusOK)
+	status, err := r.Get(&m, ur, http.StatusOK)
 
 	return m.Membership, status, err
 }
@@ -151,15 +151,15 @@ func (r *Context) MembershipSingleGet(membershipID int) (MembershipObject, int, 
 // MembershipAdd adds new member to project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#POST
-func (r *Context) MembershipAdd(projectID int, membership MembershipAddObject) (MembershipObject, int, error) {
+func (r *Context) MembershipAdd(projectID string, membership MembershipAddObject) (MembershipObject, int, error) {
 
 	var m membershipSingleResult
 
 	ur := url.URL{
-		Path: "/projects/" + strconv.Itoa(projectID) + "/memberships.json",
+		Path: "/projects/" + projectID + "/memberships.json",
 	}
 
-	status, err := r.post(membershipAdd{Membership: membership}, &m, ur, http.StatusCreated)
+	status, err := r.Post(membershipAdd{Membership: membership}, &m, ur, http.StatusCreated)
 
 	return m.Membership, status, err
 }
@@ -173,7 +173,7 @@ func (r *Context) MembershipUpdate(membershipID int, membership MembershipUpdate
 		Path: "/memberships/" + strconv.Itoa(membershipID) + ".json",
 	}
 
-	status, err := r.put(membershipUpdate{Membership: membership}, nil, ur, http.StatusNoContent)
+	status, err := r.Put(membershipUpdate{Membership: membership}, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
@@ -187,7 +187,7 @@ func (r *Context) MembershipDelete(membershipID int) (int, error) {
 		Path: "/memberships/" + strconv.Itoa(membershipID) + ".json",
 	}
 
-	status, err := r.del(nil, nil, ur, http.StatusNoContent)
+	status, err := r.Del(nil, nil, ur, http.StatusNoContent)
 
 	return status, err
 }

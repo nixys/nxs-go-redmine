@@ -31,7 +31,7 @@ func (r *Context) TrackerAllGet() ([]TrackerObject, int, error) {
 		Path: "/trackers.json",
 	}
 
-	status, err := r.get(&t, ur, http.StatusOK)
+	status, err := r.Get(&t, ur, http.StatusOK)
 
 	return t.Trackers, status, err
 }

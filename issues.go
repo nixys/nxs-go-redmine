@@ -73,11 +73,12 @@ type IssueRelationObject struct {
 
 // IssueJournalObject struct used for issues get operations
 type IssueJournalObject struct {
-	ID        int                        `json:"id"`
-	User      IDName                     `json:"user"`
-	Notes     string                     `json:"notes"`
-	CreatedOn string                     `json:"created_on"`
-	Details   []IssueJournalDetailObject `json:"details"`
+	ID           int                        `json:"id"`
+	User         IDName                     `json:"user"`
+	Notes        string                     `json:"notes"`
+	CreatedOn    string                     `json:"created_on"`
+	PrivateNotes bool                       `json:"private_notes"`
+	Details      []IssueJournalDetailObject `json:"details"`
 }
 
 // IssueJournalDetailObject struct used for issues get operations
@@ -98,6 +99,8 @@ type IssueCreateObject struct {
 	PriorityID     int                       `json:"priority_id,omitempty"`
 	Subject        string                    `json:"subject"`
 	Description    string                    `json:"description,omitempty"`
+	StartDate      string                    `json:"start_date,omitempty"`
+	DueDate        string                    `json:"due_date,omitempty"`
 	CategoryID     int                       `json:"category_id,omitempty"`
 	FixedVersionID int                       `json:"fixed_version_id,omitempty"`
 	AssignedToID   int                       `json:"assigned_to_id,omitempty"`
@@ -119,6 +122,8 @@ type IssueUpdateObject struct {
 	PriorityID     int                       `json:"priority_id,omitempty"`
 	Subject        string                    `json:"subject,omitempty"`
 	Description    string                    `json:"description,omitempty"`
+	StartDate      *string                   `json:"start_date,omitempty"`
+	DueDate        *string                   `json:"due_date,omitempty"`
 	CategoryID     int                       `json:"category_id,omitempty"`
 	FixedVersionID int                       `json:"fixed_version_id,omitempty"`
 	AssignedToID   int                       `json:"assigned_to_id,omitempty"`
@@ -128,6 +133,7 @@ type IssueUpdateObject struct {
 	CustomFields   []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
 	Uploads        []AttachmentUploadObject  `json:"uploads,omitempty"`
 	Notes          string                    `json:"notes,omitempty"`
+	PrivateNotes   bool                      `json:"private_notes,omitempty"`
 }
 
 /* Requests */
@@ -267,7 +273,7 @@ func (r *Context) IssuesMultiGet(request IssueMultiGetRequest) (IssueResult, int
 		RawQuery: urlParams.Encode(),
 	}
 
-	s, err := r.get(&i, ur, http.StatusOK)
+	s, err := r.Get(&i, ur, http.StatusOK)
 
 	return i, s, err
 }
@@ -297,7 +303,7 @@ func (r *Context) IssueSingleGet(id int, request IssueSingleGetRequest) (IssueOb
 		RawQuery: urlParams.Encode(),
 	}
 
-	status, err := r.get(&i, ur, http.StatusOK)
+	status, err := r.Get(&i, ur, http.StatusOK)
 
 	return i.Issue, status, err
 }
@@ -313,7 +319,7 @@ func (r *Context) IssueCreate(issue IssueCreateObject) (IssueObject, int, error)
 		Path: "/issues.json",
 	}
 
-	status, err := r.post(issueCreate{Issue: issue}, &i, ur, http.StatusCreated)
+	status, err := r.Post(issueCreate{Issue: issue}, &i, ur, http.StatusCreated)
 
 	return i.Issue, status, err
 }
@@ -327,7 +333,7 @@ func (r *Context) IssueUpdate(id int, issue IssueUpdateObject) (int, error) {
 		Path: "/issues/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.put(issueUpdate{Issue: issue}, nil, ur, http.StatusNoContent)
+	status, err := r.Put(issueUpdate{Issue: issue}, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
@@ -341,7 +347,7 @@ func (r *Context) IssueDelete(id int) (int, error) {
 		Path: "/issues/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.del(nil, nil, ur, http.StatusNoContent)
+	status, err := r.Del(nil, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
@@ -355,7 +361,7 @@ func (r *Context) IssueWatcherAdd(id int, userID int) (int, error) {
 		Path: "/issues/" + strconv.Itoa(id) + "/watchers.json",
 	}
 
-	status, err := r.post(issueWatcherAdd{
+	status, err := r.Post(issueWatcherAdd{
 		UserID: userID,
 	}, nil, ur, http.StatusNoContent)
 
@@ -371,7 +377,7 @@ func (r *Context) IssueWatcherDelete(id int, userID int) (int, error) {
 		Path: "/issues/" + strconv.Itoa(id) + "/watchers/" + strconv.Itoa(userID) + ".json",
 	}
 
-	status, err := r.del(nil, nil, ur, http.StatusNoContent)
+	status, err := r.Del(nil, nil, ur, http.StatusNoContent)
 
 	return status, err
 }

@@ -12,7 +12,7 @@ const (
 	testProjectIdentifier = "test_project"
 )
 
-func TestProjectsCRUD(t *testing.T) {
+func TestProjectsCRUDIdentifier(t *testing.T) {
 
 	var r Context
 
@@ -27,14 +27,39 @@ func TestProjectsCRUD(t *testing.T) {
 
 	// Create and delete
 	pCreated := testProjectCreate(t, r, []int{testProjectTrackerID})
-	defer testProjectDetele(t, r, pCreated.ID)
+	defer testProjectDetele(t, r, pCreated.Identifier)
 
 	// Get
 	testProjectAllGet(t, r)
-	testProjectSingleGet(t, r, pCreated.ID)
+	testProjectSingleGet(t, r, pCreated.Identifier)
 
 	// Update
-	testProjectUpdate(t, r, pCreated.ID)
+	testProjectUpdate(t, r, pCreated.Identifier)
+}
+
+func TestProjectsCRUDID(t *testing.T) {
+
+	var r Context
+
+	// Get env variables
+	testProjectTrackerID, _ := strconv.Atoi(os.Getenv("REDMINE_TRACKER_ID"))
+	if testProjectTrackerID == 0 {
+		t.Fatal("Project test error: env variables `REDMINE_TRACKER_ID` does not set")
+	}
+
+	// Init Redmine context
+	initTest(&r, t)
+
+	// Create and delete
+	pCreated := testProjectCreate(t, r, []int{testProjectTrackerID})
+	defer testProjectDetele(t, r, strconv.Itoa(pCreated.ID))
+
+	// Get
+	testProjectAllGet(t, r)
+	testProjectSingleGet(t, r, strconv.Itoa(pCreated.ID))
+
+	// Update
+	testProjectUpdate(t, r, strconv.Itoa(pCreated.ID))
 }
 
 func testProjectCreate(t *testing.T, r Context, trackerIDs []int) ProjectObject {
@@ -55,7 +80,7 @@ func testProjectCreate(t *testing.T, r Context, trackerIDs []int) ProjectObject 
 	return p
 }
 
-func testProjectUpdate(t *testing.T, r Context, id int) {
+func testProjectUpdate(t *testing.T, r Context, id string) {
 
 	_, err := r.ProjectUpdate(id, ProjectUpdateObject{
 		Name: testProjectName2,
@@ -67,7 +92,7 @@ func testProjectUpdate(t *testing.T, r Context, id int) {
 	t.Logf("Project update: success")
 }
 
-func testProjectDetele(t *testing.T, r Context, id int) {
+func testProjectDetele(t *testing.T, r Context, id string) {
 
 	_, err := r.ProjectDelete(id)
 	if err != nil {
@@ -99,7 +124,7 @@ func testProjectAllGet(t *testing.T, r Context) {
 	t.Fatal("Projects get error: can't find created project")
 }
 
-func testProjectSingleGet(t *testing.T, r Context, id int) {
+func testProjectSingleGet(t *testing.T, r Context, id string) {
 
 	_, _, err := r.ProjectSingleGet(id, ProjectSingleGetRequest{
 		Includes: []string{"trackers", "issue_categories", "enabled_modules"},

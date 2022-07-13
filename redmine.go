@@ -42,7 +42,7 @@ func (r *Context) SetEndpoint(endpoint string) {
 	r.endpoint = endpoint
 }
 
-func (r *Context) get(out interface{}, uri url.URL, statusExpected int) (int, error) {
+func (r *Context) Get(out interface{}, uri url.URL, statusExpected int) (int, error) {
 
 	var er errorsResult
 
@@ -100,17 +100,17 @@ func (r *Context) get(out interface{}, uri url.URL, statusExpected int) (int, er
 	return res.StatusCode, err
 }
 
-func (r *Context) post(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
+func (r *Context) Post(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
 
 	return r.alter(http.MethodPost, in, out, uri, statusExpected)
 }
 
-func (r *Context) put(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
+func (r *Context) Put(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
 
 	return r.alter(http.MethodPut, in, out, uri, statusExpected)
 }
 
-func (r *Context) del(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
+func (r *Context) Del(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
 
 	return r.alter(http.MethodDelete, in, out, uri, statusExpected)
 }
@@ -219,6 +219,39 @@ func (r *Context) uploadFile(f io.Reader, out interface{}, uri url.URL, statusEx
 	}
 
 	return res.StatusCode, err
+}
+
+func (r *Context) downloadFile(url string, statusExpected int) (io.ReadCloser, int, error) {
+
+	var er errorsResult
+
+	// Create request
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Set headers
+	req.Header.Add("X-Redmine-API-Key", r.apiKey)
+
+	// Make request
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	if res.StatusCode != statusExpected {
+		if err := json.NewDecoder(res.Body).Decode(&er); err != nil {
+			er.Errors = append(er.Errors, fmt.Sprintf("json decode error: %v", err))
+		}
+		er.Errors = append(er.Errors, fmt.Sprintf("unexpected status code has been returned (expected: %d, returned: %d, url: %s, method: %s)", statusExpected, res.StatusCode, url, http.MethodPost))
+
+		res.Body.Close()
+
+		return nil, 0, errors.New(strings.Join(er.Errors, "\n"))
+	}
+
+	return res.Body, res.StatusCode, err
 }
 
 func urlIncludes(urlParams *url.Values, includes []string) {
