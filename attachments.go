@@ -112,3 +112,38 @@ func (r *Context) AttachmentUploadStream(f io.Reader, fileName string) (Attachme
 
 	return a.Upload, status, nil
 }
+
+func (r *Context) AttachmentDownload(id int, dstPath string) (AttachmentObject, int, error) {
+
+	s, o, status, err := r.AttachmentDownloadStream(id)
+	if err != nil {
+		return AttachmentObject{}, status, err
+	}
+
+	lf, err := os.Create(dstPath)
+	if err != nil {
+		return AttachmentObject{}, status, err
+	}
+	defer lf.Close()
+
+	if _, err := io.Copy(lf, s); err != nil {
+		return AttachmentObject{}, status, err
+	}
+
+	return o, status, nil
+}
+
+func (r *Context) AttachmentDownloadStream(id int) (io.ReadCloser, AttachmentObject, int, error) {
+
+	o, status, err := r.AttachmentSingleGet(id)
+	if err != nil {
+		return nil, AttachmentObject{}, status, err
+	}
+
+	s, status, err := r.downloadFile(o.ContentURL, http.StatusOK)
+	if err != nil {
+		return nil, AttachmentObject{}, status, err
+	}
+
+	return s, o, status, nil
+}

@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	testAttachmentFileUpload = "attachments_test.go"
+	testAttachmentFile         = "attachments_test.go"
+	testAttachmentFileDownload = "/tmp/" + testAttachmentFile
 )
 
 func TestAttachmentsCRUD(t *testing.T) {
@@ -35,11 +36,14 @@ func TestAttachmentsCRUD(t *testing.T) {
 
 	// Get single
 	testAttachmentGetSingle(t, r, aCreated)
+
+	// Download
+	testAttachmentDownload(t, r, aCreated)
 }
 
 func testAttachmentUpload(t *testing.T, r Context, projectID, userID int) int {
 
-	u, s, err := r.AttachmentUpload(testAttachmentFileUpload)
+	u, s, err := r.AttachmentUpload(testAttachmentFile)
 	if err != nil {
 		t.Fatal("Upload attachment error:", err, s)
 	}
@@ -71,8 +75,23 @@ func testAttachmentGetSingle(t *testing.T, r Context, id int) {
 		t.Fatal("Attachment get error:", err, s)
 	}
 
-	if a.FileName != testAttachmentFileUpload {
+	if a.FileName != testAttachmentFile {
 		t.Fatal("Attachment get error: wrong attachment file name")
+	}
+
+	t.Logf("Attachment get: success")
+}
+
+func testAttachmentDownload(t *testing.T, r Context, id int) {
+
+	a, s, err := r.AttachmentDownload(id, testAttachmentFileDownload)
+	if err != nil {
+		t.Fatal("Attachment download error:", err, s)
+	}
+	defer os.Remove(testAttachmentFileDownload)
+
+	if a.FileName != testAttachmentFile {
+		t.Fatal("Attachment download error: wrong attachment file name")
 	}
 
 	t.Logf("Attachment get: success")

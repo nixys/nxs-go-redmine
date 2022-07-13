@@ -221,6 +221,39 @@ func (r *Context) uploadFile(f io.Reader, out interface{}, uri url.URL, statusEx
 	return res.StatusCode, err
 }
 
+func (r *Context) downloadFile(url string, statusExpected int) (io.ReadCloser, int, error) {
+
+	var er errorsResult
+
+	// Create request
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Set headers
+	req.Header.Add("X-Redmine-API-Key", r.apiKey)
+
+	// Make request
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	if res.StatusCode != statusExpected {
+		if err := json.NewDecoder(res.Body).Decode(&er); err != nil {
+			er.Errors = append(er.Errors, fmt.Sprintf("json decode error: %v", err))
+		}
+		er.Errors = append(er.Errors, fmt.Sprintf("unexpected status code has been returned (expected: %d, returned: %d, url: %s, method: %s)", statusExpected, res.StatusCode, url, http.MethodPost))
+
+		res.Body.Close()
+
+		return nil, 0, errors.New(strings.Join(er.Errors, "\n"))
+	}
+
+	return res.Body, res.StatusCode, err
+}
+
 func urlIncludes(urlParams *url.Values, includes []string) {
 
 	if len(includes) == 0 {
