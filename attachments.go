@@ -56,7 +56,7 @@ func (r *Context) AttachmentSingleGet(id int) (AttachmentObject, int, error) {
 		Path: "/attachments/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.get(&a, ur, http.StatusOK)
+	status, err := r.Get(&a, ur, http.StatusOK)
 
 	return a.Attachment, status, err
 }

@@ -65,7 +65,7 @@ func (r *Context) CustomFieldAllGet() ([]CustomFieldObject, int, error) {
 		Path: "/custom_fields.json",
 	}
 
-	status, err := r.get(&c, ur, http.StatusOK)
+	status, err := r.Get(&c, ur, http.StatusOK)
 
 	return c.CustomFields, status, err
 }

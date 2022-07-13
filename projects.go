@@ -211,7 +211,7 @@ func (r *Context) ProjectMultiGet(request ProjectMultiGetRequest) (ProjectResult
 		RawQuery: urlParams.Encode(),
 	}
 
-	s, err := r.get(&p, ur, http.StatusOK)
+	s, err := r.Get(&p, ur, http.StatusOK)
 
 	return p, s, err
 }
@@ -239,7 +239,7 @@ func (r *Context) ProjectSingleGet(id string, request ProjectSingleGetRequest) (
 		RawQuery: urlParams.Encode(),
 	}
 
-	status, err := r.get(&p, ur, http.StatusOK)
+	status, err := r.Get(&p, ur, http.StatusOK)
 
 	return p.Project, status, err
 }
@@ -255,7 +255,7 @@ func (r *Context) ProjectCreate(project ProjectCreateObject) (ProjectObject, int
 		Path: "/projects.json",
 	}
 
-	status, err := r.post(projectCreate{Project: project}, &p, ur, http.StatusCreated)
+	status, err := r.Post(projectCreate{Project: project}, &p, ur, http.StatusCreated)
 
 	return p.Project, status, err
 }
@@ -269,7 +269,7 @@ func (r *Context) ProjectUpdate(id string, project ProjectUpdateObject) (int, er
 		Path: "/projects/" + id + ".json",
 	}
 
-	status, err := r.put(projectUpdate{Project: project}, nil, ur, http.StatusNoContent)
+	status, err := r.Put(projectUpdate{Project: project}, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
@@ -283,7 +283,7 @@ func (r *Context) ProjectDelete(id string) (int, error) {
 		Path: "/projects/" + id + ".json",
 	}
 
-	status, err := r.del(nil, nil, ur, http.StatusNoContent)
+	status, err := r.Del(nil, nil, ur, http.StatusNoContent)
 
 	return status, err
 }

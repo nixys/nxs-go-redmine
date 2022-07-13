@@ -42,7 +42,7 @@ func (r *Context) SetEndpoint(endpoint string) {
 	r.endpoint = endpoint
 }
 
-func (r *Context) get(out interface{}, uri url.URL, statusExpected int) (int, error) {
+func (r *Context) Get(out interface{}, uri url.URL, statusExpected int) (int, error) {
 
 	var er errorsResult
 
@@ -100,17 +100,17 @@ func (r *Context) get(out interface{}, uri url.URL, statusExpected int) (int, er
 	return res.StatusCode, err
 }
 
-func (r *Context) post(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
+func (r *Context) Post(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
 
 	return r.alter(http.MethodPost, in, out, uri, statusExpected)
 }
 
-func (r *Context) put(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
+func (r *Context) Put(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
 
 	return r.alter(http.MethodPut, in, out, uri, statusExpected)
 }
 
-func (r *Context) del(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
+func (r *Context) Del(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
 
 	return r.alter(http.MethodDelete, in, out, uri, statusExpected)
 }

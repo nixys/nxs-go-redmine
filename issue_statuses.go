@@ -32,7 +32,7 @@ func (r *Context) IssueStatusAllGet() ([]IssueStatusObject, int, error) {
 		Path: "/issue_statuses.json",
 	}
 
-	status, err := r.get(&i, ur, http.StatusOK)
+	status, err := r.Get(&i, ur, http.StatusOK)
 
 	return i.IssueStatuses, status, err
 }

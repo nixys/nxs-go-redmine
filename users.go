@@ -231,7 +231,7 @@ func (r *Context) UserMultiGet(request UserMultiGetRequest) (UserResult, int, er
 		RawQuery: urlParams.Encode(),
 	}
 
-	s, err := r.get(&u, ur, http.StatusOK)
+	s, err := r.Get(&u, ur, http.StatusOK)
 
 	return u, s, err
 }
@@ -257,7 +257,7 @@ func (r *Context) UserSingleGet(id int, request UserSingleGetRequest) (UserObjec
 		RawQuery: urlParams.Encode(),
 	}
 
-	status, err := r.get(&u, ur, http.StatusOK)
+	status, err := r.Get(&u, ur, http.StatusOK)
 
 	return u.User, status, err
 }
@@ -283,7 +283,7 @@ func (r *Context) UserCurrentGet(request UserCurrentGetRequest) (UserObject, int
 		RawQuery: urlParams.Encode(),
 	}
 
-	status, err := r.get(&u, ur, http.StatusOK)
+	status, err := r.Get(&u, ur, http.StatusOK)
 
 	return u.User, status, err
 }
@@ -299,7 +299,7 @@ func (r *Context) UserCreate(user UserCreateObject) (UserObject, int, error) {
 		Path: "/users.json",
 	}
 
-	status, err := r.post(userCreate{User: user}, &u, ur, http.StatusCreated)
+	status, err := r.Post(userCreate{User: user}, &u, ur, http.StatusCreated)
 
 	return u.User, status, err
 }
@@ -313,7 +313,7 @@ func (r *Context) UserUpdate(id int, user UserUpdateObject) (int, error) {
 		Path: "/users/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.put(userUpdate{User: user}, nil, ur, http.StatusNoContent)
+	status, err := r.Put(userUpdate{User: user}, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
@@ -327,7 +327,7 @@ func (r *Context) UserDelete(id int) (int, error) {
 		Path: "/users/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.del(nil, nil, ur, http.StatusNoContent)
+	status, err := r.Del(nil, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
