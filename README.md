@@ -80,3 +80,13 @@ Run:
 ```
 REDMINE_HOST="https://redmine.yourdomain.com" REDMINE_API_KEY="YOUR_API_KEY" go run main.go
 ```
+
+## Feedback
+
+For support and feedbaсk please contact me:
+- telegram: [@borisershov](https://t.me/borisershov)
+- e-mail: b.ershov@nixys.ru
+
+## License
+
+nxs-go-redmine is released under the [MIT License](LICENSE).

@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/nixys/nxs-go-redmine/mimereader"
+	"github.com/nixys/nxs-go-redmine/v4/mimereader"
 )
 
 /* Get */
