@@ -28,8 +28,8 @@ Developer teams or sysadmins who need to automate a business processes that work
 
 ### Import
 
-```
-go get github.com/nixys/nxs-go-redmine/v4
+```go
+import "github.com/nixys/nxs-go-redmine/v4"
 ```
 
 ### Initialize
