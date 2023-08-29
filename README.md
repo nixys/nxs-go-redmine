@@ -9,6 +9,7 @@ Follows Redmine resources are fully implemented at this moment:
 - [Projects](https://www.redmine.org/projects/redmine/wiki/Rest_Projects)
 - [Project Memberships](https://www.redmine.org/projects/redmine/wiki/Rest_Memberships)
 - [Users](https://www.redmine.org/projects/redmine/wiki/Rest_Users)
+- [Wiki Pages](https://www.redmine.org/projects/redmine/wiki/Rest_WikiPages)
 - [Attachments](https://www.redmine.org/projects/redmine/wiki/Rest_Attachments)
 - [Issue Statuses](https://www.redmine.org/projects/redmine/wiki/Rest_IssueStatuses)
 - [Trackers](https://www.redmine.org/projects/redmine/wiki/Rest_Trackers)
