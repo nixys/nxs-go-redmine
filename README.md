@@ -1,33 +1,49 @@
 # nxs-go-redmine
 
-This Go package provides access to Redmine API.
+## Introduction
 
-Compatible with Redmine 4.2+
+Go client library for [Redmine](https://www.redmine.org)
 
-Follows Redmine resources are fully implemented at this moment:
-- [Issues](https://www.redmine.org/projects/redmine/wiki/Rest_Issues)
-- [Projects](https://www.redmine.org/projects/redmine/wiki/Rest_Projects)
-- [Project Memberships](https://www.redmine.org/projects/redmine/wiki/Rest_Memberships)
-- [Users](https://www.redmine.org/projects/redmine/wiki/Rest_Users)
-- [Wiki Pages](https://www.redmine.org/projects/redmine/wiki/Rest_WikiPages)
-- [Attachments](https://www.redmine.org/projects/redmine/wiki/Rest_Attachments)
-- [Issue Statuses](https://www.redmine.org/projects/redmine/wiki/Rest_IssueStatuses)
-- [Trackers](https://www.redmine.org/projects/redmine/wiki/Rest_Trackers)
-- [Enumerations](https://www.redmine.org/projects/redmine/wiki/Rest_Enumerations)
-- [Groups](https://www.redmine.org/projects/redmine/wiki/Rest_Groups)
-- [Custom Fields](https://www.redmine.org/projects/redmine/wiki/Rest_CustomFields)
+### Features
 
-## Install
+- Compatible with Redmine 4.2+
+- Implemented following Redmine resources:
+  - [Issues](https://www.redmine.org/projects/redmine/wiki/Rest_Issues)
+  - [Projects](https://www.redmine.org/projects/redmine/wiki/Rest_Projects)
+  - [Project Memberships](https://www.redmine.org/projects/redmine/wiki/Rest_Memberships)
+  - [Users](https://www.redmine.org/projects/redmine/wiki/Rest_Users)
+  - [Wiki Pages](https://www.redmine.org/projects/redmine/wiki/Rest_WikiPages)
+  - [Attachments](https://www.redmine.org/projects/redmine/wiki/Rest_Attachments)
+  - [Issue Statuses](https://www.redmine.org/projects/redmine/wiki/Rest_IssueStatuses)
+  - [Trackers](https://www.redmine.org/projects/redmine/wiki/Rest_Trackers)
+  - [Enumerations](https://www.redmine.org/projects/redmine/wiki/Rest_Enumerations)
+  - [Groups](https://www.redmine.org/projects/redmine/wiki/Rest_Groups)
+  - [Custom Fields](https://www.redmine.org/projects/redmine/wiki/Rest_CustomFields)
+
+### Who can use the tool
+
+Developer teams or sysadmins who need to automate a business processes that works around Redmine.
+
+## Quickstart
+
+### Import
 
 ```
 go get github.com/nixys/nxs-go-redmine/v4
 ```
 
-## Example of usage
+### Initialize
 
-*You may find more examples in unit-tests in this repository*
+To initialize this library you need to do:
+- Declare variable `redmine.Context`
+- Set a Redmine endpoint via method `(r *Context) SetEndpoint(endpoint string)`
+- Set a Redmine API key via method `(r *Context) SetAPIKey(apiKey string)`
 
-**Get all projects from the Redmine server:**
+After thar you be able to use all available methods to interact with Redmine API.
+
+## Example
+
+In the example below will be printed a names for all active projects from Redmine
 
 ```go
 package main
@@ -81,6 +97,9 @@ Run:
 ```
 REDMINE_HOST="https://redmine.yourdomain.com" REDMINE_API_KEY="YOUR_API_KEY" go run main.go
 ```
+
+**For more examples see apps based on this library:**
+- [nxs-support-bot](https://github.com/nixys/nxs-support-bot)
 
 ## Feedback
 
