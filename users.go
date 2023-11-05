@@ -30,9 +30,6 @@ const (
 	UserNotificationOnlyNone     UserNotification = "none"
 )
 
-// SendInformation defines Send User Data to email in Create Update
-type SendInformation bool
-
 /* Get */
 
 // UserObject struct used for users get operations
