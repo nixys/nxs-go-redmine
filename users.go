@@ -68,24 +68,24 @@ type UserCreateObject struct {
 	MailNotification string                    `json:"mail_notification,omitempty"`
 	MustChangePasswd bool                      `json:"must_change_passwd,omitempty"`
 	GeneratePassword bool                      `json:"generate_password,omitempty"`
-	SendInformation  bool                      `json:"send_information,omitempty"`
 	CustomFields     []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
+	SendInformation  bool
 }
 
 /* Update */
 
 // UserUpdateObject struct used for users update operations
 type UserUpdateObject struct {
-	Login            string                    `json:"login,omitempty"`
-	FirstName        string                    `json:"firstname,omitempty"`
-	LastName         string                    `json:"lastname,omitempty"`
-	Mail             string                    `json:"mail,omitempty"`
-	Password         string                    `json:"password,omitempty"`
-	AuthSourceID     int                       `json:"auth_source_id,omitempty"`
-	MailNotification string                    `json:"mail_notification,omitempty"`
-	MustChangePasswd bool                      `json:"must_change_passwd,omitempty"`
-	GeneratePassword bool                      `json:"generate_password,omitempty"`
-	SendInformation  bool                      `json:"send_information,omitempty"`
+	Login            string `json:"login,omitempty"`
+	FirstName        string `json:"firstname,omitempty"`
+	LastName         string `json:"lastname,omitempty"`
+	Mail             string `json:"mail,omitempty"`
+	Password         string `json:"password,omitempty"`
+	AuthSourceID     int    `json:"auth_source_id,omitempty"`
+	MailNotification string `json:"mail_notification,omitempty"`
+	MustChangePasswd bool   `json:"must_change_passwd,omitempty"`
+	GeneratePassword bool   `json:"generate_password,omitempty"`
+	SendInformation  bool
 	CustomFields     []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
 }
 
@@ -138,10 +138,12 @@ type userSingleResult struct {
 
 type userCreate struct {
 	User UserCreateObject `json:"user"`
+	Send bool             `json:"send_information,omitempty"`
 }
 
 type userUpdate struct {
 	User UserUpdateObject `json:"user"`
+	Send bool             `json:"send_information,omitempty"`
 }
 
 func (u UserStatus) String() string {
@@ -299,7 +301,7 @@ func (r *Context) UserCreate(user UserCreateObject) (UserObject, int, error) {
 		Path: "/users.json",
 	}
 
-	status, err := r.Post(userCreate{User: user}, &u, ur, http.StatusCreated)
+	status, err := r.Post(userCreate{User: user, Send: user.SendInformation}, &u, ur, http.StatusCreated)
 
 	return u.User, status, err
 }
@@ -313,7 +315,7 @@ func (r *Context) UserUpdate(id int, user UserUpdateObject) (int, error) {
 		Path: "/users/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.Put(userUpdate{User: user}, nil, ur, http.StatusNoContent)
+	status, err := r.Put(userUpdate{User: user, Send: user.SendInformation}, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
