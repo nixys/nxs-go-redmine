@@ -91,7 +91,11 @@ type IssueJournalDetailObject struct {
 
 /* Create */
 
-// IssueCreateObject struct used for issues create operations
+// IssueCreate struct used for issues create operations
+type IssueCreate struct {
+	Issue IssueCreateObject `json:"issue"`
+}
+
 type IssueCreateObject struct {
 	ProjectID      int                       `json:"project_id"`
 	TrackerID      int                       `json:"tracker_id,omitempty"`
@@ -114,7 +118,11 @@ type IssueCreateObject struct {
 
 /* Update */
 
-// IssueUpdateObject struct used for issues update operations
+// IssueUpdate struct used for issues update operations
+type IssueUpdate struct {
+	Issue IssueUpdateObject `json:"issue"`
+}
+
 type IssueUpdateObject struct {
 	ProjectID      int                       `json:"project_id,omitempty"`
 	TrackerID      int                       `json:"tracker_id,omitempty"`
@@ -183,14 +191,6 @@ type IssueResult struct {
 
 type issueSingleResult struct {
 	Issue IssueObject `json:"issue"`
-}
-
-type issueCreate struct {
-	Issue IssueCreateObject `json:"issue"`
-}
-
-type issueUpdate struct {
-	Issue IssueUpdateObject `json:"issue"`
 }
 
 type issueWatcherAdd struct {
@@ -311,7 +311,7 @@ func (r *Context) IssueSingleGet(id int, request IssueSingleGetRequest) (IssueOb
 // IssueCreate creates new issue
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Issues#Creating-an-issue
-func (r *Context) IssueCreate(issue IssueCreateObject) (IssueObject, int, error) {
+func (r *Context) IssueCreate(issue IssueCreate) (IssueObject, int, error) {
 
 	var i issueSingleResult
 
@@ -319,7 +319,7 @@ func (r *Context) IssueCreate(issue IssueCreateObject) (IssueObject, int, error)
 		Path: "/issues.json",
 	}
 
-	status, err := r.Post(issueCreate{Issue: issue}, &i, ur, http.StatusCreated)
+	status, err := r.Post(issue, &i, ur, http.StatusCreated)
 
 	return i.Issue, status, err
 }
@@ -327,13 +327,13 @@ func (r *Context) IssueCreate(issue IssueCreateObject) (IssueObject, int, error)
 // IssueUpdate updates issue with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Updating-a-project
-func (r *Context) IssueUpdate(id int, issue IssueUpdateObject) (int, error) {
+func (r *Context) IssueUpdate(id int, issue IssueUpdate) (int, error) {
 
 	ur := url.URL{
 		Path: "/issues/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.Put(issueUpdate{Issue: issue}, nil, ur, http.StatusNoContent)
+	status, err := r.Put(issue, nil, ur, http.StatusNoContent)
 
 	return status, err
 }

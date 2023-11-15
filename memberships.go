@@ -26,7 +26,11 @@ type MembershipRoleObject struct {
 
 /* Add */
 
-// MembershipAddObject struct used for project memberships add operations
+// MembershipAdd struct used for project memberships add operations
+type MembershipAdd struct {
+	Membership MembershipAddObject `json:"membership"`
+}
+
 type MembershipAddObject struct {
 	UserID  int   `json:"user_id"`
 	RoleIDs []int `json:"role_ids"`
@@ -34,7 +38,11 @@ type MembershipAddObject struct {
 
 /* Update */
 
-// MembershipUpdateObject struct used for project memberships update operations
+// MembershipUpdate struct used for project memberships update operations
+type MembershipUpdate struct {
+	Membership MembershipUpdateObject `json:"membership"`
+}
+
 type MembershipUpdateObject struct {
 	RoleIDs []int `json:"role_ids"`
 }
@@ -61,14 +69,6 @@ type MembershipResult struct {
 
 type membershipSingleResult struct {
 	Membership MembershipObject `json:"membership"`
-}
-
-type membershipAdd struct {
-	Membership MembershipAddObject `json:"membership"`
-}
-
-type membershipUpdate struct {
-	Membership MembershipUpdateObject `json:"membership"`
 }
 
 // MembershipAllGet gets info for all memberships for project with specified ID
@@ -151,7 +151,7 @@ func (r *Context) MembershipSingleGet(membershipID int) (MembershipObject, int, 
 // MembershipAdd adds new member to project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#POST
-func (r *Context) MembershipAdd(projectID string, membership MembershipAddObject) (MembershipObject, int, error) {
+func (r *Context) MembershipAdd(projectID string, membership MembershipAdd) (MembershipObject, int, error) {
 
 	var m membershipSingleResult
 
@@ -159,7 +159,7 @@ func (r *Context) MembershipAdd(projectID string, membership MembershipAddObject
 		Path: "/projects/" + projectID + "/memberships.json",
 	}
 
-	status, err := r.Post(membershipAdd{Membership: membership}, &m, ur, http.StatusCreated)
+	status, err := r.Post(membership, &m, ur, http.StatusCreated)
 
 	return m.Membership, status, err
 }
@@ -167,13 +167,13 @@ func (r *Context) MembershipAdd(projectID string, membership MembershipAddObject
 // MembershipUpdate updates project membership with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#PUT
-func (r *Context) MembershipUpdate(membershipID int, membership MembershipUpdateObject) (int, error) {
+func (r *Context) MembershipUpdate(membershipID int, membership MembershipUpdate) (int, error) {
 
 	ur := url.URL{
 		Path: "/memberships/" + strconv.Itoa(membershipID) + ".json",
 	}
 
-	status, err := r.Put(membershipUpdate{Membership: membership}, nil, ur, http.StatusNoContent)
+	status, err := r.Put(membership, nil, ur, http.StatusNoContent)
 
 	return status, err
 }

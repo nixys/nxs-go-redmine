@@ -64,13 +64,17 @@ func TestProjectsCRUDID(t *testing.T) {
 
 func testProjectCreate(t *testing.T, r Context, trackerIDs []int) ProjectObject {
 
-	p, _, err := r.ProjectCreate(ProjectCreateObject{
-		Name:           testProjectName,
-		Identifier:     testProjectIdentifier,
-		IsPublic:       false,
-		InheritMembers: false,
-		TrackerIDs:     trackerIDs,
-	})
+	p, _, err := r.ProjectCreate(
+		ProjectCreate{
+			Project: ProjectCreateObject{
+				Name:           testProjectName,
+				Identifier:     testProjectIdentifier,
+				IsPublic:       false,
+				InheritMembers: false,
+				TrackerIDs:     trackerIDs,
+			},
+		},
+	)
 	if err != nil {
 		t.Fatal("Project create error:", err)
 	}
@@ -82,9 +86,14 @@ func testProjectCreate(t *testing.T, r Context, trackerIDs []int) ProjectObject 
 
 func testProjectUpdate(t *testing.T, r Context, id string) {
 
-	_, err := r.ProjectUpdate(id, ProjectUpdateObject{
-		Name: testProjectName2,
-	})
+	_, err := r.ProjectUpdate(
+		id,
+		ProjectUpdate{
+			Project: ProjectUpdateObject{
+				Name: testProjectName2,
+			},
+		},
+	)
 	if err != nil {
 		t.Fatal("Project update error:", err)
 	}

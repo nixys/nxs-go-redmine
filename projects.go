@@ -37,7 +37,11 @@ type ProjectObject struct {
 
 /* Create */
 
-// ProjectCreateObject struct used for projects create operations
+// ProjectCreate struct used for projects create operations
+type ProjectCreate struct {
+	Project ProjectCreateObject `json:"project"`
+}
+
 type ProjectCreateObject struct {
 	Name                string                    `json:"name"`
 	Identifier          string                    `json:"identifier"`
@@ -54,7 +58,11 @@ type ProjectCreateObject struct {
 
 /* Update */
 
-// ProjectUpdateObject struct used for projects update operations
+// ProjectUpdate struct used for projects update operations
+type ProjectUpdate struct {
+	Project ProjectUpdateObject `json:"project"`
+}
+
 type ProjectUpdateObject struct {
 	Name                string                    `json:"name,omitempty"`
 	Description         string                    `json:"description,omitempty"`
@@ -108,14 +116,6 @@ type ProjectResult struct {
 
 type projectSingleResult struct {
 	Project ProjectObject `json:"project"`
-}
-
-type projectCreate struct {
-	Project ProjectCreateObject `json:"project"`
-}
-
-type projectUpdate struct {
-	Project ProjectUpdateObject `json:"project"`
 }
 
 func (p ProjectStatus) String() string {
@@ -247,7 +247,7 @@ func (r *Context) ProjectSingleGet(id string, request ProjectSingleGetRequest) (
 // ProjectCreate creates new project
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Creating-a-project
-func (r *Context) ProjectCreate(project ProjectCreateObject) (ProjectObject, int, error) {
+func (r *Context) ProjectCreate(project ProjectCreate) (ProjectObject, int, error) {
 
 	var p projectSingleResult
 
@@ -255,7 +255,7 @@ func (r *Context) ProjectCreate(project ProjectCreateObject) (ProjectObject, int
 		Path: "/projects.json",
 	}
 
-	status, err := r.Post(projectCreate{Project: project}, &p, ur, http.StatusCreated)
+	status, err := r.Post(project, &p, ur, http.StatusCreated)
 
 	return p.Project, status, err
 }
@@ -263,13 +263,13 @@ func (r *Context) ProjectCreate(project ProjectCreateObject) (ProjectObject, int
 // ProjectUpdate updates project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Updating-a-project
-func (r *Context) ProjectUpdate(id string, project ProjectUpdateObject) (int, error) {
+func (r *Context) ProjectUpdate(id string, project ProjectUpdate) (int, error) {
 
 	ur := url.URL{
 		Path: "/projects/" + id + ".json",
 	}
 
-	status, err := r.Put(projectUpdate{Project: project}, nil, ur, http.StatusNoContent)
+	status, err := r.Put(project, nil, ur, http.StatusNoContent)
 
 	return status, err
 }

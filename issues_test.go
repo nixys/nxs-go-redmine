@@ -86,15 +86,19 @@ func testIssueCreate(t *testing.T, r Context, projectID, userID int, upload *Att
 		w = append(w, userID)
 	}
 
-	i, s, err := r.IssueCreate(IssueCreateObject{
-		ProjectID:      projectID,
-		Subject:        testIssueSubject,
-		WatcherUserIDs: w,
-		Description:    testIssueDescription,
-		StartDate:      testIssueStartDate,
-		DueDate:        testIssueDueDate,
-		Uploads:        u,
-	})
+	i, s, err := r.IssueCreate(
+		IssueCreate{
+			Issue: IssueCreateObject{
+				ProjectID:      projectID,
+				Subject:        testIssueSubject,
+				WatcherUserIDs: w,
+				Description:    testIssueDescription,
+				StartDate:      testIssueStartDate,
+				DueDate:        testIssueDueDate,
+				Uploads:        u,
+			},
+		},
+	)
 	if err != nil {
 		t.Fatal("Issue create error:", err, s)
 	}
@@ -115,13 +119,18 @@ func testIssueCreate(t *testing.T, r Context, projectID, userID int, upload *Att
 
 func testIssueUpdate(t *testing.T, r Context, id int) {
 
-	s, err := r.IssueUpdate(id, IssueUpdateObject{
-		Subject:     testIssueSubject2,
-		Description: testIssueDescription2,
-		StartDate:   &testIssueStartDate2,
-		DueDate:     &testIssueDueDate2,
-		IsPrivate:   true,
-	})
+	s, err := r.IssueUpdate(
+		id,
+		IssueUpdate{
+			Issue: IssueUpdateObject{
+				Subject:     testIssueSubject2,
+				Description: testIssueDescription2,
+				StartDate:   &testIssueStartDate2,
+				DueDate:     &testIssueDueDate2,
+				IsPrivate:   true,
+			},
+		},
+	)
 	if err != nil {
 		t.Fatal("Issue update error:", err, s)
 	}
@@ -140,10 +149,15 @@ func testIssueUpdate(t *testing.T, r Context, id int) {
 
 func testIssueNoteAdd(t *testing.T, r Context, id int, notes string, privateNotes bool) {
 
-	s, err := r.IssueUpdate(id, IssueUpdateObject{
-		Notes:        notes,
-		PrivateNotes: privateNotes,
-	})
+	s, err := r.IssueUpdate(
+		id,
+		IssueUpdate{
+			Issue: IssueUpdateObject{
+				Notes:        notes,
+				PrivateNotes: privateNotes,
+			},
+		},
+	)
 	if err != nil {
 		t.Fatal("Issue notes add error:", err, s)
 	}

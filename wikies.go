@@ -37,7 +37,11 @@ type WikiParentObject struct {
 
 /* Create */
 
-// WikiCreateObject struct used for wiki create operations
+// WikiCreate struct used for wiki create operations
+type WikiCreate struct {
+	WikiPage WikiCreateObject `json:"wiki_page"`
+}
+
 type WikiCreateObject struct {
 	Text     string                   `json:"text"`
 	Comments string                   `json:"comments,omitempty"`
@@ -46,7 +50,11 @@ type WikiCreateObject struct {
 
 /* Update */
 
-// WikiUpdateObject struct used for wiki update operations
+// WikiUpdate struct used for wiki update operations
+type WikiUpdate struct {
+	WikiPage WikiUpdateObject `json:"wiki_page"`
+}
+
 type WikiUpdateObject struct {
 	Text     string                   `json:"text"`
 	Comments string                   `json:"comments,omitempty"`
@@ -69,14 +77,6 @@ type wikiAllResult struct {
 
 type wikiSingleResult struct {
 	WikiPage WikiObject `json:"wiki_page"`
-}
-
-type wikiCreate struct {
-	WikiPage WikiCreateObject `json:"wiki_page"`
-}
-
-type wikiUpdate struct {
-	WikiPage WikiUpdateObject `json:"wiki_page"`
 }
 
 // WikiAllGet gets info for all wikies for project with specified ID
@@ -148,7 +148,7 @@ func (r *Context) WikiSingleVersionGet(projectID, wikiTitle string, version int,
 // WikiCreate creates new wiki
 //
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_WikiPages#Creating-or-updating-a-wiki-page
-func (r *Context) WikiCreate(projectID, wikiTitle string, wiki WikiCreateObject) (WikiObject, int, error) {
+func (r *Context) WikiCreate(projectID, wikiTitle string, wiki WikiCreate) (WikiObject, int, error) {
 
 	var w wikiSingleResult
 
@@ -156,7 +156,7 @@ func (r *Context) WikiCreate(projectID, wikiTitle string, wiki WikiCreateObject)
 		Path: "/projects/" + projectID + "/wiki/" + wikiTitle + ".json",
 	}
 
-	status, err := r.Put(wikiCreate{WikiPage: wiki}, &w, ur, http.StatusCreated)
+	status, err := r.Put(wiki, &w, ur, http.StatusCreated)
 
 	return w.WikiPage, status, err
 }
@@ -164,13 +164,13 @@ func (r *Context) WikiCreate(projectID, wikiTitle string, wiki WikiCreateObject)
 // WikiUpdate updates wiki page
 //
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_WikiPages#Creating-or-updating-a-wiki-page
-func (r *Context) WikiUpdate(projectID, wikiTitle string, wiki WikiUpdateObject) (int, error) {
+func (r *Context) WikiUpdate(projectID, wikiTitle string, wiki WikiUpdate) (int, error) {
 
 	ur := url.URL{
 		Path: "/projects/" + projectID + "/wiki/" + wikiTitle + ".json",
 	}
 
-	status, err := r.Put(wikiUpdate{WikiPage: wiki}, nil, ur, http.StatusNoContent)
+	status, err := r.Put(wiki, nil, ur, http.StatusNoContent)
 
 	return status, err
 }

@@ -37,15 +37,20 @@ func TestUserCRUD(t *testing.T) {
 
 func testUserCreate(t *testing.T, r Context) UserObject {
 
-	u, _, err := r.UserCreate(UserCreateObject{
-		Login:            testUserLogin,
-		FirstName:        testUserFirstName,
-		LastName:         testUserLastName,
-		Mail:             testUserMail,
-		MailNotification: UserNotificationOnlyAssigned.String(),
-		MustChangePasswd: true,
-		GeneratePassword: true,
-	})
+	u, _, err := r.UserCreate(
+		UserCreate{
+			User: UserCreateObject{
+				Login:            testUserLogin,
+				FirstName:        testUserFirstName,
+				LastName:         testUserLastName,
+				Mail:             testUserMail,
+				MailNotification: UserNotificationOnlyAssigned.String(),
+				MustChangePasswd: true,
+				GeneratePassword: true,
+			},
+			SendInformation: true,
+		},
+	)
 	if err != nil {
 		t.Fatal("User create error:", err)
 	}
@@ -57,11 +62,17 @@ func testUserCreate(t *testing.T, r Context) UserObject {
 
 func testUserUpdate(t *testing.T, r Context, id int) {
 
-	_, err := r.UserUpdate(id, UserUpdateObject{
-		FirstName:        testUserFirstName2,
-		LastName:         testUserLastName2,
-		MailNotification: UserNotificationOnlyNone.String(),
-	})
+	_, err := r.UserUpdate(
+		id,
+		UserUpdate{
+			User: UserUpdateObject{
+				FirstName:        testUserFirstName2,
+				LastName:         testUserLastName2,
+				MailNotification: UserNotificationOnlyNone.String(),
+			},
+			SendInformation: true,
+		},
+	)
 	if err != nil {
 		t.Fatal("User update error:", err)
 	}

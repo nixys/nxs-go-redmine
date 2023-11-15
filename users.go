@@ -57,7 +57,12 @@ type UserMembershipObject struct {
 
 /* Create */
 
-// UserCreateObject struct used for users create operations
+// UserCreate struct used for users create operations
+type UserCreate struct {
+	User            UserCreateObject `json:"user"`
+	SendInformation bool             `json:"send_information,omitempty"`
+}
+
 type UserCreateObject struct {
 	Login            string                    `json:"login"`
 	FirstName        string                    `json:"firstname"`
@@ -69,23 +74,26 @@ type UserCreateObject struct {
 	MustChangePasswd bool                      `json:"must_change_passwd,omitempty"`
 	GeneratePassword bool                      `json:"generate_password,omitempty"`
 	CustomFields     []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
-	SendInformation  bool
 }
 
 /* Update */
 
-// UserUpdateObject struct used for users update operations
+// UserUpdate struct used for users update operations
+type UserUpdate struct {
+	User            UserUpdateObject `json:"user"`
+	SendInformation bool             `json:"send_information,omitempty"`
+}
+
 type UserUpdateObject struct {
-	Login            string `json:"login,omitempty"`
-	FirstName        string `json:"firstname,omitempty"`
-	LastName         string `json:"lastname,omitempty"`
-	Mail             string `json:"mail,omitempty"`
-	Password         string `json:"password,omitempty"`
-	AuthSourceID     int    `json:"auth_source_id,omitempty"`
-	MailNotification string `json:"mail_notification,omitempty"`
-	MustChangePasswd bool   `json:"must_change_passwd,omitempty"`
-	GeneratePassword bool   `json:"generate_password,omitempty"`
-	SendInformation  bool
+	Login            string                    `json:"login,omitempty"`
+	FirstName        string                    `json:"firstname,omitempty"`
+	LastName         string                    `json:"lastname,omitempty"`
+	Mail             string                    `json:"mail,omitempty"`
+	Password         string                    `json:"password,omitempty"`
+	AuthSourceID     int                       `json:"auth_source_id,omitempty"`
+	MailNotification string                    `json:"mail_notification,omitempty"`
+	MustChangePasswd bool                      `json:"must_change_passwd,omitempty"`
+	GeneratePassword bool                      `json:"generate_password,omitempty"`
 	CustomFields     []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
 }
 
@@ -134,16 +142,6 @@ type UserResult struct {
 
 type userSingleResult struct {
 	User UserObject `json:"user"`
-}
-
-type userCreate struct {
-	User UserCreateObject `json:"user"`
-	Send bool             `json:"send_information,omitempty"`
-}
-
-type userUpdate struct {
-	User UserUpdateObject `json:"user"`
-	Send bool             `json:"send_information,omitempty"`
 }
 
 func (u UserStatus) String() string {
@@ -293,7 +291,7 @@ func (r *Context) UserCurrentGet(request UserCurrentGetRequest) (UserObject, int
 // UserCreate creates new user
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#POST
-func (r *Context) UserCreate(user UserCreateObject) (UserObject, int, error) {
+func (r *Context) UserCreate(user UserCreate) (UserObject, int, error) {
 
 	var u userSingleResult
 
@@ -301,7 +299,7 @@ func (r *Context) UserCreate(user UserCreateObject) (UserObject, int, error) {
 		Path: "/users.json",
 	}
 
-	status, err := r.Post(userCreate{User: user, Send: user.SendInformation}, &u, ur, http.StatusCreated)
+	status, err := r.Post(user, &u, ur, http.StatusCreated)
 
 	return u.User, status, err
 }
@@ -309,13 +307,13 @@ func (r *Context) UserCreate(user UserCreateObject) (UserObject, int, error) {
 // UserUpdate updates user with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#PUT
-func (r *Context) UserUpdate(id int, user UserUpdateObject) (int, error) {
+func (r *Context) UserUpdate(id int, user UserUpdate) (int, error) {
 
 	ur := url.URL{
 		Path: "/users/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.Put(userUpdate{User: user, Send: user.SendInformation}, nil, ur, http.StatusNoContent)
+	status, err := r.Put(user, nil, ur, http.StatusNoContent)
 
 	return status, err
 }

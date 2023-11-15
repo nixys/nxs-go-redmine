@@ -42,9 +42,13 @@ func TestGroupsCRUD(t *testing.T) {
 
 func testGroupCreate(t *testing.T, r Context) GroupObject {
 
-	g, _, err := r.GroupCreate(GroupCreateObject{
-		Name: testGroupName,
-	})
+	g, _, err := r.GroupCreate(
+		GroupCreate{
+			Group: GroupCreateObject{
+				Name: testGroupName,
+			},
+		},
+	)
 	if err != nil {
 		t.Fatal("Group create error:", err)
 	}
@@ -56,10 +60,15 @@ func testGroupCreate(t *testing.T, r Context) GroupObject {
 
 func testGroupUpdate(t *testing.T, r Context, id, userID int) {
 
-	_, err := r.GroupUpdate(id, GroupUpdateObject{
-		Name:    testGroupName2,
-		UserIDs: []int{userID},
-	})
+	_, err := r.GroupUpdate(
+		id,
+		GroupUpdate{
+			Group: GroupUpdateObject{
+				Name:    testGroupName2,
+				UserIDs: []int{userID},
+			},
+		},
+	)
 	if err != nil {
 		t.Fatal("Group update error:", err)
 	}

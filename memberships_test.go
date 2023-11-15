@@ -44,10 +44,15 @@ func TestMembershipCRUD(t *testing.T) {
 
 func testMembershipAdd(t *testing.T, r Context, projectID string, userID, roleID int) MembershipObject {
 
-	m, _, err := r.MembershipAdd(projectID, MembershipAddObject{
-		UserID:  userID,
-		RoleIDs: []int{roleID},
-	})
+	m, _, err := r.MembershipAdd(
+		projectID,
+		MembershipAdd{
+			Membership: MembershipAddObject{
+				UserID:  userID,
+				RoleIDs: []int{roleID},
+			},
+		},
+	)
 	if err != nil {
 		t.Fatal("Membership add error:", err)
 	}
@@ -59,9 +64,14 @@ func testMembershipAdd(t *testing.T, r Context, projectID string, userID, roleID
 
 func testMembershipUpdate(t *testing.T, r Context, id, roleID1, roleID2 int) {
 
-	_, err := r.MembershipUpdate(id, MembershipUpdateObject{
-		RoleIDs: []int{roleID1, roleID2},
-	})
+	_, err := r.MembershipUpdate(
+		id,
+		MembershipUpdate{
+			Membership: MembershipUpdateObject{
+				RoleIDs: []int{roleID1, roleID2},
+			},
+		},
+	)
 	if err != nil {
 		t.Fatal("Membership update error:", err)
 	}

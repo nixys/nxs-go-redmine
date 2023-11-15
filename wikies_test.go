@@ -60,11 +60,14 @@ func testWikiCreate(t *testing.T, r Context, projectID, wikiTitle string) WikiOb
 	w, s, err := r.WikiCreate(
 		projectID,
 		wikiTitle,
-		WikiCreateObject{
-			Text:     testWikiText,
-			Comments: testWikiComment,
-			Uploads:  []AttachmentUploadObject{u},
-		})
+		WikiCreate{
+			WikiPage: WikiCreateObject{
+				Text:     testWikiText,
+				Comments: testWikiComment,
+				Uploads:  []AttachmentUploadObject{u},
+			},
+		},
+	)
 	if err != nil {
 		t.Fatal("Wiki create error:", err, s)
 	}
@@ -148,10 +151,13 @@ func testWikiUpdate(t *testing.T, r Context, projectID, wikiTitle string) {
 	s, err := r.WikiUpdate(
 		projectID,
 		wikiTitle,
-		WikiUpdateObject{
-			Text:     testWikiTextUpdated,
-			Comments: testWikiCommentUpdated,
-		})
+		WikiUpdate{
+			WikiPage: WikiUpdateObject{
+				Text:     testWikiTextUpdated,
+				Comments: testWikiCommentUpdated,
+			},
+		},
+	)
 	if err != nil {
 		t.Fatal("Wiki update error:", err, s)
 	}

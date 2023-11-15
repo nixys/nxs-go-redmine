@@ -25,7 +25,11 @@ type GroupMembershipObject struct {
 
 /* Create */
 
-// GroupCreateObject struct used for groups create operations
+// GroupCreate struct used for groups create operations
+type GroupCreate struct {
+	Group GroupCreateObject `json:"group"`
+}
+
 type GroupCreateObject struct {
 	Name    string `json:"name"`
 	UserIDs []int  `json:"user_ids,omitempty"`
@@ -33,7 +37,11 @@ type GroupCreateObject struct {
 
 /* Update */
 
-// GroupUpdateObject struct used for groups update operations
+// GroupUpdate struct used for groups update operations
+type GroupUpdate struct {
+	Group GroupUpdateObject `json:"group"`
+}
+
 type GroupUpdateObject struct {
 	Name    string `json:"name,omitempty"`
 	UserIDs []int  `json:"user_ids,omitempty"`
@@ -73,14 +81,6 @@ type GroupResult struct {
 
 type groupSingleResult struct {
 	Group GroupObject `json:"group"`
-}
-
-type groupCreate struct {
-	Group GroupCreateObject `json:"group"`
-}
-
-type groupUpdate struct {
-	Group GroupUpdateObject `json:"group"`
 }
 
 // GroupAllGet gets info for all groups
@@ -173,7 +173,7 @@ func (r *Context) GroupSingleGet(id int, request GroupSingleGetRequest) (GroupOb
 // GroupCreate creates new group
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#POST
-func (r *Context) GroupCreate(group GroupCreateObject) (GroupObject, int, error) {
+func (r *Context) GroupCreate(group GroupCreate) (GroupObject, int, error) {
 
 	var g groupSingleResult
 
@@ -181,7 +181,7 @@ func (r *Context) GroupCreate(group GroupCreateObject) (GroupObject, int, error)
 		Path: "/groups.json",
 	}
 
-	status, err := r.Post(groupCreate{Group: group}, &g, ur, http.StatusCreated)
+	status, err := r.Post(group, &g, ur, http.StatusCreated)
 
 	return g.Group, status, err
 }
@@ -189,13 +189,13 @@ func (r *Context) GroupCreate(group GroupCreateObject) (GroupObject, int, error)
 // GroupUpdate updates group with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#PUT
-func (r *Context) GroupUpdate(id int, group GroupUpdateObject) (int, error) {
+func (r *Context) GroupUpdate(id int, group GroupUpdate) (int, error) {
 
 	ur := url.URL{
 		Path: "/groups/" + strconv.Itoa(id) + ".json",
 	}
 
-	status, err := r.Put(groupUpdate{Group: group}, nil, ur, http.StatusNoContent)
+	status, err := r.Put(group, nil, ur, http.StatusNoContent)
 
 	return status, err
 }
