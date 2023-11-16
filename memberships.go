@@ -10,7 +10,7 @@ import (
 
 // MembershipObject struct used for project memberships get operations
 type MembershipObject struct {
-	ID      int                    `json:"id"`
+	ID      int64                  `json:"id"`
 	Project IDName                 `json:"project"`
 	User    IDName                 `json:"user"`
 	Group   IDName                 `json:"group"`
@@ -19,7 +19,7 @@ type MembershipObject struct {
 
 // MembershipRoleObject struct used for project memberships get operations
 type MembershipRoleObject struct {
-	ID        int    `json:"id"`
+	ID        int64  `json:"id"`
 	Name      string `json:"name"`
 	Inherited bool   `json:"inherited"`
 }
@@ -32,8 +32,8 @@ type MembershipAdd struct {
 }
 
 type MembershipAddObject struct {
-	UserID  int   `json:"user_id"`
-	RoleIDs []int `json:"role_ids"`
+	UserID  int64   `json:"user_id"`
+	RoleIDs []int64 `json:"role_ids"`
 }
 
 /* Update */
@@ -44,15 +44,15 @@ type MembershipUpdate struct {
 }
 
 type MembershipUpdateObject struct {
-	RoleIDs []int `json:"role_ids"`
+	RoleIDs []int64 `json:"role_ids"`
 }
 
 /* Requests */
 
 // MembershipMultiGetRequest contains data for making request to get limited memberships count
 type MembershipMultiGetRequest struct {
-	Offset int
-	Limit  int
+	Offset int64
+	Limit  int64
 }
 
 /* Results */
@@ -60,9 +60,9 @@ type MembershipMultiGetRequest struct {
 // MembershipResult stores project memberships requests processing result
 type MembershipResult struct {
 	Memberships []MembershipObject `json:"memberships"`
-	TotalCount  int                `json:"total_count"`
-	Offset      int                `json:"offset"`
-	Limit       int                `json:"limit"`
+	TotalCount  int64              `json:"total_count"`
+	Offset      int64              `json:"offset"`
+	Limit       int64              `json:"limit"`
 }
 
 /* Internal types */
@@ -74,11 +74,12 @@ type membershipSingleResult struct {
 // MembershipAllGet gets info for all memberships for project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#GET
-func (r *Context) MembershipAllGet(projectID string) (MembershipResult, int, error) {
+func (r *Context) MembershipAllGet(projectID string) (MembershipResult, StatusCode, error) {
 
 	var (
-		membership     MembershipResult
-		offset, status int
+		membership MembershipResult
+		offset     int64
+		status     StatusCode
 	)
 
 	m := MembershipMultiGetRequest{
@@ -114,13 +115,13 @@ func (r *Context) MembershipAllGet(projectID string) (MembershipResult, int, err
 // MembershipMultiGet gets info for multiple memberships for project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#GET
-func (r *Context) MembershipMultiGet(projectID string, request MembershipMultiGetRequest) (MembershipResult, int, error) {
+func (r *Context) MembershipMultiGet(projectID string, request MembershipMultiGetRequest) (MembershipResult, StatusCode, error) {
 
 	var m MembershipResult
 
 	urlParams := url.Values{}
-	urlParams.Add("offset", strconv.Itoa(request.Offset))
-	urlParams.Add("limit", strconv.Itoa(request.Limit))
+	urlParams.Add("offset", strconv.FormatInt(request.Offset, 10))
+	urlParams.Add("limit", strconv.FormatInt(request.Limit, 10))
 
 	ur := url.URL{
 		Path:     "/projects/" + projectID + "/memberships.json",
@@ -135,12 +136,12 @@ func (r *Context) MembershipMultiGet(projectID string, request MembershipMultiGe
 // MembershipSingleGet gets single project membership info with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#GET-2
-func (r *Context) MembershipSingleGet(membershipID int) (MembershipObject, int, error) {
+func (r *Context) MembershipSingleGet(membershipID int64) (MembershipObject, StatusCode, error) {
 
 	var m membershipSingleResult
 
 	ur := url.URL{
-		Path: "/memberships/" + strconv.Itoa(membershipID) + ".json",
+		Path: "/memberships/" + strconv.FormatInt(membershipID, 10) + ".json",
 	}
 
 	status, err := r.Get(&m, ur, http.StatusOK)
@@ -151,7 +152,7 @@ func (r *Context) MembershipSingleGet(membershipID int) (MembershipObject, int, 
 // MembershipAdd adds new member to project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#POST
-func (r *Context) MembershipAdd(projectID string, membership MembershipAdd) (MembershipObject, int, error) {
+func (r *Context) MembershipAdd(projectID string, membership MembershipAdd) (MembershipObject, StatusCode, error) {
 
 	var m membershipSingleResult
 
@@ -167,10 +168,10 @@ func (r *Context) MembershipAdd(projectID string, membership MembershipAdd) (Mem
 // MembershipUpdate updates project membership with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#PUT
-func (r *Context) MembershipUpdate(membershipID int, membership MembershipUpdate) (int, error) {
+func (r *Context) MembershipUpdate(membershipID int64, membership MembershipUpdate) (StatusCode, error) {
 
 	ur := url.URL{
-		Path: "/memberships/" + strconv.Itoa(membershipID) + ".json",
+		Path: "/memberships/" + strconv.FormatInt(membershipID, 10) + ".json",
 	}
 
 	status, err := r.Put(membership, nil, ur, http.StatusNoContent)
@@ -181,10 +182,10 @@ func (r *Context) MembershipUpdate(membershipID int, membership MembershipUpdate
 // MembershipDelete deletes project membership with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Memberships#DELETE
-func (r *Context) MembershipDelete(membershipID int) (int, error) {
+func (r *Context) MembershipDelete(membershipID int64) (StatusCode, error) {
 
 	ur := url.URL{
-		Path: "/memberships/" + strconv.Itoa(membershipID) + ".json",
+		Path: "/memberships/" + strconv.FormatInt(membershipID, 10) + ".json",
 	}
 
 	status, err := r.Del(nil, nil, ur, http.StatusNoContent)

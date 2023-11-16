@@ -11,7 +11,7 @@ import (
 
 // IssueObject struct used for issues get operations
 type IssueObject struct {
-	ID             int                    `json:"id"`
+	ID             int64                  `json:"id"`
 	Project        IDName                 `json:"project"`
 	Tracker        IDName                 `json:"tracker"`
 	Status         IDName                 `json:"status"`
@@ -25,8 +25,8 @@ type IssueObject struct {
 	Description    string                 `json:"description"`
 	StartDate      string                 `json:"start_date"`
 	DueDate        string                 `json:"due_date"`
-	DoneRatio      int                    `json:"done_ratio"`
-	IsPrivate      int                    `json:"is_private"`
+	DoneRatio      int64                  `json:"done_ratio"`
+	IsPrivate      int64                  `json:"is_private"`
 	EstimatedHours float64                `json:"estimated_hours"`
 	SpentHours     float64                `json:"spent_hours"` // used only: get single issue
 	CustomFields   []CustomFieldGetObject `json:"custom_fields"`
@@ -43,12 +43,12 @@ type IssueObject struct {
 
 // IssueParentObject struct used for issues get operations
 type IssueParentObject struct {
-	ID int `json:"id"`
+	ID int64 `json:"id"`
 }
 
 // IssueChildrenObject struct used for issues get operations
 type IssueChildrenObject struct {
-	ID       int                   `json:"id"`
+	ID       int64                 `json:"id"`
 	Tracker  IDName                `json:"tracker"`
 	Subject  string                `json:"subject"`
 	Children []IssueChildrenObject `json:"children"`
@@ -64,16 +64,16 @@ type IssueChangesetObject struct {
 
 // IssueRelationObject struct used for issues get operations
 type IssueRelationObject struct {
-	ID           int    `json:"id"`
-	IssueID      int    `json:"issue_id"`
-	IssueToID    int    `json:"issue_to_id"`
+	ID           int64  `json:"id"`
+	IssueID      int64  `json:"issue_id"`
+	IssueToID    int64  `json:"issue_to_id"`
 	RelationType string `json:"relation_type"`
-	Delay        int    `json:"delay"`
+	Delay        int64  `json:"delay"`
 }
 
 // IssueJournalObject struct used for issues get operations
 type IssueJournalObject struct {
-	ID           int                        `json:"id"`
+	ID           int64                      `json:"id"`
 	User         IDName                     `json:"user"`
 	Notes        string                     `json:"notes"`
 	CreatedOn    string                     `json:"created_on"`
@@ -97,19 +97,19 @@ type IssueCreate struct {
 }
 
 type IssueCreateObject struct {
-	ProjectID      int                       `json:"project_id"`
-	TrackerID      int                       `json:"tracker_id,omitempty"`
-	StatusID       int                       `json:"status_id,omitempty"`
-	PriorityID     int                       `json:"priority_id,omitempty"`
+	ProjectID      int64                     `json:"project_id"`
+	TrackerID      int64                     `json:"tracker_id,omitempty"`
+	StatusID       int64                     `json:"status_id,omitempty"`
+	PriorityID     int64                     `json:"priority_id,omitempty"`
 	Subject        string                    `json:"subject"`
 	Description    string                    `json:"description,omitempty"`
 	StartDate      string                    `json:"start_date,omitempty"`
 	DueDate        string                    `json:"due_date,omitempty"`
-	CategoryID     int                       `json:"category_id,omitempty"`
-	FixedVersionID int                       `json:"fixed_version_id,omitempty"`
-	AssignedToID   int                       `json:"assigned_to_id,omitempty"`
-	ParentIssueID  int                       `json:"parent_issue_id,omitempty"`
-	WatcherUserIDs []int                     `json:"watcher_user_ids,omitempty"`
+	CategoryID     int64                     `json:"category_id,omitempty"`
+	FixedVersionID int64                     `json:"fixed_version_id,omitempty"`
+	AssignedToID   int64                     `json:"assigned_to_id,omitempty"`
+	ParentIssueID  int64                     `json:"parent_issue_id,omitempty"`
+	WatcherUserIDs []int64                   `json:"watcher_user_ids,omitempty"`
 	IsPrivate      bool                      `json:"is_private,omitempty"`
 	EstimatedHours float64                   `json:"estimated_hours,omitempty"`
 	CustomFields   []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
@@ -124,18 +124,18 @@ type IssueUpdate struct {
 }
 
 type IssueUpdateObject struct {
-	ProjectID      int                       `json:"project_id,omitempty"`
-	TrackerID      int                       `json:"tracker_id,omitempty"`
-	StatusID       int                       `json:"status_id,omitempty"`
-	PriorityID     int                       `json:"priority_id,omitempty"`
+	ProjectID      int64                     `json:"project_id,omitempty"`
+	TrackerID      int64                     `json:"tracker_id,omitempty"`
+	StatusID       int64                     `json:"status_id,omitempty"`
+	PriorityID     int64                     `json:"priority_id,omitempty"`
 	Subject        string                    `json:"subject,omitempty"`
 	Description    string                    `json:"description,omitempty"`
 	StartDate      *string                   `json:"start_date,omitempty"`
 	DueDate        *string                   `json:"due_date,omitempty"`
-	CategoryID     int                       `json:"category_id,omitempty"`
-	FixedVersionID int                       `json:"fixed_version_id,omitempty"`
-	AssignedToID   int                       `json:"assigned_to_id,omitempty"`
-	ParentIssueID  int                       `json:"parent_issue_id,omitempty"`
+	CategoryID     int64                     `json:"category_id,omitempty"`
+	FixedVersionID int64                     `json:"fixed_version_id,omitempty"`
+	AssignedToID   int64                     `json:"assigned_to_id,omitempty"`
+	ParentIssueID  int64                     `json:"parent_issue_id,omitempty"`
 	IsPrivate      bool                      `json:"is_private,omitempty"`
 	EstimatedHours float64                   `json:"estimated_hours,omitempty"`
 	CustomFields   []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
@@ -156,8 +156,8 @@ type IssueAllGetRequest struct {
 type IssueMultiGetRequest struct {
 	Includes []string
 	Filters  IssueGetRequestFilters
-	Offset   int
-	Limit    int
+	Offset   int64
+	Limit    int64
 }
 
 // IssueSingleGetRequest contains data for making request to get specified issue
@@ -173,7 +173,7 @@ type IssueGetRequestFilters struct {
 
 // IssueGetRequestFiltersCf contains data for making issues get request
 type IssueGetRequestFiltersCf struct {
-	ID    int
+	ID    int64
 	Value string
 }
 
@@ -182,9 +182,9 @@ type IssueGetRequestFiltersCf struct {
 // IssueResult stores issues requests processing result
 type IssueResult struct {
 	Issues     []IssueObject `json:"issues"`
-	TotalCount int           `json:"total_count"`
-	Offset     int           `json:"offset"`
-	Limit      int           `json:"limit"`
+	TotalCount int64         `json:"total_count"`
+	Offset     int64         `json:"offset"`
+	Limit      int64         `json:"limit"`
 }
 
 /* Internal types */
@@ -194,7 +194,7 @@ type issueSingleResult struct {
 }
 
 type issueWatcherAdd struct {
-	UserID int `json:"user_id"`
+	UserID int64 `json:"user_id"`
 }
 
 // IssuesAllGet gets info for all issues satisfying specified filters
@@ -206,11 +206,12 @@ type issueWatcherAdd struct {
 // * relations
 // * journals
 // * children
-func (r *Context) IssuesAllGet(request IssueAllGetRequest) (IssueResult, int, error) {
+func (r *Context) IssuesAllGet(request IssueAllGetRequest) (IssueResult, StatusCode, error) {
 
 	var (
-		issues         IssueResult
-		offset, status int
+		issues IssueResult
+		offset int64
+		status StatusCode
 	)
 
 	m := IssueMultiGetRequest{
@@ -254,13 +255,13 @@ func (r *Context) IssuesAllGet(request IssueAllGetRequest) (IssueResult, int, er
 // * relations
 // * journals
 // * children
-func (r *Context) IssuesMultiGet(request IssueMultiGetRequest) (IssueResult, int, error) {
+func (r *Context) IssuesMultiGet(request IssueMultiGetRequest) (IssueResult, StatusCode, error) {
 
 	var i IssueResult
 
 	urlParams := url.Values{}
-	urlParams.Add("offset", strconv.Itoa(request.Offset))
-	urlParams.Add("limit", strconv.Itoa(request.Limit))
+	urlParams.Add("offset", strconv.FormatInt(request.Offset, 10))
+	urlParams.Add("limit", strconv.FormatInt(request.Limit, 10))
 
 	// Preparing includes
 	urlIncludes(&urlParams, request.Includes)
@@ -289,7 +290,7 @@ func (r *Context) IssuesMultiGet(request IssueMultiGetRequest) (IssueResult, int
 // * changesets
 // * journals
 // * watchers - Since 2.3.0
-func (r *Context) IssueSingleGet(id int, request IssueSingleGetRequest) (IssueObject, int, error) {
+func (r *Context) IssueSingleGet(id int64, request IssueSingleGetRequest) (IssueObject, StatusCode, error) {
 
 	var i issueSingleResult
 
@@ -299,7 +300,7 @@ func (r *Context) IssueSingleGet(id int, request IssueSingleGetRequest) (IssueOb
 	urlIncludes(&urlParams, request.Includes)
 
 	ur := url.URL{
-		Path:     "/issues/" + strconv.Itoa(id) + ".json",
+		Path:     "/issues/" + strconv.FormatInt(id, 10) + ".json",
 		RawQuery: urlParams.Encode(),
 	}
 
@@ -311,7 +312,7 @@ func (r *Context) IssueSingleGet(id int, request IssueSingleGetRequest) (IssueOb
 // IssueCreate creates new issue
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Issues#Creating-an-issue
-func (r *Context) IssueCreate(issue IssueCreate) (IssueObject, int, error) {
+func (r *Context) IssueCreate(issue IssueCreate) (IssueObject, StatusCode, error) {
 
 	var i issueSingleResult
 
@@ -327,10 +328,10 @@ func (r *Context) IssueCreate(issue IssueCreate) (IssueObject, int, error) {
 // IssueUpdate updates issue with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Updating-a-project
-func (r *Context) IssueUpdate(id int, issue IssueUpdate) (int, error) {
+func (r *Context) IssueUpdate(id int64, issue IssueUpdate) (StatusCode, error) {
 
 	ur := url.URL{
-		Path: "/issues/" + strconv.Itoa(id) + ".json",
+		Path: "/issues/" + strconv.FormatInt(id, 10) + ".json",
 	}
 
 	status, err := r.Put(issue, nil, ur, http.StatusNoContent)
@@ -341,10 +342,10 @@ func (r *Context) IssueUpdate(id int, issue IssueUpdate) (int, error) {
 // IssueDelete deletes issue with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Issues#Deleting-an-issue
-func (r *Context) IssueDelete(id int) (int, error) {
+func (r *Context) IssueDelete(id int64) (StatusCode, error) {
 
 	ur := url.URL{
-		Path: "/issues/" + strconv.Itoa(id) + ".json",
+		Path: "/issues/" + strconv.FormatInt(id, 10) + ".json",
 	}
 
 	status, err := r.Del(nil, nil, ur, http.StatusNoContent)
@@ -355,10 +356,10 @@ func (r *Context) IssueDelete(id int) (int, error) {
 // IssueWatcherAdd adds watcher into issue with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Issues#Adding-a-watcher
-func (r *Context) IssueWatcherAdd(id int, userID int) (int, error) {
+func (r *Context) IssueWatcherAdd(id int64, userID int64) (StatusCode, error) {
 
 	ur := url.URL{
-		Path: "/issues/" + strconv.Itoa(id) + "/watchers.json",
+		Path: "/issues/" + strconv.FormatInt(id, 10) + "/watchers.json",
 	}
 
 	status, err := r.Post(issueWatcherAdd{
@@ -371,10 +372,10 @@ func (r *Context) IssueWatcherAdd(id int, userID int) (int, error) {
 // IssueWatcherDelete deletes watcher from issue with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Issues#Removing-a-watcher
-func (r *Context) IssueWatcherDelete(id int, userID int) (int, error) {
+func (r *Context) IssueWatcherDelete(id int64, userID int64) (StatusCode, error) {
 
 	ur := url.URL{
-		Path: "/issues/" + strconv.Itoa(id) + "/watchers/" + strconv.Itoa(userID) + ".json",
+		Path: "/issues/" + strconv.FormatInt(id, 10) + "/watchers/" + strconv.FormatInt(userID, 10) + ".json",
 	}
 
 	status, err := r.Del(nil, nil, ur, http.StatusNoContent)
@@ -391,6 +392,6 @@ func issueURLFilters(urlParams *url.Values, filters IssueGetRequestFilters) {
 
 	// Custom fields
 	for _, c := range filters.Cf {
-		urlParams.Add("cf_"+strconv.Itoa(c.ID), c.Value)
+		urlParams.Add("cf_"+strconv.FormatInt(c.ID, 10), c.Value)
 	}
 }

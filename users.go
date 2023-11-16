@@ -7,7 +7,7 @@ import (
 )
 
 // UserStatus defines user status type
-type UserStatus int
+type UserStatus int64
 
 // UserNotification defines user notification type
 type UserNotification string
@@ -34,7 +34,7 @@ const (
 
 // UserObject struct used for users get operations
 type UserObject struct {
-	ID           int                    `json:"id"`
+	ID           int64                  `json:"id"`
 	Login        string                 `json:"login"`
 	FirstName    string                 `json:"firstname"`
 	LastName     string                 `json:"lastname"`
@@ -50,7 +50,7 @@ type UserObject struct {
 
 // UserMembershipObject struct used for users get operations
 type UserMembershipObject struct {
-	ID      int      `json:"id"`
+	ID      int64    `json:"id"`
 	Project IDName   `json:"project"`
 	Roles   []IDName `json:"roles"`
 }
@@ -69,7 +69,7 @@ type UserCreateObject struct {
 	LastName         string                    `json:"lastname"`
 	Mail             string                    `json:"mail"`
 	Password         string                    `json:"password,omitempty"`
-	AuthSourceID     int                       `json:"auth_source_id,omitempty"`
+	AuthSourceID     int64                     `json:"auth_source_id,omitempty"`
 	MailNotification string                    `json:"mail_notification,omitempty"`
 	MustChangePasswd bool                      `json:"must_change_passwd,omitempty"`
 	GeneratePassword bool                      `json:"generate_password,omitempty"`
@@ -90,7 +90,7 @@ type UserUpdateObject struct {
 	LastName         string                    `json:"lastname,omitempty"`
 	Mail             string                    `json:"mail,omitempty"`
 	Password         string                    `json:"password,omitempty"`
-	AuthSourceID     int                       `json:"auth_source_id,omitempty"`
+	AuthSourceID     int64                     `json:"auth_source_id,omitempty"`
 	MailNotification string                    `json:"mail_notification,omitempty"`
 	MustChangePasswd bool                      `json:"must_change_passwd,omitempty"`
 	GeneratePassword bool                      `json:"generate_password,omitempty"`
@@ -107,8 +107,8 @@ type UserAllGetRequest struct {
 // UserMultiGetRequest contains data for making request to get limited users count satisfying specified filters
 type UserMultiGetRequest struct {
 	Filters UserGetRequestFilters
-	Offset  int
-	Limit   int
+	Offset  int64
+	Limit   int64
 }
 
 // UserSingleGetRequest contains data for making request to get specified user
@@ -125,7 +125,7 @@ type UserCurrentGetRequest struct {
 type UserGetRequestFilters struct {
 	Status  UserStatus
 	Name    string
-	GroupID int
+	GroupID int64
 }
 
 /* Results */
@@ -133,9 +133,9 @@ type UserGetRequestFilters struct {
 // UserResult stores users requests processing result
 type UserResult struct {
 	Users      []UserObject `json:"users"`
-	TotalCount int          `json:"total_count"`
-	Offset     int          `json:"offset"`
-	Limit      int          `json:"limit"`
+	TotalCount int64        `json:"total_count"`
+	Offset     int64        `json:"offset"`
+	Limit      int64        `json:"limit"`
 }
 
 /* Internal types */
@@ -171,11 +171,12 @@ func (u UserNotification) String() string {
 //
 // * If `statusFilter` == 0 default users status filter will be used (show active users only)
 // * Use `groupIDFilter` == 0 to disable this filter
-func (r *Context) UserAllGet(request UserAllGetRequest) (UserResult, int, error) {
+func (r *Context) UserAllGet(request UserAllGetRequest) (UserResult, StatusCode, error) {
 
 	var (
-		users          UserResult
-		offset, status int
+		users  UserResult
+		offset int64
+		status StatusCode
 	)
 
 	m := UserMultiGetRequest{
@@ -215,13 +216,13 @@ func (r *Context) UserAllGet(request UserAllGetRequest) (UserResult, int, error)
 //
 // * If `statusFilter` == 0 default users status filter will be used (show active users only)
 // * Use `groupIDFilter` == 0 to disable this filter
-func (r *Context) UserMultiGet(request UserMultiGetRequest) (UserResult, int, error) {
+func (r *Context) UserMultiGet(request UserMultiGetRequest) (UserResult, StatusCode, error) {
 
 	var u UserResult
 
 	urlParams := url.Values{}
-	urlParams.Add("offset", strconv.Itoa(request.Offset))
-	urlParams.Add("limit", strconv.Itoa(request.Limit))
+	urlParams.Add("offset", strconv.FormatInt(request.Offset, 10))
+	urlParams.Add("limit", strconv.FormatInt(request.Limit, 10))
 
 	// Preparing filters
 	userURLFilters(&urlParams, request.Filters)
@@ -243,7 +244,7 @@ func (r *Context) UserMultiGet(request UserMultiGetRequest) (UserResult, int, er
 // Available includes:
 // * groups
 // * memberships
-func (r *Context) UserSingleGet(id int, request UserSingleGetRequest) (UserObject, int, error) {
+func (r *Context) UserSingleGet(id int64, request UserSingleGetRequest) (UserObject, StatusCode, error) {
 
 	var u userSingleResult
 
@@ -253,7 +254,7 @@ func (r *Context) UserSingleGet(id int, request UserSingleGetRequest) (UserObjec
 	urlIncludes(&urlParams, request.Includes)
 
 	ur := url.URL{
-		Path:     "/users/" + strconv.Itoa(id) + ".json",
+		Path:     "/users/" + strconv.FormatInt(id, 10) + ".json",
 		RawQuery: urlParams.Encode(),
 	}
 
@@ -269,7 +270,7 @@ func (r *Context) UserSingleGet(id int, request UserSingleGetRequest) (UserObjec
 // Available includes:
 // * groups
 // * memberships
-func (r *Context) UserCurrentGet(request UserCurrentGetRequest) (UserObject, int, error) {
+func (r *Context) UserCurrentGet(request UserCurrentGetRequest) (UserObject, StatusCode, error) {
 
 	var u userSingleResult
 
@@ -291,7 +292,7 @@ func (r *Context) UserCurrentGet(request UserCurrentGetRequest) (UserObject, int
 // UserCreate creates new user
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#POST
-func (r *Context) UserCreate(user UserCreate) (UserObject, int, error) {
+func (r *Context) UserCreate(user UserCreate) (UserObject, StatusCode, error) {
 
 	var u userSingleResult
 
@@ -307,10 +308,10 @@ func (r *Context) UserCreate(user UserCreate) (UserObject, int, error) {
 // UserUpdate updates user with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#PUT
-func (r *Context) UserUpdate(id int, user UserUpdate) (int, error) {
+func (r *Context) UserUpdate(id int64, user UserUpdate) (StatusCode, error) {
 
 	ur := url.URL{
-		Path: "/users/" + strconv.Itoa(id) + ".json",
+		Path: "/users/" + strconv.FormatInt(id, 10) + ".json",
 	}
 
 	status, err := r.Put(user, nil, ur, http.StatusNoContent)
@@ -321,10 +322,10 @@ func (r *Context) UserUpdate(id int, user UserUpdate) (int, error) {
 // UserDelete deletes user with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Users#DELETE
-func (r *Context) UserDelete(id int) (int, error) {
+func (r *Context) UserDelete(id int64) (StatusCode, error) {
 
 	ur := url.URL{
-		Path: "/users/" + strconv.Itoa(id) + ".json",
+		Path: "/users/" + strconv.FormatInt(id, 10) + ".json",
 	}
 
 	status, err := r.Del(nil, nil, ur, http.StatusNoContent)
@@ -345,6 +346,6 @@ func userURLFilters(urlParams *url.Values, filters UserGetRequestFilters) {
 	}
 
 	if filters.GroupID > 0 {
-		urlParams.Add("group_id", strconv.Itoa(filters.GroupID))
+		urlParams.Add("group_id", strconv.FormatInt(filters.GroupID, 10))
 	}
 }

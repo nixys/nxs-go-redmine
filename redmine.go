@@ -16,6 +16,8 @@ const (
 	limitDefault = 100
 )
 
+type StatusCode int64
+
 // Context struct used for store settings to communicate with Redmine API
 type Context struct {
 	endpoint string
@@ -24,7 +26,7 @@ type Context struct {
 
 // IDName used as embedded struct for other structs within package
 type IDName struct {
-	ID   int    `json:"id"`
+	ID   int64  `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -42,7 +44,7 @@ func (r *Context) SetEndpoint(endpoint string) {
 	r.endpoint = endpoint
 }
 
-func (r *Context) Get(out interface{}, uri url.URL, statusExpected int) (int, error) {
+func (r *Context) Get(out interface{}, uri url.URL, statusExpected StatusCode) (StatusCode, error) {
 
 	var er errorsResult
 
@@ -66,7 +68,7 @@ func (r *Context) Get(out interface{}, uri url.URL, statusExpected int) (int, er
 
 	dJ := json.NewDecoder(res.Body)
 
-	if res.StatusCode != statusExpected {
+	if StatusCode(res.StatusCode) != statusExpected {
 		if err := dJ.Decode(&er); err != nil {
 			er.Errors = append(er.Errors, fmt.Sprintf("json decode error: %v", err))
 		}
@@ -79,7 +81,7 @@ func (r *Context) Get(out interface{}, uri url.URL, statusExpected int) (int, er
 			rawConf := make(map[string]interface{})
 
 			if err := dJ.Decode(&rawConf); err != nil {
-				return res.StatusCode, fmt.Errorf("json decode error: %v", err)
+				return StatusCode(res.StatusCode), fmt.Errorf("json decode error: %v", err)
 			}
 
 			dM, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
@@ -88,34 +90,31 @@ func (r *Context) Get(out interface{}, uri url.URL, statusExpected int) (int, er
 				TagName:          "json",
 			})
 			if err != nil {
-				return res.StatusCode, fmt.Errorf("mapstructure create decoder error: %v", err)
+				return StatusCode(res.StatusCode), fmt.Errorf("mapstructure create decoder error: %v", err)
 			}
 
 			if err := dM.Decode(rawConf); err != nil {
-				return res.StatusCode, fmt.Errorf("mapstructure decode error: %v", err)
+				return StatusCode(res.StatusCode), fmt.Errorf("mapstructure decode error: %v", err)
 			}
 		}
 	}
 
-	return res.StatusCode, err
+	return StatusCode(res.StatusCode), err
 }
 
-func (r *Context) Post(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
-
+func (r *Context) Post(in interface{}, out interface{}, uri url.URL, statusExpected StatusCode) (StatusCode, error) {
 	return r.alter(http.MethodPost, in, out, uri, statusExpected)
 }
 
-func (r *Context) Put(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
-
+func (r *Context) Put(in interface{}, out interface{}, uri url.URL, statusExpected StatusCode) (StatusCode, error) {
 	return r.alter(http.MethodPut, in, out, uri, statusExpected)
 }
 
-func (r *Context) Del(in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
-
+func (r *Context) Del(in interface{}, out interface{}, uri url.URL, statusExpected StatusCode) (StatusCode, error) {
 	return r.alter(http.MethodDelete, in, out, uri, statusExpected)
 }
 
-func (r *Context) alter(method string, in interface{}, out interface{}, uri url.URL, statusExpected int) (int, error) {
+func (r *Context) alter(method string, in interface{}, out interface{}, uri url.URL, statusExpected StatusCode) (StatusCode, error) {
 
 	var er errorsResult
 
@@ -143,7 +142,7 @@ func (r *Context) alter(method string, in interface{}, out interface{}, uri url.
 
 	dJ := json.NewDecoder(res.Body)
 
-	if res.StatusCode != statusExpected {
+	if StatusCode(res.StatusCode) != statusExpected {
 
 		if err := dJ.Decode(&er); err != nil {
 			er.Errors = append(er.Errors, fmt.Sprintf("json decode error: %v", err))
@@ -157,7 +156,7 @@ func (r *Context) alter(method string, in interface{}, out interface{}, uri url.
 			rawConf := make(map[string]interface{})
 
 			if err := dJ.Decode(&rawConf); err != nil {
-				return res.StatusCode, fmt.Errorf("json decode error: %v", err)
+				return StatusCode(res.StatusCode), fmt.Errorf("json decode error: %v", err)
 			}
 
 			dM, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
@@ -166,19 +165,19 @@ func (r *Context) alter(method string, in interface{}, out interface{}, uri url.
 				TagName:          "json",
 			})
 			if err != nil {
-				return res.StatusCode, fmt.Errorf("mapstructure create decoder error: %v", err)
+				return StatusCode(res.StatusCode), fmt.Errorf("mapstructure create decoder error: %v", err)
 			}
 
 			if err := dM.Decode(rawConf); err != nil {
-				return res.StatusCode, fmt.Errorf("mapstructure decode error: %v", err)
+				return StatusCode(res.StatusCode), fmt.Errorf("mapstructure decode error: %v", err)
 			}
 		}
 	}
 
-	return res.StatusCode, err
+	return StatusCode(res.StatusCode), err
 }
 
-func (r *Context) uploadFile(f io.Reader, out interface{}, uri url.URL, statusExpected int) (int, error) {
+func (r *Context) uploadFile(f io.Reader, out interface{}, uri url.URL, statusExpected StatusCode) (StatusCode, error) {
 
 	var er errorsResult
 
@@ -203,7 +202,7 @@ func (r *Context) uploadFile(f io.Reader, out interface{}, uri url.URL, statusEx
 
 	dJ := json.NewDecoder(res.Body)
 
-	if res.StatusCode != statusExpected {
+	if StatusCode(res.StatusCode) != statusExpected {
 		if err := dJ.Decode(&er); err != nil {
 			er.Errors = append(er.Errors, fmt.Sprintf("json decode error: %v", err))
 		}
@@ -213,15 +212,15 @@ func (r *Context) uploadFile(f io.Reader, out interface{}, uri url.URL, statusEx
 	} else {
 		if out != nil {
 			if err := dJ.Decode(&out); err != nil {
-				return res.StatusCode, fmt.Errorf("json decode error: %v", err)
+				return StatusCode(res.StatusCode), fmt.Errorf("json decode error: %v", err)
 			}
 		}
 	}
 
-	return res.StatusCode, err
+	return StatusCode(res.StatusCode), err
 }
 
-func (r *Context) downloadFile(url string, statusExpected int) (io.ReadCloser, int, error) {
+func (r *Context) downloadFile(url string, statusExpected StatusCode) (io.ReadCloser, StatusCode, error) {
 
 	var er errorsResult
 
@@ -240,7 +239,7 @@ func (r *Context) downloadFile(url string, statusExpected int) (io.ReadCloser, i
 		return nil, 0, err
 	}
 
-	if res.StatusCode != statusExpected {
+	if StatusCode(res.StatusCode) != statusExpected {
 		if err := json.NewDecoder(res.Body).Decode(&er); err != nil {
 			er.Errors = append(er.Errors, fmt.Sprintf("json decode error: %v", err))
 		}
@@ -251,7 +250,7 @@ func (r *Context) downloadFile(url string, statusExpected int) (io.ReadCloser, i
 		return nil, 0, errors.New(strings.Join(er.Errors, "\n"))
 	}
 
-	return res.Body, res.StatusCode, err
+	return res.Body, StatusCode(res.StatusCode), err
 }
 
 func urlIncludes(urlParams *url.Values, includes []string) {

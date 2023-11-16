@@ -15,7 +15,7 @@ import (
 
 // AttachmentObject struct used for attachments get operations
 type AttachmentObject struct {
-	ID          int    `json:"id"`
+	ID          int64  `json:"id"`
 	FileName    string `json:"filename"`
 	FileSize    string `json:"filesize"`
 	ContentType string `json:"content_type"`
@@ -29,7 +29,7 @@ type AttachmentObject struct {
 
 // AttachmentUploadObject struct used for attachments upload operations
 type AttachmentUploadObject struct {
-	ID          int    `json:"id,omitempty"`
+	ID          int64  `json:"id,omitempty"`
 	Token       string `json:"token"`
 	Filename    string `json:"filename"`     // This field fills in AttachmentUpload() function, not by Redmine. User can redefine this value manually
 	ContentType string `json:"content_type"` // This field fills in AttachmentUpload() function, not by Redmine. User can redefine this value manually
@@ -48,12 +48,12 @@ type attachmentUploadResult struct {
 // AttachmentSingleGet gets single attachment info
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Attachments#GET
-func (r *Context) AttachmentSingleGet(id int) (AttachmentObject, int, error) {
+func (r *Context) AttachmentSingleGet(id int64) (AttachmentObject, StatusCode, error) {
 
 	var a attachmentSingleResult
 
 	ur := url.URL{
-		Path: "/attachments/" + strconv.Itoa(id) + ".json",
+		Path: "/attachments/" + strconv.FormatInt(id, 10) + ".json",
 	}
 
 	status, err := r.Get(&a, ur, http.StatusOK)
@@ -64,7 +64,7 @@ func (r *Context) AttachmentSingleGet(id int) (AttachmentObject, int, error) {
 // AttachmentUpload uploads file
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_api#Attaching-files
-func (r *Context) AttachmentUpload(filePath string) (AttachmentUploadObject, int, error) {
+func (r *Context) AttachmentUpload(filePath string) (AttachmentUploadObject, StatusCode, error) {
 
 	var a attachmentUploadResult
 
@@ -92,7 +92,7 @@ func (r *Context) AttachmentUpload(filePath string) (AttachmentUploadObject, int
 }
 
 // AttachmentUploadStream uploads file as a stream.
-func (r *Context) AttachmentUploadStream(f io.Reader, fileName string) (AttachmentUploadObject, int, error) {
+func (r *Context) AttachmentUploadStream(f io.Reader, fileName string) (AttachmentUploadObject, StatusCode, error) {
 
 	var a attachmentUploadResult
 
@@ -113,7 +113,7 @@ func (r *Context) AttachmentUploadStream(f io.Reader, fileName string) (Attachme
 	return a.Upload, status, nil
 }
 
-func (r *Context) AttachmentDownload(id int, dstPath string) (AttachmentObject, int, error) {
+func (r *Context) AttachmentDownload(id int64, dstPath string) (AttachmentObject, StatusCode, error) {
 
 	s, o, status, err := r.AttachmentDownloadStream(id)
 	if err != nil {
@@ -133,7 +133,7 @@ func (r *Context) AttachmentDownload(id int, dstPath string) (AttachmentObject, 
 	return o, status, nil
 }
 
-func (r *Context) AttachmentDownloadStream(id int) (io.ReadCloser, AttachmentObject, int, error) {
+func (r *Context) AttachmentDownloadStream(id int64) (io.ReadCloser, AttachmentObject, StatusCode, error) {
 
 	o, status, err := r.AttachmentSingleGet(id)
 	if err != nil {

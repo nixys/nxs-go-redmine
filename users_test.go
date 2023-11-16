@@ -60,7 +60,7 @@ func testUserCreate(t *testing.T, r Context) UserObject {
 	return u
 }
 
-func testUserUpdate(t *testing.T, r Context, id int) {
+func testUserUpdate(t *testing.T, r Context, id int64) {
 
 	_, err := r.UserUpdate(
 		id,
@@ -80,7 +80,7 @@ func testUserUpdate(t *testing.T, r Context, id int) {
 	t.Logf("User update: success")
 }
 
-func testUserDetele(t *testing.T, r Context, id int) {
+func testUserDetele(t *testing.T, r Context, id int64) {
 
 	_, err := r.UserDelete(id)
 	if err != nil {
@@ -113,7 +113,7 @@ func testUserAllGet(t *testing.T, r Context) {
 	t.Fatal("Users get error: can't find created user")
 }
 
-func testUserSingleGet(t *testing.T, r Context, id int) {
+func testUserSingleGet(t *testing.T, r Context, id int64) {
 
 	_, _, err := r.UserSingleGet(id, UserSingleGetRequest{
 		Includes: []string{"groups", "memberships"},

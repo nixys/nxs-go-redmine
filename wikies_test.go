@@ -20,17 +20,20 @@ func TestWikiesCRUD(t *testing.T) {
 	var r Context
 
 	// Get env variables
-	testIssueTrackerID, _ := strconv.Atoi(os.Getenv("REDMINE_TRACKER_ID"))
+	testIssueTrackerID, err := strconv.ParseInt(os.Getenv("REDMINE_TRACKER_ID"), 10, 64)
+	if err != nil {
+		t.Fatal("Wiki test error: env variable `REDMINE_TRACKER_ID` is incorrect")
+	}
 
 	if testIssueTrackerID == 0 {
-		t.Fatal("Issue test error: env variable `REDMINE_TRACKER_ID` does not set")
+		t.Fatal("Wiki test error: env variable `REDMINE_TRACKER_ID` does not set")
 	}
 
 	// Init Redmine context
 	initTest(&r, t)
 
 	// Preparing auxiliary data
-	pCreated := testProjectCreate(t, r, []int{testIssueTrackerID})
+	pCreated := testProjectCreate(t, r, []int64{testIssueTrackerID})
 	defer testProjectDetele(t, r, pCreated.Identifier)
 
 	// Add and delete
@@ -122,7 +125,7 @@ func testWikiSingleGet(t *testing.T, r Context, projectID, wikiTitle string) {
 	t.Logf("Wiki get: success")
 }
 
-func testWikiSingleVersionGet(t *testing.T, r Context, projectID, wikiTitle string, version int) {
+func testWikiSingleVersionGet(t *testing.T, r Context, projectID, wikiTitle string, version int64) {
 
 	w, s, err := r.WikiSingleVersionGet(
 		projectID,

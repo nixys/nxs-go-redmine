@@ -16,7 +16,10 @@ func TestAttachmentsCRUD(t *testing.T) {
 	var r Context
 
 	// Get env variables
-	testIssueTrackerID, _ := strconv.Atoi(os.Getenv("REDMINE_TRACKER_ID"))
+	testIssueTrackerID, err := strconv.ParseInt(os.Getenv("REDMINE_TRACKER_ID"), 10, 64)
+	if err != nil {
+		t.Fatal("Attachments test error: env variable `REDMINE_TRACKER_ID` is incorrect")
+	}
 
 	if testIssueTrackerID == 0 {
 		t.Fatal("Attachments test error: env variable `REDMINE_TRACKER_ID` does not set")
@@ -26,7 +29,7 @@ func TestAttachmentsCRUD(t *testing.T) {
 	initTest(&r, t)
 
 	// Preparing auxiliary data
-	pCreated := testProjectCreate(t, r, []int{testIssueTrackerID})
+	pCreated := testProjectCreate(t, r, []int64{testIssueTrackerID})
 	defer testProjectDetele(t, r, pCreated.Identifier)
 
 	// Get multi
@@ -41,7 +44,7 @@ func TestAttachmentsCRUD(t *testing.T) {
 	testAttachmentDownload(t, r, aCreated)
 }
 
-func testAttachmentUpload(t *testing.T, r Context, projectID, userID int) int {
+func testAttachmentUpload(t *testing.T, r Context, projectID, userID int64) int64 {
 
 	u, s, err := r.AttachmentUpload(testAttachmentFile)
 	if err != nil {
@@ -68,7 +71,7 @@ func testAttachmentUpload(t *testing.T, r Context, projectID, userID int) int {
 	return j.Attachments[0].ID
 }
 
-func testAttachmentGetSingle(t *testing.T, r Context, id int) {
+func testAttachmentGetSingle(t *testing.T, r Context, id int64) {
 
 	a, s, err := r.AttachmentSingleGet(id)
 	if err != nil {
@@ -82,7 +85,7 @@ func testAttachmentGetSingle(t *testing.T, r Context, id int) {
 	t.Logf("Attachment get: success")
 }
 
-func testAttachmentDownload(t *testing.T, r Context, id int) {
+func testAttachmentDownload(t *testing.T, r Context, id int64) {
 
 	a, s, err := r.AttachmentDownload(id, testAttachmentFileDownload)
 	if err != nil {

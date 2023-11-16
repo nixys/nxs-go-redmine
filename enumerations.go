@@ -9,21 +9,21 @@ import (
 
 // EnumerationPriorityObject struct used for priorities get operations
 type EnumerationPriorityObject struct {
-	ID        int    `json:"id"`
+	ID        int64  `json:"id"`
 	Name      string `json:"name"`
 	IsDefault bool   `json:"is_default"`
 }
 
 // EnumerationTimeEntryActivityObject struct used for time entry activities get operations
 type EnumerationTimeEntryActivityObject struct {
-	ID        int    `json:"id"`
+	ID        int64  `json:"id"`
 	Name      string `json:"name"`
 	IsDefault bool   `json:"is_default"`
 }
 
 // EnumerationDocumentCategoryObject struct used for document categories get operations
 type EnumerationDocumentCategoryObject struct {
-	ID        int    `json:"id"`
+	ID        int64  `json:"id"`
 	Name      string `json:"name"`
 	IsDefault bool   `json:"is_default"`
 }
@@ -45,7 +45,7 @@ type enumerationDocumentCategoriesAllResult struct {
 // EnumerationPrioritiesAllGet gets info for all priority enumerations
 //
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_Enumerations#GET
-func (r *Context) EnumerationPrioritiesAllGet() ([]EnumerationPriorityObject, int, error) {
+func (r *Context) EnumerationPrioritiesAllGet() ([]EnumerationPriorityObject, StatusCode, error) {
 
 	var e enumerationPrioritiesAllResult
 
@@ -61,7 +61,7 @@ func (r *Context) EnumerationPrioritiesAllGet() ([]EnumerationPriorityObject, in
 // EnumerationTimeEntryActivitiesAllGet gets info for all time entry activity enumerations
 //
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_Enumerations#GET-2
-func (r *Context) EnumerationTimeEntryActivitiesAllGet() ([]EnumerationTimeEntryActivityObject, int, error) {
+func (r *Context) EnumerationTimeEntryActivitiesAllGet() ([]EnumerationTimeEntryActivityObject, StatusCode, error) {
 
 	var e enumerationTimeEntryActivitiesAllResult
 
@@ -77,7 +77,7 @@ func (r *Context) EnumerationTimeEntryActivitiesAllGet() ([]EnumerationTimeEntry
 // EnumerationDocumentCategoriesAllGet gets info for all document category enumerations
 //
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_Enumerations#GET-3
-func (r *Context) EnumerationDocumentCategoriesAllGet() ([]EnumerationDocumentCategoryObject, int, error) {
+func (r *Context) EnumerationDocumentCategoriesAllGet() ([]EnumerationDocumentCategoryObject, StatusCode, error) {
 
 	var e enumerationDocumentCategoriesAllResult
 

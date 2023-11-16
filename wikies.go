@@ -12,7 +12,7 @@ import (
 type WikiMultiObject struct {
 	Title     string            `json:"title"`
 	Parent    *WikiParentObject `json:"parent"`
-	Version   int               `json:"version"`
+	Version   int64             `json:"version"`
 	CreatedOn string            `json:"created_on"`
 	UpdatedOn string            `json:"updated_on"`
 }
@@ -22,7 +22,7 @@ type WikiObject struct {
 	Title       string              `json:"title"`
 	Parent      *WikiParentObject   `json:"parent"`
 	Text        string              `json:"text"`
-	Version     int                 `json:"version"`
+	Version     int64               `json:"version"`
 	Author      IDName              `json:"author"`
 	Comments    string              `json:"comments"`
 	CreatedOn   string              `json:"created_on"`
@@ -58,7 +58,7 @@ type WikiUpdate struct {
 type WikiUpdateObject struct {
 	Text     string                   `json:"text"`
 	Comments string                   `json:"comments,omitempty"`
-	Version  int                      `json:"version,omitempty"`
+	Version  int64                    `json:"version,omitempty"`
 	Uploads  []AttachmentUploadObject `json:"uploads,omitempty"`
 }
 
@@ -82,7 +82,7 @@ type wikiSingleResult struct {
 // WikiAllGet gets info for all wikies for project with specified ID
 //
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_WikiPages#Getting-the-pages-list-of-a-wiki
-func (r *Context) WikiAllGet(projectID string) ([]WikiMultiObject, int, error) {
+func (r *Context) WikiAllGet(projectID string) ([]WikiMultiObject, StatusCode, error) {
 
 	var w wikiAllResult
 
@@ -101,7 +101,7 @@ func (r *Context) WikiAllGet(projectID string) ([]WikiMultiObject, int, error) {
 //
 // Available includes:
 // * attachments
-func (r *Context) WikiSingleGet(projectID, wikiTitle string, request WikiSingleGetRequest) (WikiObject, int, error) {
+func (r *Context) WikiSingleGet(projectID, wikiTitle string, request WikiSingleGetRequest) (WikiObject, StatusCode, error) {
 
 	var w wikiSingleResult
 
@@ -126,7 +126,7 @@ func (r *Context) WikiSingleGet(projectID, wikiTitle string, request WikiSingleG
 //
 // Available includes:
 // * attachments
-func (r *Context) WikiSingleVersionGet(projectID, wikiTitle string, version int, request WikiSingleGetRequest) (WikiObject, int, error) {
+func (r *Context) WikiSingleVersionGet(projectID, wikiTitle string, version int64, request WikiSingleGetRequest) (WikiObject, StatusCode, error) {
 
 	var w wikiSingleResult
 
@@ -136,7 +136,7 @@ func (r *Context) WikiSingleVersionGet(projectID, wikiTitle string, version int,
 	urlIncludes(&urlParams, request.Includes)
 
 	ur := url.URL{
-		Path:     "/projects/" + projectID + "/wiki/" + wikiTitle + "/" + strconv.Itoa(version) + ".json",
+		Path:     "/projects/" + projectID + "/wiki/" + wikiTitle + "/" + strconv.FormatInt(version, 10) + ".json",
 		RawQuery: urlParams.Encode(),
 	}
 
@@ -148,7 +148,7 @@ func (r *Context) WikiSingleVersionGet(projectID, wikiTitle string, version int,
 // WikiCreate creates new wiki
 //
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_WikiPages#Creating-or-updating-a-wiki-page
-func (r *Context) WikiCreate(projectID, wikiTitle string, wiki WikiCreate) (WikiObject, int, error) {
+func (r *Context) WikiCreate(projectID, wikiTitle string, wiki WikiCreate) (WikiObject, StatusCode, error) {
 
 	var w wikiSingleResult
 
@@ -164,7 +164,7 @@ func (r *Context) WikiCreate(projectID, wikiTitle string, wiki WikiCreate) (Wiki
 // WikiUpdate updates wiki page
 //
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_WikiPages#Creating-or-updating-a-wiki-page
-func (r *Context) WikiUpdate(projectID, wikiTitle string, wiki WikiUpdate) (int, error) {
+func (r *Context) WikiUpdate(projectID, wikiTitle string, wiki WikiUpdate) (StatusCode, error) {
 
 	ur := url.URL{
 		Path: "/projects/" + projectID + "/wiki/" + wikiTitle + ".json",
@@ -178,7 +178,7 @@ func (r *Context) WikiUpdate(projectID, wikiTitle string, wiki WikiUpdate) (int,
 // WikiDelete deletes wiki with specified project ID and title
 //
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_WikiPages#Deleting-a-wiki-page
-func (r *Context) WikiDelete(projectID, wikiTitle string) (int, error) {
+func (r *Context) WikiDelete(projectID, wikiTitle string) (StatusCode, error) {
 
 	ur := url.URL{
 		Path: "/projects/" + projectID + "/wiki/" + wikiTitle + ".json",

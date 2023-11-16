@@ -17,7 +17,11 @@ func TestProjectsCRUDIdentifier(t *testing.T) {
 	var r Context
 
 	// Get env variables
-	testProjectTrackerID, _ := strconv.Atoi(os.Getenv("REDMINE_TRACKER_ID"))
+	testProjectTrackerID, err := strconv.ParseInt(os.Getenv("REDMINE_TRACKER_ID"), 10, 64)
+	if err != nil {
+		t.Fatal("Project test error: env variable `REDMINE_TRACKER_ID` is incorrect")
+	}
+
 	if testProjectTrackerID == 0 {
 		t.Fatal("Project test error: env variables `REDMINE_TRACKER_ID` does not set")
 	}
@@ -26,7 +30,7 @@ func TestProjectsCRUDIdentifier(t *testing.T) {
 	initTest(&r, t)
 
 	// Create and delete
-	pCreated := testProjectCreate(t, r, []int{testProjectTrackerID})
+	pCreated := testProjectCreate(t, r, []int64{testProjectTrackerID})
 	defer testProjectDetele(t, r, pCreated.Identifier)
 
 	// Get
@@ -42,7 +46,11 @@ func TestProjectsCRUDID(t *testing.T) {
 	var r Context
 
 	// Get env variables
-	testProjectTrackerID, _ := strconv.Atoi(os.Getenv("REDMINE_TRACKER_ID"))
+	testProjectTrackerID, err := strconv.ParseInt(os.Getenv("REDMINE_TRACKER_ID"), 10, 64)
+	if err != nil {
+		t.Fatal("Project test error: env variable `REDMINE_TRACKER_ID` is incorrect")
+	}
+
 	if testProjectTrackerID == 0 {
 		t.Fatal("Project test error: env variables `REDMINE_TRACKER_ID` does not set")
 	}
@@ -51,18 +59,18 @@ func TestProjectsCRUDID(t *testing.T) {
 	initTest(&r, t)
 
 	// Create and delete
-	pCreated := testProjectCreate(t, r, []int{testProjectTrackerID})
-	defer testProjectDetele(t, r, strconv.Itoa(pCreated.ID))
+	pCreated := testProjectCreate(t, r, []int64{testProjectTrackerID})
+	defer testProjectDetele(t, r, strconv.FormatInt(pCreated.ID, 10))
 
 	// Get
 	testProjectAllGet(t, r)
-	testProjectSingleGet(t, r, strconv.Itoa(pCreated.ID))
+	testProjectSingleGet(t, r, strconv.FormatInt(pCreated.ID, 10))
 
 	// Update
-	testProjectUpdate(t, r, strconv.Itoa(pCreated.ID))
+	testProjectUpdate(t, r, strconv.FormatInt(pCreated.ID, 10))
 }
 
-func testProjectCreate(t *testing.T, r Context, trackerIDs []int) ProjectObject {
+func testProjectCreate(t *testing.T, r Context, trackerIDs []int64) ProjectObject {
 
 	p, _, err := r.ProjectCreate(
 		ProjectCreate{

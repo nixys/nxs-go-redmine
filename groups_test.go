@@ -58,14 +58,14 @@ func testGroupCreate(t *testing.T, r Context) GroupObject {
 	return g
 }
 
-func testGroupUpdate(t *testing.T, r Context, id, userID int) {
+func testGroupUpdate(t *testing.T, r Context, id, userID int64) {
 
 	_, err := r.GroupUpdate(
 		id,
 		GroupUpdate{
 			Group: GroupUpdateObject{
 				Name:    testGroupName2,
-				UserIDs: []int{userID},
+				UserIDs: []int64{userID},
 			},
 		},
 	)
@@ -76,7 +76,7 @@ func testGroupUpdate(t *testing.T, r Context, id, userID int) {
 	t.Logf("Group update: success")
 }
 
-func testGroupAddUser(t *testing.T, r Context, id, userID int) {
+func testGroupAddUser(t *testing.T, r Context, id, userID int64) {
 
 	_, err := r.GroupAddUser(id, GroupAddUserObject{UserID: userID})
 	if err != nil {
@@ -86,7 +86,7 @@ func testGroupAddUser(t *testing.T, r Context, id, userID int) {
 	t.Logf("Group add user: success")
 }
 
-func testGroupDeteleUser(t *testing.T, r Context, id, userID int) {
+func testGroupDeteleUser(t *testing.T, r Context, id, userID int64) {
 
 	_, err := r.GroupDeleteUser(id, userID)
 	if err != nil {
@@ -96,7 +96,7 @@ func testGroupDeteleUser(t *testing.T, r Context, id, userID int) {
 	t.Logf("Group delete user: success")
 }
 
-func testGroupDetele(t *testing.T, r Context, id int) {
+func testGroupDetele(t *testing.T, r Context, id int64) {
 
 	_, err := r.GroupDelete(id)
 	if err != nil {
@@ -123,7 +123,7 @@ func testGroupAllGet(t *testing.T, r Context) {
 	t.Fatal("Groups get error: can't find created group")
 }
 
-func testGroupSingleGet(t *testing.T, r Context, id, userID int) {
+func testGroupSingleGet(t *testing.T, r Context, id, userID int64) {
 
 	g, _, err := r.GroupSingleGet(id, GroupSingleGetRequest{
 		Includes: []string{"users", "memberships"},

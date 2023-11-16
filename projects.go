@@ -7,7 +7,7 @@ import (
 )
 
 // ProjectStatus defines project status type
-type ProjectStatus int
+type ProjectStatus int64
 
 // ProjectStatus const
 const (
@@ -20,7 +20,7 @@ const (
 
 // ProjectObject struct used for projects get operations
 type ProjectObject struct {
-	ID              int                    `json:"id"`
+	ID              int64                  `json:"id"`
 	Name            string                 `json:"name"`
 	Identifier      string                 `json:"identifier"`
 	Description     string                 `json:"description"`
@@ -48,11 +48,11 @@ type ProjectCreateObject struct {
 	Description         string                    `json:"description,omitempty"`
 	Homepage            string                    `json:"homepage,omitempty"`
 	IsPublic            bool                      `json:"is_public,omitempty"`
-	ParentID            int                       `json:"parent_id,omitempty"`
+	ParentID            int64                     `json:"parent_id,omitempty"`
 	InheritMembers      bool                      `json:"inherit_members,omitempty"`
-	TrackerIDs          []int                     `json:"tracker_ids,omitempty"`
+	TrackerIDs          []int64                   `json:"tracker_ids,omitempty"`
 	EnabledModuleNames  []string                  `json:"enabled_module_names,omitempty"`
-	IssueCustomFieldIDs []int                     `json:"issue_custom_field_ids,omitempty"`
+	IssueCustomFieldIDs []int64                   `json:"issue_custom_field_ids,omitempty"`
 	CustomFields        []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
 }
 
@@ -68,11 +68,11 @@ type ProjectUpdateObject struct {
 	Description         string                    `json:"description,omitempty"`
 	Homepage            string                    `json:"homepage,omitempty"`
 	IsPublic            bool                      `json:"is_public,omitempty"`
-	ParentID            int                       `json:"parent_id,omitempty"`
+	ParentID            int64                     `json:"parent_id,omitempty"`
 	InheritMembers      bool                      `json:"inherit_members,omitempty"`
-	TrackerIDs          []int                     `json:"tracker_ids,omitempty"`
+	TrackerIDs          []int64                   `json:"tracker_ids,omitempty"`
 	EnabledModuleNames  []string                  `json:"enabled_module_names,omitempty"`
-	IssueCustomFieldIDs []int                     `json:"issue_custom_field_ids,omitempty"`
+	IssueCustomFieldIDs []int64                   `json:"issue_custom_field_ids,omitempty"`
 	CustomFields        []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
 }
 
@@ -88,8 +88,8 @@ type ProjectAllGetRequest struct {
 type ProjectMultiGetRequest struct {
 	Includes []string
 	Filters  ProjectGetRequestFilters
-	Offset   int
-	Limit    int
+	Offset   int64
+	Limit    int64
 }
 
 // ProjectSingleGetRequest contains data for making request to get specified project
@@ -107,9 +107,9 @@ type ProjectGetRequestFilters struct {
 // ProjectResult stores projects requests processing result
 type ProjectResult struct {
 	Projects   []ProjectObject `json:"projects"`
-	TotalCount int             `json:"total_count"`
-	Offset     int             `json:"offset"`
-	Limit      int             `json:"limit"`
+	TotalCount int64           `json:"total_count"`
+	Offset     int64           `json:"offset"`
+	Limit      int64           `json:"limit"`
 }
 
 /* Internal types */
@@ -142,11 +142,12 @@ func (p ProjectStatus) String() string {
 // * trackers
 // * issue_categories
 // * enabled_modules
-func (r *Context) ProjectAllGet(request ProjectAllGetRequest) (ProjectResult, int, error) {
+func (r *Context) ProjectAllGet(request ProjectAllGetRequest) (ProjectResult, StatusCode, error) {
 
 	var (
-		projects       ProjectResult
-		offset, status int
+		projects ProjectResult
+		offset   int64
+		status   StatusCode
 	)
 
 	m := ProjectMultiGetRequest{
@@ -189,7 +190,7 @@ func (r *Context) ProjectAllGet(request ProjectAllGetRequest) (ProjectResult, in
 // * trackers
 // * issue_categories
 // * enabled_modules
-func (r *Context) ProjectMultiGet(request ProjectMultiGetRequest) (ProjectResult, int, error) {
+func (r *Context) ProjectMultiGet(request ProjectMultiGetRequest) (ProjectResult, StatusCode, error) {
 
 	var p ProjectResult
 
@@ -199,9 +200,9 @@ func (r *Context) ProjectMultiGet(request ProjectMultiGetRequest) (ProjectResult
 	}
 
 	urlParams := url.Values{}
-	urlParams.Add("offset", strconv.Itoa(request.Offset))
-	urlParams.Add("limit", strconv.Itoa(request.Limit))
-	urlParams.Add("status", strconv.Itoa(int(status)))
+	urlParams.Add("offset", strconv.FormatInt(request.Offset, 10))
+	urlParams.Add("limit", strconv.FormatInt(request.Limit, 10))
+	urlParams.Add("status", strconv.FormatInt(int64(status), 10))
 
 	// Preparing includes
 	urlIncludes(&urlParams, request.Includes)
@@ -225,7 +226,7 @@ func (r *Context) ProjectMultiGet(request ProjectMultiGetRequest) (ProjectResult
 // * issue_categories
 // * enabled_modules
 // * time_entry_activities (since 3.4.0)
-func (r *Context) ProjectSingleGet(id string, request ProjectSingleGetRequest) (ProjectObject, int, error) {
+func (r *Context) ProjectSingleGet(id string, request ProjectSingleGetRequest) (ProjectObject, StatusCode, error) {
 
 	var p projectSingleResult
 
@@ -247,7 +248,7 @@ func (r *Context) ProjectSingleGet(id string, request ProjectSingleGetRequest) (
 // ProjectCreate creates new project
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Creating-a-project
-func (r *Context) ProjectCreate(project ProjectCreate) (ProjectObject, int, error) {
+func (r *Context) ProjectCreate(project ProjectCreate) (ProjectObject, StatusCode, error) {
 
 	var p projectSingleResult
 
@@ -263,7 +264,7 @@ func (r *Context) ProjectCreate(project ProjectCreate) (ProjectObject, int, erro
 // ProjectUpdate updates project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Updating-a-project
-func (r *Context) ProjectUpdate(id string, project ProjectUpdate) (int, error) {
+func (r *Context) ProjectUpdate(id string, project ProjectUpdate) (StatusCode, error) {
 
 	ur := url.URL{
 		Path: "/projects/" + id + ".json",
@@ -277,7 +278,7 @@ func (r *Context) ProjectUpdate(id string, project ProjectUpdate) (int, error) {
 // ProjectDelete deletes project with specified ID
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Deleting-a-project
-func (r *Context) ProjectDelete(id string) (int, error) {
+func (r *Context) ProjectDelete(id string) (StatusCode, error) {
 
 	ur := url.URL{
 		Path: "/projects/" + id + ".json",

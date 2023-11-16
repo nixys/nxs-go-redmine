@@ -9,13 +9,13 @@ import (
 
 // CustomFieldObject struct used for custom fields get operations
 type CustomFieldObject struct {
-	ID             int                              `json:"id"`
+	ID             int64                            `json:"id"`
 	Name           string                           `json:"name"`
 	CustomizedType string                           `json:"customized_type"`
 	FieldFormat    string                           `json:"field_format"`
 	Regexp         string                           `json:"regexp"`
-	MinLength      int                              `json:"min_length"`
-	MaxLength      int                              `json:"max_length"`
+	MinLength      int64                            `json:"min_length"`
+	MaxLength      int64                            `json:"max_length"`
 	IsRequired     bool                             `json:"is_required"`
 	IsFilter       bool                             `json:"is_filter"`
 	Searchable     bool                             `json:"searchable"`
@@ -34,7 +34,7 @@ type CustomFieldPossibleValueObject struct {
 
 // CustomFieldGetObject struct used for custom fields get operations in other methods
 type CustomFieldGetObject struct {
-	ID       int      `json:"id"`
+	ID       int64    `json:"id"`
 	Name     string   `json:"name"`
 	Multiple bool     `json:"multiple"`
 	Value    []string `json:"value"`
@@ -44,7 +44,7 @@ type CustomFieldGetObject struct {
 
 // CustomFieldUpdateObject struct used for custom fields insert and update operations in other methods
 type CustomFieldUpdateObject struct {
-	ID    int         `json:"id"`
+	ID    int64       `json:"id"`
 	Value interface{} `json:"value"` // can be a string or strings slice
 }
 
@@ -57,7 +57,7 @@ type customFieldAllResult struct {
 // CustomFieldAllGet gets info for all custom fields
 //
 // see: http://www.redmine.org/projects/redmine/wiki/Rest_CustomFields#GET
-func (r *Context) CustomFieldAllGet() ([]CustomFieldObject, int, error) {
+func (r *Context) CustomFieldAllGet() ([]CustomFieldObject, StatusCode, error) {
 
 	var c customFieldAllResult
 
