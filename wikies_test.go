@@ -66,8 +66,8 @@ func testWikiCreate(t *testing.T, r Context, projectID, wikiTitle string) WikiOb
 		WikiCreate{
 			WikiPage: WikiCreateObject{
 				Text:     testWikiText,
-				Comments: testWikiComment,
-				Uploads:  []AttachmentUploadObject{u},
+				Comments: &testWikiComment,
+				Uploads:  &[]AttachmentUploadObject{u},
 			},
 		},
 	)
@@ -104,7 +104,9 @@ func testWikiSingleGet(t *testing.T, r Context, projectID, wikiTitle string) {
 		projectID,
 		wikiTitle,
 		WikiSingleGetRequest{
-			Includes: []string{"attachments"},
+			Includes: []WikiInclude{
+				WikiIncludeAttachments,
+			},
 		})
 	if err != nil {
 		t.Fatal("Wiki get error:", err, s)
@@ -132,7 +134,9 @@ func testWikiSingleVersionGet(t *testing.T, r Context, projectID, wikiTitle stri
 		wikiTitle,
 		version,
 		WikiSingleGetRequest{
-			Includes: []string{"attachments"},
+			Includes: []WikiInclude{
+				WikiIncludeAttachments,
+			},
 		})
 	if err != nil {
 		t.Fatal("Wiki version get error:", err, s)
@@ -157,7 +161,7 @@ func testWikiUpdate(t *testing.T, r Context, projectID, wikiTitle string) {
 		WikiUpdate{
 			WikiPage: WikiUpdateObject{
 				Text:     testWikiTextUpdated,
-				Comments: testWikiCommentUpdated,
+				Comments: &testWikiCommentUpdated,
 			},
 		},
 	)

@@ -6,6 +6,12 @@ import (
 	"strconv"
 )
 
+type WikiInclude string
+
+const (
+	WikiIncludeAttachments WikiInclude = "attachments"
+)
+
 /* Get */
 
 // WikiMultiObject struct used for wikies all get operations
@@ -43,9 +49,9 @@ type WikiCreate struct {
 }
 
 type WikiCreateObject struct {
-	Text     string                   `json:"text"`
-	Comments string                   `json:"comments,omitempty"`
-	Uploads  []AttachmentUploadObject `json:"uploads,omitempty"`
+	Text     string                    `json:"text"`
+	Comments *string                   `json:"comments,omitempty"`
+	Uploads  *[]AttachmentUploadObject `json:"uploads,omitempty"`
 }
 
 /* Update */
@@ -56,17 +62,17 @@ type WikiUpdate struct {
 }
 
 type WikiUpdateObject struct {
-	Text     string                   `json:"text"`
-	Comments string                   `json:"comments,omitempty"`
-	Version  int64                    `json:"version,omitempty"`
-	Uploads  []AttachmentUploadObject `json:"uploads,omitempty"`
+	Text     string                    `json:"text"`
+	Comments *string                   `json:"comments,omitempty"`
+	Version  *int64                    `json:"version,omitempty"`
+	Uploads  *[]AttachmentUploadObject `json:"uploads,omitempty"`
 }
 
 /* Requests */
 
 // WikiSingleGetRequest contains data for making request to get specified wiki
 type WikiSingleGetRequest struct {
-	Includes []string
+	Includes []WikiInclude
 }
 
 /* Internal types */
@@ -77,6 +83,10 @@ type wikiAllResult struct {
 
 type wikiSingleResult struct {
 	WikiPage WikiObject `json:"wiki_page"`
+}
+
+func (wi WikiInclude) String() string {
+	return string(wi)
 }
 
 // WikiAllGet gets info for all wikies for project with specified ID
@@ -98,9 +108,6 @@ func (r *Context) WikiAllGet(projectID string) ([]WikiMultiObject, StatusCode, e
 // WikiSingleGet gets single wiki info by specific project ID and wiki title
 //
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_WikiPages#Getting-a-wiki-page
-//
-// Available includes:
-// * attachments
 func (r *Context) WikiSingleGet(projectID, wikiTitle string, request WikiSingleGetRequest) (WikiObject, StatusCode, error) {
 
 	var w wikiSingleResult
@@ -108,7 +115,16 @@ func (r *Context) WikiSingleGet(projectID, wikiTitle string, request WikiSingleG
 	urlParams := url.Values{}
 
 	// Preparing includes
-	urlIncludes(&urlParams, request.Includes)
+	urlIncludes(
+		&urlParams,
+		func() []string {
+			var is []string
+			for _, i := range request.Includes {
+				is = append(is, i.String())
+			}
+			return is
+		}(),
+	)
 
 	ur := url.URL{
 		Path:     "/projects/" + projectID + "/wiki/" + wikiTitle + ".json",
@@ -123,9 +139,6 @@ func (r *Context) WikiSingleGet(projectID, wikiTitle string, request WikiSingleG
 // WikiSingleVersionGet gets single wiki info by specific project ID, wiki title and version
 //
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_WikiPages#Getting-an-old-version-of-a-wiki-page
-//
-// Available includes:
-// * attachments
 func (r *Context) WikiSingleVersionGet(projectID, wikiTitle string, version int64, request WikiSingleGetRequest) (WikiObject, StatusCode, error) {
 
 	var w wikiSingleResult
@@ -133,7 +146,16 @@ func (r *Context) WikiSingleVersionGet(projectID, wikiTitle string, version int6
 	urlParams := url.Values{}
 
 	// Preparing includes
-	urlIncludes(&urlParams, request.Includes)
+	urlIncludes(
+		&urlParams,
+		func() []string {
+			var is []string
+			for _, i := range request.Includes {
+				is = append(is, i.String())
+			}
+			return is
+		}(),
+	)
 
 	ur := url.URL{
 		Path:     "/projects/" + projectID + "/wiki/" + wikiTitle + "/" + strconv.FormatInt(version, 10) + ".json",
