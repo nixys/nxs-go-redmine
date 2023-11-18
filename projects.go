@@ -16,23 +16,39 @@ const (
 	ProjectStatusArchived ProjectStatus = 9
 )
 
+type ProjectInclude string
+
+const (
+	ProjectIncludeTrackers            ProjectInclude = "trackers"
+	ProjectIncludeIssueCategories     ProjectInclude = "issue_categories"
+	ProjectIncludeEnabledModules      ProjectInclude = "enabled_modules"       // (since 2.6.0)
+	ProjectIncludeTimeEntryActivities ProjectInclude = "time_entry_activities" // (since 3.4.0)
+	ProjectIncludeIssueCustomFields   ProjectInclude = "issue_custom_fields"   // (since 4.2.0)
+)
+
 /* Get */
 
 // ProjectObject struct used for projects get operations
 type ProjectObject struct {
-	ID              int64                  `json:"id"`
-	Name            string                 `json:"name"`
-	Identifier      string                 `json:"identifier"`
-	Description     string                 `json:"description"`
-	Homepage        string                 `json:"homepage"` // used only: get single project
-	Parent          IDName                 `json:"parent"`
-	Status          ProjectStatus          `json:"status"`
-	CustomFields    []CustomFieldGetObject `json:"custom_fields"`
-	Trackers        []IDName               `json:"trackers"`
-	IssueCategories []IDName               `json:"issue_categories"`
-	EnabledModules  []IDName               `json:"enabled_modules"`
-	CreatedOn       string                 `json:"created_on"`
-	UpdatedOn       string                 `json:"updated_on"`
+	ID                  int64                  `json:"id"`
+	Name                string                 `json:"name"`
+	Identifier          string                 `json:"identifier"`
+	Description         string                 `json:"description"`
+	Homepage            *string                `json:"homepage"` // used only: get single project
+	Parent              IDName                 `json:"parent"`
+	Status              ProjectStatus          `json:"status"`
+	IsPublic            bool                   `json:"is_public"`
+	InheritMembers      bool                   `json:"inherit_members"`
+	DefaultVersion      *IDName                `json:"default_version"`  // used only: get single project and if set for project
+	DefaultAssignee     *IDName                `json:"default_assignee"` // used only: get single project and if set for project
+	CustomFields        []CustomFieldGetObject `json:"custom_fields"`
+	Trackers            *[]IDName              `json:"trackers"`              // used only: include specified
+	IssueCategories     *[]IDName              `json:"issue_categories"`      // used only: include specified
+	TimeEntryActivities *[]IDName              `json:"time_entry_activities"` // used only: include specified
+	EnabledModules      *[]IDName              `json:"enabled_modules"`       // used only: include specified
+	IssueCustomFields   *[]IDName              `json:"issue_custom_fields"`   // used only: include specified
+	CreatedOn           string                 `json:"created_on"`
+	UpdatedOn           string                 `json:"updated_on"`
 }
 
 /* Create */
@@ -43,17 +59,19 @@ type ProjectCreate struct {
 }
 
 type ProjectCreateObject struct {
-	Name                string                    `json:"name"`
-	Identifier          string                    `json:"identifier"`
-	Description         string                    `json:"description,omitempty"`
-	Homepage            string                    `json:"homepage,omitempty"`
-	IsPublic            bool                      `json:"is_public,omitempty"`
-	ParentID            int64                     `json:"parent_id,omitempty"`
-	InheritMembers      bool                      `json:"inherit_members,omitempty"`
-	TrackerIDs          []int64                   `json:"tracker_ids,omitempty"`
-	EnabledModuleNames  []string                  `json:"enabled_module_names,omitempty"`
-	IssueCustomFieldIDs []int64                   `json:"issue_custom_field_ids,omitempty"`
-	CustomFields        []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
+	Name                string                     `json:"name"`
+	Identifier          string                     `json:"identifier"`
+	Description         *string                    `json:"description,omitempty"`
+	Homepage            *string                    `json:"homepage,omitempty"`
+	IsPublic            *bool                      `json:"is_public,omitempty"`
+	ParentID            *int64                     `json:"parent_id,omitempty"`
+	InheritMembers      *bool                      `json:"inherit_members,omitempty"`
+	DefaultAssignedToID *int64                     `json:"default_assigned_to_id,omitempty"`
+	DefaultVersionID    *int64                     `json:"default_version_id,omitempty"`
+	TrackerIDs          *[]int64                   `json:"tracker_ids,omitempty"`
+	EnabledModuleNames  *[]string                  `json:"enabled_module_names,omitempty"`
+	IssueCustomFieldIDs *[]int64                   `json:"issue_custom_field_ids,omitempty"`
+	CustomFields        *[]CustomFieldUpdateObject `json:"custom_fields,omitempty"`
 }
 
 /* Update */
@@ -64,29 +82,31 @@ type ProjectUpdate struct {
 }
 
 type ProjectUpdateObject struct {
-	Name                string                    `json:"name,omitempty"`
-	Description         string                    `json:"description,omitempty"`
-	Homepage            string                    `json:"homepage,omitempty"`
-	IsPublic            bool                      `json:"is_public,omitempty"`
-	ParentID            int64                     `json:"parent_id,omitempty"`
-	InheritMembers      bool                      `json:"inherit_members,omitempty"`
-	TrackerIDs          []int64                   `json:"tracker_ids,omitempty"`
-	EnabledModuleNames  []string                  `json:"enabled_module_names,omitempty"`
-	IssueCustomFieldIDs []int64                   `json:"issue_custom_field_ids,omitempty"`
-	CustomFields        []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
+	Name                *string                    `json:"name,omitempty"`
+	Description         *string                    `json:"description,omitempty"`
+	Homepage            *string                    `json:"homepage,omitempty"`
+	IsPublic            *bool                      `json:"is_public,omitempty"`
+	ParentID            *int64                     `json:"parent_id,omitempty"`
+	InheritMembers      *bool                      `json:"inherit_members,omitempty"`
+	DefaultAssignedToID *int64                     `json:"default_assigned_to_id,omitempty"`
+	DefaultVersionID    *int64                     `json:"default_version_id,omitempty"`
+	TrackerIDs          *[]int64                   `json:"tracker_ids,omitempty"`
+	EnabledModuleNames  *[]string                  `json:"enabled_module_names,omitempty"`
+	IssueCustomFieldIDs *[]int64                   `json:"issue_custom_field_ids,omitempty"`
+	CustomFields        *[]CustomFieldUpdateObject `json:"custom_fields,omitempty"`
 }
 
 /* Requests */
 
 // ProjectAllGetRequest contains data for making request to get all projects satisfying specified filters
 type ProjectAllGetRequest struct {
-	Includes []string
+	Includes []ProjectInclude
 	Filters  ProjectGetRequestFilters
 }
 
 // ProjectMultiGetRequest contains data for making request to get limited projects count satisfying specified filters
 type ProjectMultiGetRequest struct {
-	Includes []string
+	Includes []ProjectInclude
 	Filters  ProjectGetRequestFilters
 	Offset   int64
 	Limit    int64
@@ -94,7 +114,7 @@ type ProjectMultiGetRequest struct {
 
 // ProjectSingleGetRequest contains data for making request to get specified project
 type ProjectSingleGetRequest struct {
-	Includes []string
+	Includes []ProjectInclude
 }
 
 // ProjectGetRequestFilters contains data for making projects get request
@@ -134,14 +154,13 @@ func (p ProjectStatus) String() string {
 	return s
 }
 
+func (pi ProjectInclude) String() string {
+	return string(pi)
+}
+
 // ProjectAllGet gets info for all projects
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Listing-projects
-//
-// Available includes:
-// * trackers
-// * issue_categories
-// * enabled_modules
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Projects#Listing-projects
 func (r *Context) ProjectAllGet(request ProjectAllGetRequest) (ProjectResult, StatusCode, error) {
 
 	var (
@@ -184,12 +203,7 @@ func (r *Context) ProjectAllGet(request ProjectAllGetRequest) (ProjectResult, St
 
 // ProjectMultiGet gets info for multiple projects
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Listing-projects
-//
-// Available includes:
-// * trackers
-// * issue_categories
-// * enabled_modules
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Projects#Listing-projects
 func (r *Context) ProjectMultiGet(request ProjectMultiGetRequest) (ProjectResult, StatusCode, error) {
 
 	var p ProjectResult
@@ -205,7 +219,16 @@ func (r *Context) ProjectMultiGet(request ProjectMultiGetRequest) (ProjectResult
 	urlParams.Add("status", strconv.FormatInt(int64(status), 10))
 
 	// Preparing includes
-	urlIncludes(&urlParams, request.Includes)
+	urlIncludes(
+		&urlParams,
+		func() []string {
+			var is []string
+			for _, i := range request.Includes {
+				is = append(is, i.String())
+			}
+			return is
+		}(),
+	)
 
 	ur := url.URL{
 		Path:     "/projects.json",
@@ -219,13 +242,7 @@ func (r *Context) ProjectMultiGet(request ProjectMultiGetRequest) (ProjectResult
 
 // ProjectSingleGet gets single project info with specified ID
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Showing-a-project
-//
-// Available includes:
-// * trackers
-// * issue_categories
-// * enabled_modules
-// * time_entry_activities (since 3.4.0)
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Projects#Showing-a-project
 func (r *Context) ProjectSingleGet(id string, request ProjectSingleGetRequest) (ProjectObject, StatusCode, error) {
 
 	var p projectSingleResult
@@ -233,7 +250,16 @@ func (r *Context) ProjectSingleGet(id string, request ProjectSingleGetRequest) (
 	urlParams := url.Values{}
 
 	// Preparing includes
-	urlIncludes(&urlParams, request.Includes)
+	urlIncludes(
+		&urlParams,
+		func() []string {
+			var is []string
+			for _, i := range request.Includes {
+				is = append(is, i.String())
+			}
+			return is
+		}(),
+	)
 
 	ur := url.URL{
 		Path:     "/projects/" + id + ".json",
@@ -247,7 +273,7 @@ func (r *Context) ProjectSingleGet(id string, request ProjectSingleGetRequest) (
 
 // ProjectCreate creates new project
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Creating-a-project
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Projects#Creating-a-project
 func (r *Context) ProjectCreate(project ProjectCreate) (ProjectObject, StatusCode, error) {
 
 	var p projectSingleResult
@@ -263,7 +289,7 @@ func (r *Context) ProjectCreate(project ProjectCreate) (ProjectObject, StatusCod
 
 // ProjectUpdate updates project with specified ID
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Updating-a-project
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Projects#Updating-a-project
 func (r *Context) ProjectUpdate(id string, project ProjectUpdate) (StatusCode, error) {
 
 	ur := url.URL{
@@ -275,9 +301,37 @@ func (r *Context) ProjectUpdate(id string, project ProjectUpdate) (StatusCode, e
 	return status, err
 }
 
+// ProjectArchive archives a project (available since Redmine 5.0)
+//
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Projects#Archiving-a-project
+func (r *Context) ProjectArchive(id string) (StatusCode, error) {
+
+	ur := url.URL{
+		Path: "/projects/" + id + "/archive.json",
+	}
+
+	status, err := r.Put(nil, nil, ur, http.StatusNoContent)
+
+	return status, err
+}
+
+// ProjectUnarchive unarchives a project (available since Redmine 5.0)
+//
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Projects#Unarchiving-a-project
+func (r *Context) ProjectUnarchive(id string) (StatusCode, error) {
+
+	ur := url.URL{
+		Path: "/projects/" + id + "/unarchive.json",
+	}
+
+	status, err := r.Put(nil, nil, ur, http.StatusNoContent)
+
+	return status, err
+}
+
 // ProjectDelete deletes project with specified ID
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Deleting-a-project
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Projects#Deleting-a-project
 func (r *Context) ProjectDelete(id string) (StatusCode, error) {
 
 	ur := url.URL{

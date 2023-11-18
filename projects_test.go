@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-const (
+var (
 	testProjectName       = "test-project"
 	testProjectName2      = "test-project2"
 	testProjectIdentifier = "test_project"
@@ -32,6 +32,10 @@ func TestProjectsCRUDIdentifier(t *testing.T) {
 	// Create and delete
 	pCreated := testProjectCreate(t, r, []int64{testProjectTrackerID})
 	defer testProjectDetele(t, r, pCreated.Identifier)
+
+	// Archive and unarcheve
+	testProjectArchive(t, r, pCreated.Identifier)
+	testProjectUnarchive(t, r, pCreated.Identifier)
 
 	// Get
 	testProjectAllGet(t, r)
@@ -75,11 +79,9 @@ func testProjectCreate(t *testing.T, r Context, trackerIDs []int64) ProjectObjec
 	p, _, err := r.ProjectCreate(
 		ProjectCreate{
 			Project: ProjectCreateObject{
-				Name:           testProjectName,
-				Identifier:     testProjectIdentifier,
-				IsPublic:       false,
-				InheritMembers: false,
-				TrackerIDs:     trackerIDs,
+				Name:       testProjectName,
+				Identifier: testProjectIdentifier,
+				TrackerIDs: &trackerIDs,
 			},
 		},
 	)
@@ -98,7 +100,7 @@ func testProjectUpdate(t *testing.T, r Context, id string) {
 		id,
 		ProjectUpdate{
 			Project: ProjectUpdateObject{
-				Name: testProjectName2,
+				Name: &testProjectName2,
 			},
 		},
 	)
@@ -121,12 +123,20 @@ func testProjectDetele(t *testing.T, r Context, id string) {
 
 func testProjectAllGet(t *testing.T, r Context) {
 
-	p, _, err := r.ProjectAllGet(ProjectAllGetRequest{
-		Includes: []string{"trackers", "issue_categories", "enabled_modules"},
-		Filters: ProjectGetRequestFilters{
-			Status: ProjectStatusActive,
+	p, _, err := r.ProjectAllGet(
+		ProjectAllGetRequest{
+			Includes: []ProjectInclude{
+				ProjectIncludeTrackers,
+				ProjectIncludeIssueCategories,
+				ProjectIncludeEnabledModules,
+				ProjectIncludeTimeEntryActivities,
+				ProjectIncludeIssueCustomFields,
+			},
+			Filters: ProjectGetRequestFilters{
+				Status: ProjectStatusActive,
+			},
 		},
-	})
+	)
 	if err != nil {
 		t.Fatal("Projects get error:", err)
 	}
@@ -143,12 +153,41 @@ func testProjectAllGet(t *testing.T, r Context) {
 
 func testProjectSingleGet(t *testing.T, r Context, id string) {
 
-	_, _, err := r.ProjectSingleGet(id, ProjectSingleGetRequest{
-		Includes: []string{"trackers", "issue_categories", "enabled_modules"},
-	})
+	_, _, err := r.ProjectSingleGet(
+		id,
+		ProjectSingleGetRequest{
+			Includes: []ProjectInclude{
+				ProjectIncludeTrackers,
+				ProjectIncludeIssueCategories,
+				ProjectIncludeEnabledModules,
+				ProjectIncludeTimeEntryActivities,
+				ProjectIncludeIssueCustomFields,
+			},
+		},
+	)
 	if err != nil {
 		t.Fatal("Project get error:", err)
 	}
 
 	t.Logf("Project get: success")
+}
+
+func testProjectArchive(t *testing.T, r Context, id string) {
+
+	_, err := r.ProjectArchive(id)
+	if err != nil {
+		t.Fatal("Project archive error:", err)
+	}
+
+	t.Logf("Project archive: success")
+}
+
+func testProjectUnarchive(t *testing.T, r Context, id string) {
+
+	_, err := r.ProjectUnarchive(id)
+	if err != nil {
+		t.Fatal("Project unarchive error:", err)
+	}
+
+	t.Logf("Project unarchive: success")
 }
