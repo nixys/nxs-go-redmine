@@ -15,21 +15,22 @@ import (
 
 // AttachmentObject struct used for attachments get operations
 type AttachmentObject struct {
-	ID          int64  `json:"id"`
-	FileName    string `json:"filename"`
-	FileSize    string `json:"filesize"`
-	ContentType string `json:"content_type"`
-	Description string `json:"description"`
-	ContentURL  string `json:"content_url"`
-	Author      IDName `json:"author"`
-	CreatedOn   string `json:"created_on"`
+	ID           int64  `json:"id"`
+	FileName     string `json:"filename"`
+	FileSize     string `json:"filesize"`
+	ContentType  string `json:"content_type"`
+	Description  string `json:"description"`
+	ContentURL   string `json:"content_url"`
+	ThumbnailURL string `json:"thumbnail_url"`
+	Author       IDName `json:"author"`
+	CreatedOn    string `json:"created_on"`
 }
 
 /* Upload */
 
 // AttachmentUploadObject struct used for attachments upload operations
 type AttachmentUploadObject struct {
-	ID          int64  `json:"id,omitempty"`
+	ID          *int64 `json:"id,omitempty"`
 	Token       string `json:"token"`
 	Filename    string `json:"filename"`     // This field fills in AttachmentUpload() function, not by Redmine. User can redefine this value manually
 	ContentType string `json:"content_type"` // This field fills in AttachmentUpload() function, not by Redmine. User can redefine this value manually
@@ -47,30 +48,28 @@ type attachmentUploadResult struct {
 
 // AttachmentSingleGet gets single attachment info
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Attachments#GET
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Attachments#GET
 func (r *Context) AttachmentSingleGet(id int64) (AttachmentObject, StatusCode, error) {
 
 	var a attachmentSingleResult
 
-	ur := url.URL{
-		Path: "/attachments/" + strconv.FormatInt(id, 10) + ".json",
-	}
-
-	status, err := r.Get(&a, ur, http.StatusOK)
+	status, err := r.Get(
+		&a,
+		url.URL{
+			Path: "/attachments/" + strconv.FormatInt(id, 10) + ".json",
+		},
+		http.StatusOK,
+	)
 
 	return a.Attachment, status, err
 }
 
 // AttachmentUpload uploads file
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_api#Attaching-files
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_api#Attaching-files
 func (r *Context) AttachmentUpload(filePath string) (AttachmentUploadObject, StatusCode, error) {
 
 	var a attachmentUploadResult
-
-	ur := url.URL{
-		Path: "/uploads.json",
-	}
 
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -80,7 +79,14 @@ func (r *Context) AttachmentUpload(filePath string) (AttachmentUploadObject, Sta
 
 	mr := mimereader.New(f)
 
-	status, err := r.uploadFile(mr, &a, ur, http.StatusCreated)
+	status, err := r.uploadFile(
+		mr,
+		&a,
+		url.URL{
+			Path: "/uploads.json",
+		},
+		http.StatusCreated,
+	)
 	if err != nil {
 		return a.Upload, status, err
 	}
@@ -96,13 +102,16 @@ func (r *Context) AttachmentUploadStream(f io.Reader, fileName string) (Attachme
 
 	var a attachmentUploadResult
 
-	ur := url.URL{
-		Path: "/uploads.json",
-	}
-
 	mr := mimereader.New(f)
 
-	status, err := r.uploadFile(mr, &a, ur, http.StatusCreated)
+	status, err := r.uploadFile(
+		mr,
+		&a,
+		url.URL{
+			Path: "/uploads.json",
+		},
+		http.StatusCreated,
+	)
 	if err != nil {
 		return a.Upload, status, err
 	}
