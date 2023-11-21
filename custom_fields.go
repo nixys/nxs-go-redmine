@@ -9,35 +9,36 @@ import (
 
 // CustomFieldObject struct used for custom fields get operations
 type CustomFieldObject struct {
-	ID             int64                            `json:"id"`
-	Name           string                           `json:"name"`
-	CustomizedType string                           `json:"customized_type"`
-	FieldFormat    string                           `json:"field_format"`
-	Regexp         string                           `json:"regexp"`
-	MinLength      int64                            `json:"min_length"`
-	MaxLength      int64                            `json:"max_length"`
-	IsRequired     bool                             `json:"is_required"`
-	IsFilter       bool                             `json:"is_filter"`
-	Searchable     bool                             `json:"searchable"`
-	Multiple       bool                             `json:"multiple"`
-	DefaultValue   string                           `json:"default_value"`
-	Visible        bool                             `json:"visible"`
-	PossibleValues []CustomFieldPossibleValueObject `json:"possible_values"`
-	Trackers       []IDName                         `json:"trackers"`
-	Roles          []IDName                         `json:"roles"`
+	ID             int64                             `json:"id"`
+	Name           string                            `json:"name"`
+	CustomizedType string                            `json:"customized_type"`
+	FieldFormat    string                            `json:"field_format"`
+	Regexp         string                            `json:"regexp"`
+	MinLength      int64                             `json:"min_length"`
+	MaxLength      int64                             `json:"max_length"`
+	IsRequired     bool                              `json:"is_required"`
+	IsFilter       bool                              `json:"is_filter"`
+	Searchable     bool                              `json:"searchable"`
+	Multiple       bool                              `json:"multiple"`
+	DefaultValue   *string                           `json:"default_value"`
+	Visible        bool                              `json:"visible"`
+	Trackers       []IDName                          `json:"trackers"`
+	PossibleValues *[]CustomFieldPossibleValueObject `json:"possible_values"`
+	Roles          []IDName                          `json:"roles"`
 }
 
 // CustomFieldPossibleValueObject struct used for custom fields get operations
 type CustomFieldPossibleValueObject struct {
 	Value string `json:"value"`
+	Label string `json:"label"`
 }
 
 // CustomFieldGetObject struct used for custom fields get operations in other methods
 type CustomFieldGetObject struct {
-	ID       int64    `json:"id"`
-	Name     string   `json:"name"`
-	Multiple bool     `json:"multiple"`
-	Value    []string `json:"value"`
+	ID       int64     `json:"id"`
+	Name     string    `json:"name"`
+	Multiple *bool     `json:"multiple"`
+	Value    *[]string `json:"value"`
 }
 
 /* Update */
@@ -56,16 +57,18 @@ type customFieldAllResult struct {
 
 // CustomFieldAllGet gets info for all custom fields
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_CustomFields#GET
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_CustomFields#GET
 func (r *Context) CustomFieldAllGet() ([]CustomFieldObject, StatusCode, error) {
 
 	var c customFieldAllResult
 
-	ur := url.URL{
-		Path: "/custom_fields.json",
-	}
-
-	status, err := r.Get(&c, ur, http.StatusOK)
+	status, err := r.Get(
+		&c,
+		url.URL{
+			Path: "/custom_fields.json",
+		},
+		http.StatusOK,
+	)
 
 	return c.CustomFields, status, err
 }
