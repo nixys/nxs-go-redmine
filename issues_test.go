@@ -210,13 +210,10 @@ func testIssueAllGet(t *testing.T, r Context, id int64) {
 			IssueIncludeRelations,
 			IssueIncludeAttachments,
 		},
-		Filters: &IssueGetRequestFilters{
-			Fields: map[string][]string{
-				"issue_id":    {strconv.FormatInt(id, 10)},
-				"subject":     {testIssueSubject2},
-				"description": {testIssueDescription2},
-			},
-		},
+		Filters: IssueGetRequestFiltersInit().
+			FieldAdd("issue_id", strconv.FormatInt(id, 10)).
+			FieldAdd("subject", testIssueSubject2).
+			FieldAdd("description", testIssueDescription2),
 	})
 	if err != nil {
 		t.Fatal("Issues all get error:", err, s)
@@ -236,13 +233,10 @@ func testIssueMultiGet(t *testing.T, r Context, id int64) {
 			IssueIncludeRelations,
 			IssueIncludeAttachments,
 		},
-		Filters: &IssueGetRequestFilters{
-			Fields: map[string][]string{
-				"issue_id":    {strconv.FormatInt(id, 10)},
-				"subject":     {testIssueSubject2},
-				"description": {testIssueDescription2},
-			},
-		},
+		Filters: IssueGetRequestFiltersInit().
+			FieldAdd("issue_id", strconv.FormatInt(id, 10)).
+			FieldAdd("subject", testIssueSubject2).
+			FieldAdd("description", testIssueDescription2),
 		Limit:  100,
 		Offset: 0,
 	})

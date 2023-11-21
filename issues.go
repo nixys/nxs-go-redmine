@@ -183,20 +183,14 @@ type IssueSingleGetRequest struct {
 }
 
 type IssueGetRequestSort struct {
-	Field string
-	Desc  bool
+	field string
+	desc  bool
 }
 
 // IssueGetRequestFilters contains data for making issues get request
 type IssueGetRequestFilters struct {
-	Fields map[string][]string
-	Cf     []IssueGetRequestFiltersCf
-}
-
-// IssueGetRequestFiltersCf contains data for making issues get request
-type IssueGetRequestFiltersCf struct {
-	ID    int64
-	Value string
+	fields map[string][]string
+	cf     map[int64]string
 }
 
 /* Results */
@@ -486,23 +480,50 @@ func (ir IssueSingleGetRequest) url() url.Values {
 	return v
 }
 
+func IssueGetRequestFiltersInit() *IssueGetRequestFilters {
+	return &IssueGetRequestFilters{
+		fields: make(map[string][]string),
+		cf:     make(map[int64]string),
+	}
+}
+
+func (f *IssueGetRequestFilters) FieldAdd(field string, values ...string) *IssueGetRequestFilters {
+	f.fields[field] = append([]string{}, values...)
+	return f
+}
+
+func (f *IssueGetRequestFilters) CustomFieldAdd(id int64, value string) *IssueGetRequestFilters {
+	f.cf[id] = value
+	return f
+}
+
 func (f *IssueGetRequestFilters) url(v *url.Values) {
 
 	// Filter fields (e.g. `issue_id`, `tracker_id`, etc)
-	for n, s := range f.Fields {
+	for n, s := range f.fields {
 		v.Set(n, strings.Join(s, ","))
 	}
 
 	// Custom fields
-	for _, c := range f.Cf {
-		v.Set("cf_"+strconv.FormatInt(c.ID, 10), c.Value)
+	for id, value := range f.cf {
+		v.Set("cf_"+strconv.FormatInt(id, 10), value)
 	}
+}
+
+func IssueGetRequestSortInit() *IssueGetRequestSort {
+	return &IssueGetRequestSort{}
+}
+
+func (s *IssueGetRequestSort) Set(field string, desc bool) *IssueGetRequestSort {
+	s.field = field
+	s.desc = desc
+	return s
 }
 
 func (s *IssueGetRequestSort) url(v *url.Values) {
 
-	f := s.Field
-	if s.Desc == true {
+	f := s.field
+	if s.desc == true {
 		f += ":desc"
 	}
 
