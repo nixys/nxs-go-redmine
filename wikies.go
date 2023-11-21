@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 type WikiInclude string
@@ -96,11 +97,13 @@ func (r *Context) WikiAllGet(projectID string) ([]WikiMultiObject, StatusCode, e
 
 	var w wikiAllResult
 
-	ur := url.URL{
-		Path: "/projects/" + projectID + "/wiki/index.json",
-	}
-
-	status, err := r.Get(&w, ur, http.StatusOK)
+	status, err := r.Get(
+		&w,
+		url.URL{
+			Path: "/projects/" + projectID + "/wiki/index.json",
+		},
+		http.StatusOK,
+	)
 
 	return w.WikiPages, status, err
 }
@@ -112,26 +115,14 @@ func (r *Context) WikiSingleGet(projectID, wikiTitle string, request WikiSingleG
 
 	var w wikiSingleResult
 
-	urlParams := url.Values{}
-
-	// Preparing includes
-	urlIncludes(
-		&urlParams,
-		func() []string {
-			var is []string
-			for _, i := range request.Includes {
-				is = append(is, i.String())
-			}
-			return is
-		}(),
+	status, err := r.Get(
+		&w,
+		url.URL{
+			Path:     "/projects/" + projectID + "/wiki/" + wikiTitle + ".json",
+			RawQuery: request.url().Encode(),
+		},
+		http.StatusOK,
 	)
-
-	ur := url.URL{
-		Path:     "/projects/" + projectID + "/wiki/" + wikiTitle + ".json",
-		RawQuery: urlParams.Encode(),
-	}
-
-	status, err := r.Get(&w, ur, http.StatusOK)
 
 	return w.WikiPage, status, err
 }
@@ -143,26 +134,14 @@ func (r *Context) WikiSingleVersionGet(projectID, wikiTitle string, version int6
 
 	var w wikiSingleResult
 
-	urlParams := url.Values{}
-
-	// Preparing includes
-	urlIncludes(
-		&urlParams,
-		func() []string {
-			var is []string
-			for _, i := range request.Includes {
-				is = append(is, i.String())
-			}
-			return is
-		}(),
+	status, err := r.Get(
+		&w,
+		url.URL{
+			Path:     "/projects/" + projectID + "/wiki/" + wikiTitle + "/" + strconv.FormatInt(version, 10) + ".json",
+			RawQuery: request.url().Encode(),
+		},
+		http.StatusOK,
 	)
-
-	ur := url.URL{
-		Path:     "/projects/" + projectID + "/wiki/" + wikiTitle + "/" + strconv.FormatInt(version, 10) + ".json",
-		RawQuery: urlParams.Encode(),
-	}
-
-	status, err := r.Get(&w, ur, http.StatusOK)
 
 	return w.WikiPage, status, err
 }
@@ -174,11 +153,14 @@ func (r *Context) WikiCreate(projectID, wikiTitle string, wiki WikiCreate) (Wiki
 
 	var w wikiSingleResult
 
-	ur := url.URL{
-		Path: "/projects/" + projectID + "/wiki/" + wikiTitle + ".json",
-	}
-
-	status, err := r.Put(wiki, &w, ur, http.StatusCreated)
+	status, err := r.Put(
+		wiki,
+		&w,
+		url.URL{
+			Path: "/projects/" + projectID + "/wiki/" + wikiTitle + ".json",
+		},
+		http.StatusCreated,
+	)
 
 	return w.WikiPage, status, err
 }
@@ -188,11 +170,14 @@ func (r *Context) WikiCreate(projectID, wikiTitle string, wiki WikiCreate) (Wiki
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_WikiPages#Creating-or-updating-a-wiki-page
 func (r *Context) WikiUpdate(projectID, wikiTitle string, wiki WikiUpdate) (StatusCode, error) {
 
-	ur := url.URL{
-		Path: "/projects/" + projectID + "/wiki/" + wikiTitle + ".json",
-	}
-
-	status, err := r.Put(wiki, nil, ur, http.StatusNoContent)
+	status, err := r.Put(
+		wiki,
+		nil,
+		url.URL{
+			Path: "/projects/" + projectID + "/wiki/" + wikiTitle + ".json",
+		},
+		http.StatusNoContent,
+	)
 
 	return status, err
 }
@@ -202,11 +187,37 @@ func (r *Context) WikiUpdate(projectID, wikiTitle string, wiki WikiUpdate) (Stat
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_WikiPages#Deleting-a-wiki-page
 func (r *Context) WikiDelete(projectID, wikiTitle string) (StatusCode, error) {
 
-	ur := url.URL{
-		Path: "/projects/" + projectID + "/wiki/" + wikiTitle + ".json",
-	}
-
-	status, err := r.Del(nil, nil, ur, http.StatusNoContent)
+	status, err := r.Del(
+		nil,
+		nil,
+		url.URL{
+			Path: "/projects/" + projectID + "/wiki/" + wikiTitle + ".json",
+		},
+		http.StatusNoContent,
+	)
 
 	return status, err
+}
+
+func (wr WikiSingleGetRequest) url() url.Values {
+
+	v := url.Values{}
+
+	if len(wr.Includes) > 0 {
+		v.Set(
+			"include",
+			strings.Join(
+				func() []string {
+					var is []string
+					for _, i := range wr.Includes {
+						is = append(is, i.String())
+					}
+					return is
+				}(),
+				",",
+			),
+		)
+	}
+
+	return v
 }
