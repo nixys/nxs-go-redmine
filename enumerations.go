@@ -12,6 +12,7 @@ type EnumerationPriorityObject struct {
 	ID        int64  `json:"id"`
 	Name      string `json:"name"`
 	IsDefault bool   `json:"is_default"`
+	Active    bool   `json:"active"`
 }
 
 // EnumerationTimeEntryActivityObject struct used for time entry activities get operations
@@ -19,6 +20,7 @@ type EnumerationTimeEntryActivityObject struct {
 	ID        int64  `json:"id"`
 	Name      string `json:"name"`
 	IsDefault bool   `json:"is_default"`
+	Active    bool   `json:"active"`
 }
 
 // EnumerationDocumentCategoryObject struct used for document categories get operations
@@ -26,6 +28,7 @@ type EnumerationDocumentCategoryObject struct {
 	ID        int64  `json:"id"`
 	Name      string `json:"name"`
 	IsDefault bool   `json:"is_default"`
+	Active    bool   `json:"active"`
 }
 
 /* Internal types */
@@ -49,11 +52,13 @@ func (r *Context) EnumerationPrioritiesAllGet() ([]EnumerationPriorityObject, St
 
 	var e enumerationPrioritiesAllResult
 
-	ur := url.URL{
-		Path: "/enumerations/issue_priorities.json",
-	}
-
-	status, err := r.Get(&e, ur, http.StatusOK)
+	status, err := r.Get(
+		&e,
+		url.URL{
+			Path: "/enumerations/issue_priorities.json",
+		},
+		http.StatusOK,
+	)
 
 	return e.Priorities, status, err
 }
@@ -65,11 +70,13 @@ func (r *Context) EnumerationTimeEntryActivitiesAllGet() ([]EnumerationTimeEntry
 
 	var e enumerationTimeEntryActivitiesAllResult
 
-	ur := url.URL{
-		Path: "/enumerations/time_entry_activities.json",
-	}
-
-	status, err := r.Get(&e, ur, http.StatusOK)
+	status, err := r.Get(
+		&e,
+		url.URL{
+			Path: "/enumerations/time_entry_activities.json",
+		},
+		http.StatusOK,
+	)
 
 	return e.TimeEntryActivities, status, err
 }
@@ -81,11 +88,13 @@ func (r *Context) EnumerationDocumentCategoriesAllGet() ([]EnumerationDocumentCa
 
 	var e enumerationDocumentCategoriesAllResult
 
-	ur := url.URL{
-		Path: "/enumerations/document_categories.json",
-	}
-
-	status, err := r.Get(&e, ur, http.StatusOK)
+	status, err := r.Get(
+		&e,
+		url.URL{
+			Path: "/enumerations/document_categories.json",
+		},
+		http.StatusOK,
+	)
 
 	return e.DocumentCategories, status, err
 }
