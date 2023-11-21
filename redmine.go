@@ -18,6 +18,11 @@ const (
 
 type StatusCode int64
 
+type Settings struct {
+	Endpoint string
+	APIKey   string
+}
+
 // Context struct used for store settings to communicate with Redmine API
 type Context struct {
 	endpoint string
@@ -32,6 +37,13 @@ type IDName struct {
 
 type errorsResult struct {
 	Errors []string `json:"errors"`
+}
+
+func Init(s Settings) *Context {
+	return &Context{
+		endpoint: s.Endpoint,
+		apiKey:   s.APIKey,
+	}
 }
 
 // SetAPIKey is used to set Redmine API key
@@ -251,13 +263,4 @@ func (r *Context) downloadFile(url string, statusExpected StatusCode) (io.ReadCl
 	}
 
 	return res.Body, StatusCode(res.StatusCode), err
-}
-
-func urlIncludes(urlParams *url.Values, includes []string) {
-
-	if len(includes) == 0 {
-		return
-	}
-
-	urlParams.Add("include", strings.Join(includes, ","))
 }
