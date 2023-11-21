@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-const (
+var (
 	testUserLogin      = "test-user-login"
 	testUserFirstName  = "First"
 	testUserLastName   = "Last"
@@ -44,11 +44,11 @@ func testUserCreate(t *testing.T, r Context) UserObject {
 				FirstName:        testUserFirstName,
 				LastName:         testUserLastName,
 				Mail:             testUserMail,
-				MailNotification: UserNotificationOnlyAssigned.String(),
-				MustChangePasswd: true,
-				GeneratePassword: true,
+				MailNotification: StringPtr(UserNotificationOnlyAssigned.String()),
+				MustChangePasswd: BoolPtr(true),
+				GeneratePassword: BoolPtr(true),
 			},
-			SendInformation: true,
+			SendInformation: BoolPtr(true),
 		},
 	)
 	if err != nil {
@@ -66,11 +66,11 @@ func testUserUpdate(t *testing.T, r Context, id int64) {
 		id,
 		UserUpdate{
 			User: UserUpdateObject{
-				FirstName:        testUserFirstName2,
-				LastName:         testUserLastName2,
-				MailNotification: UserNotificationOnlyNone.String(),
+				FirstName:        &testUserFirstName2,
+				LastName:         &testUserLastName2,
+				MailNotification: StringPtr(UserNotificationOnlyNone.String()),
 			},
-			SendInformation: true,
+			SendInformation: BoolPtr(true),
 		},
 	)
 	if err != nil {
@@ -93,11 +93,8 @@ func testUserDetele(t *testing.T, r Context, id int64) {
 func testUserAllGet(t *testing.T, r Context) {
 
 	u, _, err := r.UserAllGet(UserAllGetRequest{
-		Filters: UserGetRequestFilters{
-			UserStatusActive,
-			"",
-			0,
-		},
+		Filters: UserGetRequestFiltersInit().
+			StatusSet(UserStatusActive),
 	})
 	if err != nil {
 		t.Fatal("Users get error:", err)
@@ -116,7 +113,10 @@ func testUserAllGet(t *testing.T, r Context) {
 func testUserSingleGet(t *testing.T, r Context, id int64) {
 
 	_, _, err := r.UserSingleGet(id, UserSingleGetRequest{
-		Includes: []string{"groups", "memberships"},
+		Includes: []UserInclude{
+			UserIncludeGroups,
+			UserIncludeMemberships,
+		},
 	})
 	if err != nil {
 		t.Fatal("User get error:", err)
@@ -128,7 +128,10 @@ func testUserSingleGet(t *testing.T, r Context, id int64) {
 func testUserCurrentGet(t *testing.T, r Context) {
 
 	_, _, err := r.UserCurrentGet(UserCurrentGetRequest{
-		Includes: []string{"groups", "memberships"},
+		Includes: []UserInclude{
+			UserIncludeGroups,
+			UserIncludeMemberships,
+		},
 	})
 	if err != nil {
 		t.Fatal("Current user get error:", err)
