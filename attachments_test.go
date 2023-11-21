@@ -56,19 +56,23 @@ func testAttachmentUpload(t *testing.T, r Context, projectID, userID int64) int6
 
 	// Request single issue to get Attachment ID
 	j, s, err := r.IssueSingleGet(i.ID, IssueSingleGetRequest{
-		Includes: []string{"attachments"},
+		Includes: []IssueInclude{
+			IssueIncludeAttachments,
+		},
 	})
 	if err != nil {
 		t.Fatal("Issue get error:", err, s)
 	}
 
-	if len(j.Attachments) != 1 {
+	if j.Attachments == nil || len(*j.Attachments) != 1 {
 		t.Fatal("Upload attachment error: wrong attachments count")
 	}
 
 	t.Logf("Upload attachment and create issue: success")
 
-	return j.Attachments[0].ID
+	as := *j.Attachments
+
+	return as[0].ID
 }
 
 func testAttachmentGetSingle(t *testing.T, r Context, id int64) {

@@ -98,11 +98,11 @@ func testIssueCreate(t *testing.T, r Context, projectID, userID int64, upload *A
 			Issue: IssueCreateObject{
 				ProjectID:      projectID,
 				Subject:        testIssueSubject,
-				WatcherUserIDs: w,
-				Description:    testIssueDescription,
-				StartDate:      testIssueStartDate,
-				DueDate:        testIssueDueDate,
-				Uploads:        u,
+				WatcherUserIDs: &w,
+				Description:    &testIssueDescription,
+				StartDate:      &testIssueStartDate,
+				DueDate:        &testIssueDueDate,
+				Uploads:        &u,
 			},
 		},
 	)
@@ -115,7 +115,7 @@ func testIssueCreate(t *testing.T, r Context, projectID, userID int64, upload *A
 		t.Fatal("Issue create error:", err, s)
 	}
 
-	if o.StartDate != testIssueStartDate || o.DueDate != testIssueDueDate {
+	if (o.StartDate == nil || o.DueDate == nil) || (*o.StartDate != testIssueStartDate || *o.DueDate != testIssueDueDate) {
 		t.Fatal("Issue create error: incorrect issue start or due date")
 	}
 
@@ -130,11 +130,11 @@ func testIssueUpdate(t *testing.T, r Context, id int64) {
 		id,
 		IssueUpdate{
 			Issue: IssueUpdateObject{
-				Subject:     testIssueSubject2,
-				Description: testIssueDescription2,
+				Subject:     &testIssueSubject2,
+				Description: &testIssueDescription2,
 				StartDate:   &testIssueStartDate2,
 				DueDate:     &testIssueDueDate2,
-				IsPrivate:   true,
+				IsPrivate:   BoolPtr(true),
 			},
 		},
 	)
@@ -147,7 +147,7 @@ func testIssueUpdate(t *testing.T, r Context, id int64) {
 		t.Fatal("Issue update error:", err, s)
 	}
 
-	if o.StartDate != testIssueStartDate2 || o.DueDate != testIssueDueDate2 {
+	if (o.StartDate == nil || o.DueDate == nil) || (*o.StartDate != testIssueStartDate2 || *o.DueDate != testIssueDueDate2) {
 		t.Fatal("Issue update error: incorrect issue start or due date")
 	}
 
@@ -160,8 +160,8 @@ func testIssueNoteAdd(t *testing.T, r Context, id int64, notes string, privateNo
 		id,
 		IssueUpdate{
 			Issue: IssueUpdateObject{
-				Notes:        notes,
-				PrivateNotes: privateNotes,
+				Notes:        &notes,
+				PrivateNotes: &privateNotes,
 			},
 		},
 	)
@@ -170,17 +170,21 @@ func testIssueNoteAdd(t *testing.T, r Context, id int64, notes string, privateNo
 	}
 
 	o, s, err := r.IssueSingleGet(id, IssueSingleGetRequest{
-		Includes: []string{"journals"},
+		Includes: []IssueInclude{
+			IssueIncludeJournals,
+		},
 	})
 	if err != nil {
 		t.Fatal("Issue notes add error:", err, s)
 	}
 
-	if len(o.Journals) == 0 {
+	if o.Journals == nil || len(*o.Journals) == 0 {
 		t.Fatal("Issue notes add error: bad journals count")
 	}
 
-	j := o.Journals[len(o.Journals)-1]
+	js := *o.Journals
+
+	j := js[len(js)-1]
 
 	if j.Notes != notes || j.PrivateNotes != privateNotes {
 		t.Fatal("Issue notes add error: incorrect comment text or notes privacy")
@@ -202,8 +206,11 @@ func testIssueDetele(t *testing.T, r Context, id int64) {
 func testIssueAllGet(t *testing.T, r Context, id int64) {
 
 	i, s, err := r.IssuesAllGet(IssueAllGetRequest{
-		Includes: []string{"relations", "attachments"},
-		Filters: IssueGetRequestFilters{
+		Includes: []IssueInclude{
+			IssueIncludeRelations,
+			IssueIncludeAttachments,
+		},
+		Filters: &IssueGetRequestFilters{
 			Fields: map[string][]string{
 				"issue_id":    {strconv.FormatInt(id, 10)},
 				"subject":     {testIssueSubject2},
@@ -225,8 +232,11 @@ func testIssueAllGet(t *testing.T, r Context, id int64) {
 func testIssueMultiGet(t *testing.T, r Context, id int64) {
 
 	i, s, err := r.IssuesMultiGet(IssueMultiGetRequest{
-		Includes: []string{"relations", "attachments"},
-		Filters: IssueGetRequestFilters{
+		Includes: []IssueInclude{
+			IssueIncludeRelations,
+			IssueIncludeAttachments,
+		},
+		Filters: &IssueGetRequestFilters{
 			Fields: map[string][]string{
 				"issue_id":    {strconv.FormatInt(id, 10)},
 				"subject":     {testIssueSubject2},
@@ -250,8 +260,17 @@ func testIssueMultiGet(t *testing.T, r Context, id int64) {
 func testIssueSingleGet(t *testing.T, r Context, id, userID int64) {
 
 	i, s, err := r.IssueSingleGet(id, IssueSingleGetRequest{
-		Includes: []string{"children", "attachments", "relations", "changesets", "journals", "watchers"},
-	})
+		Includes: []IssueInclude{
+			IssueIncludeChildren,
+			IssueIncludeAttachments,
+			IssueIncludeRelations,
+			IssueIncludeChangesets,
+			IssueIncludeJournals,
+			IssueIncludeWatchers,
+			IssueIncludeAllowedStatuses,
+		},
+	},
+	)
 	if err != nil {
 		t.Fatal("Issue get error:", err, s)
 	}
@@ -264,11 +283,13 @@ func testIssueSingleGet(t *testing.T, r Context, id, userID int64) {
 		t.Fatal("Issue get error: incorrect description")
 	}
 
-	if len(i.Watchers) != 1 {
+	if i.Watchers == nil || len(*i.Watchers) != 1 {
 		t.Fatal("Issue get error: incorrect watchers count")
 	}
 
-	if i.Watchers[0].ID != userID {
+	ws := *i.Watchers
+
+	if ws[0].ID != userID {
 		t.Fatal("Issue get error: incorrect issue watchers")
 	}
 

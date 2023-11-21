@@ -7,38 +7,53 @@ import (
 	"strings"
 )
 
+type IssueInclude string
+
+const (
+	IssueIncludeChildren        IssueInclude = "children" // used only: get single user
+	IssueIncludeAttachments     IssueInclude = "attachments"
+	IssueIncludeRelations       IssueInclude = "relations"
+	IssueIncludeChangesets      IssueInclude = "changesets"       // used only: get single user
+	IssueIncludeJournals        IssueInclude = "journals"         // used only: get single user
+	IssueIncludeWatchers        IssueInclude = "watchers"         // used only: get single user
+	IssueIncludeAllowedStatuses IssueInclude = "allowed_statuses" // used only: get single user
+)
+
 /* Get */
 
 // IssueObject struct used for issues get operations
 type IssueObject struct {
-	ID             int64                  `json:"id"`
-	Project        IDName                 `json:"project"`
-	Tracker        IDName                 `json:"tracker"`
-	Status         IDName                 `json:"status"`
-	Priority       IDName                 `json:"priority"`
-	Author         IDName                 `json:"author"`
-	AssignedTo     IDName                 `json:"assigned_to"`
-	Category       IDName                 `json:"category"`
-	FixedVersion   IDName                 `json:"fixed_version"`
-	Parent         IssueParentObject      `json:"parent"`
-	Subject        string                 `json:"subject"`
-	Description    string                 `json:"description"`
-	StartDate      string                 `json:"start_date"`
-	DueDate        string                 `json:"due_date"`
-	DoneRatio      int64                  `json:"done_ratio"`
-	IsPrivate      int64                  `json:"is_private"`
-	EstimatedHours float64                `json:"estimated_hours"`
-	SpentHours     float64                `json:"spent_hours"` // used only: get single issue
-	CustomFields   []CustomFieldGetObject `json:"custom_fields"`
-	CreatedOn      string                 `json:"created_on"`
-	UpdatedOn      string                 `json:"updated_on"`
-	ClosedOn       string                 `json:"closed_on"`
-	Children       []IssueChildrenObject  `json:"children"`
-	Attachments    []AttachmentObject     `json:"attachments"` // used only: get single issue
-	Relations      []IssueRelationObject  `json:"relations"`
-	Changesets     []IssueChangesetObject `json:"changesets"` // used only: get single issue
-	Journals       []IssueJournalObject   `json:"journals"`   // used only: get single issue
-	Watchers       []IDName               `json:"watchers"`   // used only: get single issue
+	ID                  int64                   `json:"id"`
+	Project             IDName                  `json:"project"`
+	Tracker             IDName                  `json:"tracker"`
+	Status              IssueStatusObject       `json:"status"`
+	Priority            IDName                  `json:"priority"`
+	Author              IDName                  `json:"author"`
+	AssignedTo          *IDName                 `json:"assigned_to"`
+	Category            *IDName                 `json:"category"`
+	FixedVersion        *IDName                 `json:"fixed_version"`
+	Parent              *IssueParentObject      `json:"parent"`
+	Subject             string                  `json:"subject"`
+	Description         string                  `json:"description"`
+	StartDate           *string                 `json:"start_date"`
+	DueDate             *string                 `json:"due_date"`
+	DoneRatio           int64                   `json:"done_ratio"`
+	IsPrivate           int64                   `json:"is_private"`
+	EstimatedHours      *float64                `json:"estimated_hours"`
+	TotalEstimatedHours *float64                `json:"total_estimated_hours"`
+	SpentHours          float64                 `json:"spent_hours"`
+	TotalSpentHours     float64                 `json:"total_spent_hours"`
+	CustomFields        []CustomFieldGetObject  `json:"custom_fields"`
+	CreatedOn           string                  `json:"created_on"`
+	UpdatedOn           string                  `json:"updated_on"`
+	ClosedOn            string                  `json:"closed_on"`
+	Children            *[]IssueChildrenObject  `json:"children"`         // used only: get single user and include specified
+	Attachments         *[]AttachmentObject     `json:"attachments"`      // used only: include specified
+	Relations           *[]IssueRelationObject  `json:"relations"`        // used only: include specified
+	Changesets          *[]IssueChangesetObject `json:"changesets"`       // used only: get single user and include specified
+	Journals            *[]IssueJournalObject   `json:"journals"`         // used only: get single user and include specified
+	Watchers            *[]IDName               `json:"watchers"`         // used only: get single user and include specified
+	AllowedStatuses     *[]IssueStatusObject    `json:"allowed_statuses"` // used only: get single user and include specified
 }
 
 // IssueParentObject struct used for issues get operations
@@ -48,10 +63,10 @@ type IssueParentObject struct {
 
 // IssueChildrenObject struct used for issues get operations
 type IssueChildrenObject struct {
-	ID       int64                 `json:"id"`
-	Tracker  IDName                `json:"tracker"`
-	Subject  string                `json:"subject"`
-	Children []IssueChildrenObject `json:"children"`
+	ID       int64                  `json:"id"`
+	Tracker  IDName                 `json:"tracker"`
+	Subject  string                 `json:"subject"`
+	Children *[]IssueChildrenObject `json:"children"`
 }
 
 // IssueChangesetObject struct used for issues get operations
@@ -68,7 +83,7 @@ type IssueRelationObject struct {
 	IssueID      int64  `json:"issue_id"`
 	IssueToID    int64  `json:"issue_to_id"`
 	RelationType string `json:"relation_type"`
-	Delay        int64  `json:"delay"`
+	Delay        *int64 `json:"delay"`
 }
 
 // IssueJournalObject struct used for issues get operations
@@ -97,23 +112,23 @@ type IssueCreate struct {
 }
 
 type IssueCreateObject struct {
-	ProjectID      int64                     `json:"project_id"`
-	TrackerID      int64                     `json:"tracker_id,omitempty"`
-	StatusID       int64                     `json:"status_id,omitempty"`
-	PriorityID     int64                     `json:"priority_id,omitempty"`
-	Subject        string                    `json:"subject"`
-	Description    string                    `json:"description,omitempty"`
-	StartDate      string                    `json:"start_date,omitempty"`
-	DueDate        string                    `json:"due_date,omitempty"`
-	CategoryID     int64                     `json:"category_id,omitempty"`
-	FixedVersionID int64                     `json:"fixed_version_id,omitempty"`
-	AssignedToID   int64                     `json:"assigned_to_id,omitempty"`
-	ParentIssueID  int64                     `json:"parent_issue_id,omitempty"`
-	WatcherUserIDs []int64                   `json:"watcher_user_ids,omitempty"`
-	IsPrivate      bool                      `json:"is_private,omitempty"`
-	EstimatedHours float64                   `json:"estimated_hours,omitempty"`
-	CustomFields   []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
-	Uploads        []AttachmentUploadObject  `json:"uploads,omitempty"`
+	ProjectID      int64                      `json:"project_id"`
+	TrackerID      *int64                     `json:"tracker_id,omitempty"`
+	StatusID       *int64                     `json:"status_id,omitempty"`
+	PriorityID     *int64                     `json:"priority_id,omitempty"`
+	Subject        string                     `json:"subject"`
+	Description    *string                    `json:"description,omitempty"`
+	StartDate      *string                    `json:"start_date,omitempty"`
+	DueDate        *string                    `json:"due_date,omitempty"`
+	CategoryID     *int64                     `json:"category_id,omitempty"`
+	FixedVersionID *int64                     `json:"fixed_version_id,omitempty"`
+	AssignedToID   *int64                     `json:"assigned_to_id,omitempty"`
+	ParentIssueID  *int64                     `json:"parent_issue_id,omitempty"`
+	CustomFields   *[]CustomFieldUpdateObject `json:"custom_fields,omitempty"`
+	WatcherUserIDs *[]int64                   `json:"watcher_user_ids,omitempty"`
+	IsPrivate      *bool                      `json:"is_private,omitempty"`
+	EstimatedHours *float64                   `json:"estimated_hours,omitempty"`
+	Uploads        *[]AttachmentUploadObject  `json:"uploads,omitempty"`
 }
 
 /* Update */
@@ -124,45 +139,52 @@ type IssueUpdate struct {
 }
 
 type IssueUpdateObject struct {
-	ProjectID      int64                     `json:"project_id,omitempty"`
-	TrackerID      int64                     `json:"tracker_id,omitempty"`
-	StatusID       int64                     `json:"status_id,omitempty"`
-	PriorityID     int64                     `json:"priority_id,omitempty"`
-	Subject        string                    `json:"subject,omitempty"`
-	Description    string                    `json:"description,omitempty"`
-	StartDate      *string                   `json:"start_date,omitempty"`
-	DueDate        *string                   `json:"due_date,omitempty"`
-	CategoryID     int64                     `json:"category_id,omitempty"`
-	FixedVersionID int64                     `json:"fixed_version_id,omitempty"`
-	AssignedToID   int64                     `json:"assigned_to_id,omitempty"`
-	ParentIssueID  int64                     `json:"parent_issue_id,omitempty"`
-	IsPrivate      bool                      `json:"is_private,omitempty"`
-	EstimatedHours float64                   `json:"estimated_hours,omitempty"`
-	CustomFields   []CustomFieldUpdateObject `json:"custom_fields,omitempty"`
-	Uploads        []AttachmentUploadObject  `json:"uploads,omitempty"`
-	Notes          string                    `json:"notes,omitempty"`
-	PrivateNotes   bool                      `json:"private_notes,omitempty"`
+	ProjectID      *int64                     `json:"project_id,omitempty"`
+	TrackerID      *int64                     `json:"tracker_id,omitempty"`
+	StatusID       *int64                     `json:"status_id,omitempty"`
+	PriorityID     *int64                     `json:"priority_id,omitempty"`
+	Subject        *string                    `json:"subject,omitempty"`
+	Description    *string                    `json:"description,omitempty"`
+	StartDate      *string                    `json:"start_date,omitempty"`
+	DueDate        *string                    `json:"due_date,omitempty"`
+	CategoryID     *int64                     `json:"category_id,omitempty"`
+	FixedVersionID *int64                     `json:"fixed_version_id,omitempty"`
+	AssignedToID   *int64                     `json:"assigned_to_id,omitempty"`
+	ParentIssueID  *int64                     `json:"parent_issue_id,omitempty"`
+	CustomFields   *[]CustomFieldUpdateObject `json:"custom_fields,omitempty"`
+	IsPrivate      *bool                      `json:"is_private,omitempty"`
+	EstimatedHours *float64                   `json:"estimated_hours,omitempty"`
+	Uploads        *[]AttachmentUploadObject  `json:"uploads,omitempty"`
+	Notes          *string                    `json:"notes,omitempty"`
+	PrivateNotes   *bool                      `json:"private_notes,omitempty"`
 }
 
 /* Requests */
 
 // IssueAllGetRequest contains data for making request to get all issues satisfying specified filters
 type IssueAllGetRequest struct {
-	Includes []string
-	Filters  IssueGetRequestFilters
+	Sort     *IssueGetRequestSort
+	Includes []IssueInclude
+	Filters  *IssueGetRequestFilters
 }
 
 // IssueMultiGetRequest contains data for making request to get limited issues count satisfying specified filters
 type IssueMultiGetRequest struct {
-	Includes []string
-	Filters  IssueGetRequestFilters
+	Sort     *IssueGetRequestSort
+	Includes []IssueInclude
+	Filters  *IssueGetRequestFilters
 	Offset   int64
 	Limit    int64
 }
 
 // IssueSingleGetRequest contains data for making request to get specified issue
 type IssueSingleGetRequest struct {
-	Includes []string
+	Includes []IssueInclude
+}
+
+type IssueGetRequestSort struct {
+	Field string
+	Desc  bool
 }
 
 // IssueGetRequestFilters contains data for making issues get request
@@ -197,15 +219,13 @@ type issueWatcherAdd struct {
 	UserID int64 `json:"user_id"`
 }
 
+func (ii IssueInclude) String() string {
+	return string(ii)
+}
+
 // IssuesAllGet gets info for all issues satisfying specified filters
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Issues#Listing-issues
-//
-// Available includes:
-// * attachments - Since 3.4.0
-// * relations
-// * journals
-// * children
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Issues#Listing-issues
 func (r *Context) IssuesAllGet(request IssueAllGetRequest) (IssueResult, StatusCode, error) {
 
 	var (
@@ -214,17 +234,23 @@ func (r *Context) IssuesAllGet(request IssueAllGetRequest) (IssueResult, StatusC
 		status StatusCode
 	)
 
-	m := IssueMultiGetRequest{
-		Filters:  request.Filters,
-		Includes: request.Includes,
-		Limit:    limitDefault,
-	}
+	up := request.url()
+	up.Set("limit", strconv.FormatInt(limitDefault, 10))
 
 	for {
 
-		m.Offset = offset
+		var i IssueResult
 
-		i, s, err := r.IssuesMultiGet(m)
+		up.Set("offset", strconv.FormatInt(offset, 10))
+
+		s, err := r.Get(
+			&i,
+			url.URL{
+				Path:     "/issues.json",
+				RawQuery: request.url().Encode(),
+			},
+			http.StatusOK,
+		)
 		if err != nil {
 			return issues, s, err
 		}
@@ -248,150 +274,237 @@ func (r *Context) IssuesAllGet(request IssueAllGetRequest) (IssueResult, StatusC
 
 // IssuesMultiGet gets info for multiple issues satisfying specified filters
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Issues#Listing-issues
-//
-// Available includes:
-// * attachments - Since 3.4.0
-// * relations
-// * journals
-// * children
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Issues#Listing-issues
 func (r *Context) IssuesMultiGet(request IssueMultiGetRequest) (IssueResult, StatusCode, error) {
 
 	var i IssueResult
 
-	urlParams := url.Values{}
-	urlParams.Add("offset", strconv.FormatInt(request.Offset, 10))
-	urlParams.Add("limit", strconv.FormatInt(request.Limit, 10))
-
-	// Preparing includes
-	urlIncludes(&urlParams, request.Includes)
-
-	// Preparing filters
-	issueURLFilters(&urlParams, request.Filters)
-
-	ur := url.URL{
-		Path:     "/issues.json",
-		RawQuery: urlParams.Encode(),
-	}
-
-	s, err := r.Get(&i, ur, http.StatusOK)
+	s, err := r.Get(
+		&i,
+		url.URL{
+			Path:     "/issues.json",
+			RawQuery: request.url().Encode(),
+		},
+		http.StatusOK,
+	)
 
 	return i, s, err
 }
 
 // IssueSingleGet gets single issue info
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Issues#Showing-an-issue
-//
-// Available includes:
-// * children
-// * attachments
-// * relations
-// * changesets
-// * journals
-// * watchers - Since 2.3.0
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Issues#Showing-an-issue
 func (r *Context) IssueSingleGet(id int64, request IssueSingleGetRequest) (IssueObject, StatusCode, error) {
 
 	var i issueSingleResult
 
-	urlParams := url.Values{}
-
-	// Preparing includes
-	urlIncludes(&urlParams, request.Includes)
-
-	ur := url.URL{
-		Path:     "/issues/" + strconv.FormatInt(id, 10) + ".json",
-		RawQuery: urlParams.Encode(),
-	}
-
-	status, err := r.Get(&i, ur, http.StatusOK)
+	status, err := r.Get(
+		&i,
+		url.URL{
+			Path:     "/issues/" + strconv.FormatInt(id, 10) + ".json",
+			RawQuery: request.url().Encode(),
+		},
+		http.StatusOK,
+	)
 
 	return i.Issue, status, err
 }
 
 // IssueCreate creates new issue
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Issues#Creating-an-issue
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Issues#Creating-an-issue
 func (r *Context) IssueCreate(issue IssueCreate) (IssueObject, StatusCode, error) {
 
 	var i issueSingleResult
 
-	ur := url.URL{
-		Path: "/issues.json",
-	}
-
-	status, err := r.Post(issue, &i, ur, http.StatusCreated)
+	status, err := r.Post(
+		issue, &i,
+		url.URL{
+			Path: "/issues.json",
+		},
+		http.StatusCreated,
+	)
 
 	return i.Issue, status, err
 }
 
 // IssueUpdate updates issue with specified ID
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Projects#Updating-a-project
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Projects#Updating-a-project
 func (r *Context) IssueUpdate(id int64, issue IssueUpdate) (StatusCode, error) {
 
-	ur := url.URL{
-		Path: "/issues/" + strconv.FormatInt(id, 10) + ".json",
-	}
-
-	status, err := r.Put(issue, nil, ur, http.StatusNoContent)
+	status, err := r.Put(
+		issue,
+		nil,
+		url.URL{
+			Path: "/issues/" + strconv.FormatInt(id, 10) + ".json",
+		},
+		http.StatusNoContent,
+	)
 
 	return status, err
 }
 
 // IssueDelete deletes issue with specified ID
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Issues#Deleting-an-issue
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Issues#Deleting-an-issue
 func (r *Context) IssueDelete(id int64) (StatusCode, error) {
 
-	ur := url.URL{
-		Path: "/issues/" + strconv.FormatInt(id, 10) + ".json",
-	}
-
-	status, err := r.Del(nil, nil, ur, http.StatusNoContent)
+	status, err := r.Del(
+		nil,
+		nil,
+		url.URL{
+			Path: "/issues/" + strconv.FormatInt(id, 10) + ".json",
+		},
+		http.StatusNoContent,
+	)
 
 	return status, err
 }
 
 // IssueWatcherAdd adds watcher into issue with specified ID
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Issues#Adding-a-watcher
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Issues#Adding-a-watcher
 func (r *Context) IssueWatcherAdd(id int64, userID int64) (StatusCode, error) {
 
-	ur := url.URL{
-		Path: "/issues/" + strconv.FormatInt(id, 10) + "/watchers.json",
-	}
-
-	status, err := r.Post(issueWatcherAdd{
-		UserID: userID,
-	}, nil, ur, http.StatusNoContent)
+	status, err := r.Post(
+		issueWatcherAdd{
+			UserID: userID,
+		},
+		nil,
+		url.URL{
+			Path: "/issues/" + strconv.FormatInt(id, 10) + "/watchers.json",
+		},
+		http.StatusNoContent,
+	)
 
 	return status, err
 }
 
 // IssueWatcherDelete deletes watcher from issue with specified ID
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Issues#Removing-a-watcher
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Issues#Removing-a-watcher
 func (r *Context) IssueWatcherDelete(id int64, userID int64) (StatusCode, error) {
 
-	ur := url.URL{
-		Path: "/issues/" + strconv.FormatInt(id, 10) + "/watchers/" + strconv.FormatInt(userID, 10) + ".json",
-	}
-
-	status, err := r.Del(nil, nil, ur, http.StatusNoContent)
+	status, err := r.Del(
+		nil,
+		nil,
+		url.URL{
+			Path: "/issues/" + strconv.FormatInt(id, 10) + "/watchers/" + strconv.FormatInt(userID, 10) + ".json",
+		},
+		http.StatusNoContent,
+	)
 
 	return status, err
 }
 
-func issueURLFilters(urlParams *url.Values, filters IssueGetRequestFilters) {
+func (ir IssueAllGetRequest) url() url.Values {
+
+	v := url.Values{}
+
+	if ir.Sort != nil {
+		ir.Sort.url(&v)
+	}
+
+	if len(ir.Includes) > 0 {
+		v.Set(
+			"include",
+			strings.Join(
+				func() []string {
+					var is []string
+					for _, i := range ir.Includes {
+						is = append(is, i.String())
+					}
+					return is
+				}(),
+				",",
+			),
+		)
+	}
+
+	if ir.Filters != nil {
+		ir.Filters.url(&v)
+	}
+
+	return v
+}
+
+func (ir IssueMultiGetRequest) url() url.Values {
+
+	v := url.Values{}
+
+	if ir.Sort != nil {
+		ir.Sort.url(&v)
+	}
+
+	if len(ir.Includes) > 0 {
+		v.Set(
+			"include",
+			strings.Join(
+				func() []string {
+					var is []string
+					for _, i := range ir.Includes {
+						is = append(is, i.String())
+					}
+					return is
+				}(),
+				",",
+			),
+		)
+	}
+
+	if ir.Filters != nil {
+		ir.Filters.url(&v)
+	}
+
+	v.Set("offset", strconv.FormatInt(ir.Offset, 10))
+	v.Set("limit", strconv.FormatInt(ir.Limit, 10))
+
+	return v
+}
+
+func (ir IssueSingleGetRequest) url() url.Values {
+
+	v := url.Values{}
+
+	if len(ir.Includes) > 0 {
+		v.Set(
+			"include",
+			strings.Join(
+				func() []string {
+					var is []string
+					for _, i := range ir.Includes {
+						is = append(is, i.String())
+					}
+					return is
+				}(),
+				",",
+			),
+		)
+	}
+
+	return v
+}
+
+func (f *IssueGetRequestFilters) url(v *url.Values) {
 
 	// Filter fields (e.g. `issue_id`, `tracker_id`, etc)
-	for n, s := range filters.Fields {
-		urlParams.Add(n, strings.Join(s, ","))
+	for n, s := range f.Fields {
+		v.Set(n, strings.Join(s, ","))
 	}
 
 	// Custom fields
-	for _, c := range filters.Cf {
-		urlParams.Add("cf_"+strconv.FormatInt(c.ID, 10), c.Value)
+	for _, c := range f.Cf {
+		v.Set("cf_"+strconv.FormatInt(c.ID, 10), c.Value)
 	}
+}
+
+func (s *IssueGetRequestSort) url(v *url.Values) {
+
+	f := s.Field
+	if s.Desc == true {
+		f += ":desc"
+	}
+
+	v.Set("sort", f)
 }

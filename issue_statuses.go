@@ -9,10 +9,9 @@ import (
 
 // IssueStatusObject struct used for issue_statuses get operations
 type IssueStatusObject struct {
-	ID        int64  `json:"id"`
-	Name      string `json:"name"`
-	IsDefault bool   `json:"is_default"`
-	IsClosed  bool   `json:"is_closed"`
+	ID       int64  `json:"id"`
+	Name     string `json:"name"`
+	IsClosed bool   `json:"is_closed"`
 }
 
 /* Internal types */
@@ -23,16 +22,18 @@ type issueStatusAllResult struct {
 
 // IssueStatusAllGet gets info for all issue statuses
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_IssueStatuses#GET
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_IssueStatuses#GET
 func (r *Context) IssueStatusAllGet() ([]IssueStatusObject, StatusCode, error) {
 
 	var i issueStatusAllResult
 
-	ur := url.URL{
-		Path: "/issue_statuses.json",
-	}
-
-	status, err := r.Get(&i, ur, http.StatusOK)
+	status, err := r.Get(
+		&i,
+		url.URL{
+			Path: "/issue_statuses.json",
+		},
+		http.StatusOK,
+	)
 
 	return i.IssueStatuses, status, err
 }
