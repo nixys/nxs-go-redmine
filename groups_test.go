@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-const (
+var (
 	testGroupName  = "test-group"
 	testGroupName2 = "test-group2"
 )
@@ -64,8 +64,8 @@ func testGroupUpdate(t *testing.T, r Context, id, userID int64) {
 		id,
 		GroupUpdate{
 			Group: GroupUpdateObject{
-				Name:    testGroupName2,
-				UserIDs: []int64{userID},
+				Name:    &testGroupName2,
+				UserIDs: &[]int64{userID},
 			},
 		},
 	)
@@ -126,15 +126,22 @@ func testGroupAllGet(t *testing.T, r Context) {
 func testGroupSingleGet(t *testing.T, r Context, id, userID int64) {
 
 	g, _, err := r.GroupSingleGet(id, GroupSingleGetRequest{
-		Includes: []string{"users", "memberships"},
+		Includes: []GroupInclude{
+			GroupIncludeMemberships,
+			GroupIncludeUsers,
+		},
 	})
 	if err != nil {
 		t.Fatal("Group get error:", err)
 	}
 
+	if g.Users == nil {
+		t.Fatal("Group get error: users not found")
+	}
+
 	// Check user is a member of specified group (error if not)
 
-	for _, e := range g.Users {
+	for _, e := range *g.Users {
 		if e.ID == userID {
 			t.Logf("Group get: success")
 			return

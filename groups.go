@@ -4,16 +4,24 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
+)
+
+type GroupInclude string
+
+const (
+	GroupIncludeUsers       GroupInclude = "users"       // used only: get single user
+	GroupIncludeMemberships GroupInclude = "memberships" // used only: get single user
 )
 
 /* Get */
 
 // GroupObject struct used for groups get operations
 type GroupObject struct {
-	ID          int64                   `json:"id"`
-	Name        string                  `json:"name"`
-	Users       []IDName                `json:"users"`       // used only: get single user
-	Memberships []GroupMembershipObject `json:"memberships"` // used only: get single user
+	ID          int64                    `json:"id"`
+	Name        string                   `json:"name"`
+	Users       *[]IDName                `json:"users"`       // used only: get single user and include specified
+	Memberships *[]GroupMembershipObject `json:"memberships"` // used only: get single user and include specified
 }
 
 // GroupMembershipObject struct used for groups get operations
@@ -31,8 +39,8 @@ type GroupCreate struct {
 }
 
 type GroupCreateObject struct {
-	Name    string  `json:"name"`
-	UserIDs []int64 `json:"user_ids,omitempty"`
+	Name    string   `json:"name"`
+	UserIDs *[]int64 `json:"user_ids,omitempty"`
 }
 
 /* Update */
@@ -43,8 +51,8 @@ type GroupUpdate struct {
 }
 
 type GroupUpdateObject struct {
-	Name    string  `json:"name,omitempty"`
-	UserIDs []int64 `json:"user_ids,omitempty"`
+	Name    *string  `json:"name,omitempty"`
+	UserIDs *[]int64 `json:"user_ids,omitempty"`
 }
 
 /* Add user */
@@ -64,7 +72,7 @@ type GroupMultiGetRequest struct {
 
 // GroupSingleGetRequest contains data for making request to get specified group
 type GroupSingleGetRequest struct {
-	Includes []string
+	Includes []GroupInclude
 }
 
 /* Results */
@@ -83,9 +91,13 @@ type groupSingleResult struct {
 	Group GroupObject `json:"group"`
 }
 
+func (gi GroupInclude) String() string {
+	return string(gi)
+}
+
 // GroupAllGet gets info for all groups
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#GET
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Groups#GET
 func (r *Context) GroupAllGet() (GroupResult, StatusCode, error) {
 
 	var (
@@ -94,15 +106,14 @@ func (r *Context) GroupAllGet() (GroupResult, StatusCode, error) {
 		status StatusCode
 	)
 
-	m := GroupMultiGetRequest{
-		Limit: limitDefault,
-	}
-
 	for {
 
-		m.Offset = offset
-
-		g, s, err := r.GroupMultiGet(m)
+		g, s, err := r.GroupMultiGet(
+			GroupMultiGetRequest{
+				Limit:  limitDefault,
+				Offset: offset,
+			},
+		)
 		if err != nil {
 			return groups, s, err
 		}
@@ -126,119 +137,158 @@ func (r *Context) GroupAllGet() (GroupResult, StatusCode, error) {
 
 // GroupMultiGet gets info for multiple groups
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#GET
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Groups#GET
 func (r *Context) GroupMultiGet(request GroupMultiGetRequest) (GroupResult, StatusCode, error) {
 
 	var g GroupResult
 
-	urlParams := url.Values{}
-	urlParams.Add("offset", strconv.FormatInt(request.Offset, 10))
-	urlParams.Add("limit", strconv.FormatInt(request.Limit, 10))
-
-	ur := url.URL{
-		Path:     "/groups.json",
-		RawQuery: urlParams.Encode(),
-	}
-
-	s, err := r.Get(&g, ur, http.StatusOK)
+	s, err := r.Get(
+		&g,
+		url.URL{
+			Path:     "/groups.json",
+			RawQuery: request.url().Encode(),
+		},
+		http.StatusOK,
+	)
 
 	return g, s, err
 }
 
 // GroupSingleGet gets single group info by specific ID
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#GET-2
-//
-// Available includes:
-// * users
-// * memberships
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Groups#GET-2
 func (r *Context) GroupSingleGet(id int64, request GroupSingleGetRequest) (GroupObject, StatusCode, error) {
 
 	var g groupSingleResult
 
-	urlParams := url.Values{}
-
-	// Preparing includes
-	urlIncludes(&urlParams, request.Includes)
-
-	ur := url.URL{
-		Path:     "/groups/" + strconv.FormatInt(id, 10) + ".json",
-		RawQuery: urlParams.Encode(),
-	}
-
-	status, err := r.Get(&g, ur, http.StatusOK)
+	status, err := r.Get(
+		&g,
+		url.URL{
+			Path:     "/groups/" + strconv.FormatInt(id, 10) + ".json",
+			RawQuery: request.url().Encode(),
+		},
+		http.StatusOK,
+	)
 
 	return g.Group, status, err
 }
 
 // GroupCreate creates new group
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#POST
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Groups#POST
 func (r *Context) GroupCreate(group GroupCreate) (GroupObject, StatusCode, error) {
 
 	var g groupSingleResult
 
-	ur := url.URL{
-		Path: "/groups.json",
-	}
-
-	status, err := r.Post(group, &g, ur, http.StatusCreated)
+	status, err := r.Post(
+		group,
+		&g,
+		url.URL{
+			Path: "/groups.json",
+		},
+		http.StatusCreated,
+	)
 
 	return g.Group, status, err
 }
 
 // GroupUpdate updates group with specified ID
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#PUT
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Groups#PUT
 func (r *Context) GroupUpdate(id int64, group GroupUpdate) (StatusCode, error) {
 
-	ur := url.URL{
-		Path: "/groups/" + strconv.FormatInt(id, 10) + ".json",
-	}
-
-	status, err := r.Put(group, nil, ur, http.StatusNoContent)
+	status, err := r.Put(
+		group,
+		nil,
+		url.URL{
+			Path: "/groups/" + strconv.FormatInt(id, 10) + ".json",
+		},
+		http.StatusNoContent,
+	)
 
 	return status, err
 }
 
 // GroupDelete deletes group with specified ID
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#DELETE
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Groups#DELETE
 func (r *Context) GroupDelete(id int64) (StatusCode, error) {
 
-	ur := url.URL{
-		Path: "/groups/" + strconv.FormatInt(id, 10) + ".json",
-	}
-
-	status, err := r.Del(nil, nil, ur, http.StatusNoContent)
+	status, err := r.Del(
+		nil,
+		nil,
+		url.URL{
+			Path: "/groups/" + strconv.FormatInt(id, 10) + ".json",
+		},
+		http.StatusNoContent,
+	)
 
 	return status, err
 }
 
 // GroupAddUser adds new user into group with specified ID
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#POST-2
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Groups#POST-2
 func (r *Context) GroupAddUser(id int64, group GroupAddUserObject) (StatusCode, error) {
 
-	ur := url.URL{
-		Path: "/groups/" + strconv.FormatInt(id, 10) + "/users.json",
-	}
-
-	status, err := r.Post(group, nil, ur, http.StatusNoContent)
+	status, err := r.Post(
+		group,
+		nil,
+		url.URL{
+			Path: "/groups/" + strconv.FormatInt(id, 10) + "/users.json",
+		},
+		http.StatusNoContent,
+	)
 
 	return status, err
 }
 
 // GroupDeleteUser deletes user from group with specified ID
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Groups#DELETE-2
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Groups#DELETE-2
 func (r *Context) GroupDeleteUser(id int64, userID int64) (StatusCode, error) {
 
-	ur := url.URL{
-		Path: "/groups/" + strconv.FormatInt(id, 10) + "/users/" + strconv.FormatInt(userID, 10) + ".json",
-	}
-
-	status, err := r.Del(nil, nil, ur, http.StatusNoContent)
+	status, err := r.Del(
+		nil,
+		nil,
+		url.URL{
+			Path: "/groups/" + strconv.FormatInt(id, 10) + "/users/" + strconv.FormatInt(userID, 10) + ".json",
+		},
+		http.StatusNoContent,
+	)
 
 	return status, err
+}
+
+func (gr GroupMultiGetRequest) url() url.Values {
+
+	v := url.Values{}
+
+	v.Set("offset", strconv.FormatInt(gr.Offset, 10))
+	v.Set("limit", strconv.FormatInt(gr.Limit, 10))
+
+	return v
+}
+
+func (gr GroupSingleGetRequest) url() url.Values {
+
+	v := url.Values{}
+
+	if len(gr.Includes) > 0 {
+		v.Set(
+			"include",
+			strings.Join(
+				func() []string {
+					var is []string
+					for _, i := range gr.Includes {
+						is = append(is, i.String())
+					}
+					return is
+				}(),
+				",",
+			),
+		)
+	}
+
+	return v
 }
