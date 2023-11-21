@@ -132,9 +132,8 @@ func testProjectAllGet(t *testing.T, r Context) {
 				ProjectIncludeTimeEntryActivities,
 				ProjectIncludeIssueCustomFields,
 			},
-			Filters: ProjectGetRequestFilters{
-				Status: ProjectStatusActive,
-			},
+			Filters: ProjectGetRequestFiltersInit().
+				StatusSet(ProjectStatusActive),
 		},
 	)
 	if err != nil {

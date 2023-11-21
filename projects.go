@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 // ProjectStatus defines project status type
@@ -101,13 +102,13 @@ type ProjectUpdateObject struct {
 // ProjectAllGetRequest contains data for making request to get all projects satisfying specified filters
 type ProjectAllGetRequest struct {
 	Includes []ProjectInclude
-	Filters  ProjectGetRequestFilters
+	Filters  *ProjectGetRequestFilters
 }
 
 // ProjectMultiGetRequest contains data for making request to get limited projects count satisfying specified filters
 type ProjectMultiGetRequest struct {
 	Includes []ProjectInclude
-	Filters  ProjectGetRequestFilters
+	Filters  *ProjectGetRequestFilters
 	Offset   int64
 	Limit    int64
 }
@@ -119,7 +120,7 @@ type ProjectSingleGetRequest struct {
 
 // ProjectGetRequestFilters contains data for making projects get request
 type ProjectGetRequestFilters struct {
-	Status ProjectStatus
+	status *ProjectStatus
 }
 
 /* Results */
@@ -169,17 +170,23 @@ func (r *Context) ProjectAllGet(request ProjectAllGetRequest) (ProjectResult, St
 		status   StatusCode
 	)
 
-	m := ProjectMultiGetRequest{
-		Filters:  request.Filters,
-		Includes: request.Includes,
-		Limit:    limitDefault,
-	}
+	up := request.url()
+	up.Set("limit", strconv.FormatInt(limitDefault, 10))
 
 	for {
 
-		m.Offset = offset
+		var p ProjectResult
 
-		p, s, err := r.ProjectMultiGet(m)
+		up.Set("offset", strconv.FormatInt(offset, 10))
+
+		s, err := r.Get(
+			&p,
+			url.URL{
+				Path:     "/projects.json",
+				RawQuery: up.Encode(),
+			},
+			http.StatusOK,
+		)
 		if err != nil {
 			return projects, s, err
 		}
@@ -208,34 +215,14 @@ func (r *Context) ProjectMultiGet(request ProjectMultiGetRequest) (ProjectResult
 
 	var p ProjectResult
 
-	status := ProjectStatusActive
-	if request.Filters.Status != 0 {
-		status = request.Filters.Status
-	}
-
-	urlParams := url.Values{}
-	urlParams.Add("offset", strconv.FormatInt(request.Offset, 10))
-	urlParams.Add("limit", strconv.FormatInt(request.Limit, 10))
-	urlParams.Add("status", strconv.FormatInt(int64(status), 10))
-
-	// Preparing includes
-	urlIncludes(
-		&urlParams,
-		func() []string {
-			var is []string
-			for _, i := range request.Includes {
-				is = append(is, i.String())
-			}
-			return is
-		}(),
+	s, err := r.Get(
+		&p,
+		url.URL{
+			Path:     "/projects.json",
+			RawQuery: request.url().Encode(),
+		},
+		http.StatusOK,
 	)
-
-	ur := url.URL{
-		Path:     "/projects.json",
-		RawQuery: urlParams.Encode(),
-	}
-
-	s, err := r.Get(&p, ur, http.StatusOK)
 
 	return p, s, err
 }
@@ -247,26 +234,14 @@ func (r *Context) ProjectSingleGet(id string, request ProjectSingleGetRequest) (
 
 	var p projectSingleResult
 
-	urlParams := url.Values{}
-
-	// Preparing includes
-	urlIncludes(
-		&urlParams,
-		func() []string {
-			var is []string
-			for _, i := range request.Includes {
-				is = append(is, i.String())
-			}
-			return is
-		}(),
+	status, err := r.Get(
+		&p,
+		url.URL{
+			Path:     "/projects/" + id + ".json",
+			RawQuery: request.url().Encode(),
+		},
+		http.StatusOK,
 	)
-
-	ur := url.URL{
-		Path:     "/projects/" + id + ".json",
-		RawQuery: urlParams.Encode(),
-	}
-
-	status, err := r.Get(&p, ur, http.StatusOK)
 
 	return p.Project, status, err
 }
@@ -278,11 +253,14 @@ func (r *Context) ProjectCreate(project ProjectCreate) (ProjectObject, StatusCod
 
 	var p projectSingleResult
 
-	ur := url.URL{
-		Path: "/projects.json",
-	}
-
-	status, err := r.Post(project, &p, ur, http.StatusCreated)
+	status, err := r.Post(
+		project,
+		&p,
+		url.URL{
+			Path: "/projects.json",
+		},
+		http.StatusCreated,
+	)
 
 	return p.Project, status, err
 }
@@ -292,11 +270,14 @@ func (r *Context) ProjectCreate(project ProjectCreate) (ProjectObject, StatusCod
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_Projects#Updating-a-project
 func (r *Context) ProjectUpdate(id string, project ProjectUpdate) (StatusCode, error) {
 
-	ur := url.URL{
-		Path: "/projects/" + id + ".json",
-	}
-
-	status, err := r.Put(project, nil, ur, http.StatusNoContent)
+	status, err := r.Put(
+		project,
+		nil,
+		url.URL{
+			Path: "/projects/" + id + ".json",
+		},
+		http.StatusNoContent,
+	)
 
 	return status, err
 }
@@ -306,11 +287,14 @@ func (r *Context) ProjectUpdate(id string, project ProjectUpdate) (StatusCode, e
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_Projects#Archiving-a-project
 func (r *Context) ProjectArchive(id string) (StatusCode, error) {
 
-	ur := url.URL{
-		Path: "/projects/" + id + "/archive.json",
-	}
-
-	status, err := r.Put(nil, nil, ur, http.StatusNoContent)
+	status, err := r.Put(
+		nil,
+		nil,
+		url.URL{
+			Path: "/projects/" + id + "/archive.json",
+		},
+		http.StatusNoContent,
+	)
 
 	return status, err
 }
@@ -320,11 +304,14 @@ func (r *Context) ProjectArchive(id string) (StatusCode, error) {
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_Projects#Unarchiving-a-project
 func (r *Context) ProjectUnarchive(id string) (StatusCode, error) {
 
-	ur := url.URL{
-		Path: "/projects/" + id + "/unarchive.json",
-	}
-
-	status, err := r.Put(nil, nil, ur, http.StatusNoContent)
+	status, err := r.Put(
+		nil,
+		nil,
+		url.URL{
+			Path: "/projects/" + id + "/unarchive.json",
+		},
+		http.StatusNoContent,
+	)
 
 	return status, err
 }
@@ -334,11 +321,109 @@ func (r *Context) ProjectUnarchive(id string) (StatusCode, error) {
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_Projects#Deleting-a-project
 func (r *Context) ProjectDelete(id string) (StatusCode, error) {
 
-	ur := url.URL{
-		Path: "/projects/" + id + ".json",
-	}
-
-	status, err := r.Del(nil, nil, ur, http.StatusNoContent)
+	status, err := r.Del(
+		nil,
+		nil,
+		url.URL{
+			Path: "/projects/" + id + ".json",
+		},
+		http.StatusNoContent,
+	)
 
 	return status, err
+}
+
+func (pr ProjectAllGetRequest) url() url.Values {
+
+	v := url.Values{}
+
+	if len(pr.Includes) > 0 {
+		v.Set(
+			"include",
+			strings.Join(
+				func() []string {
+					var is []string
+					for _, i := range pr.Includes {
+						is = append(is, i.String())
+					}
+					return is
+				}(),
+				",",
+			),
+		)
+	}
+
+	if pr.Filters != nil {
+		pr.Filters.url(&v)
+	}
+
+	return v
+}
+
+func (pr ProjectMultiGetRequest) url() url.Values {
+
+	v := url.Values{}
+
+	if len(pr.Includes) > 0 {
+		v.Set(
+			"include",
+			strings.Join(
+				func() []string {
+					var is []string
+					for _, i := range pr.Includes {
+						is = append(is, i.String())
+					}
+					return is
+				}(),
+				",",
+			),
+		)
+	}
+
+	if pr.Filters != nil {
+		pr.Filters.url(&v)
+	}
+
+	v.Set("offset", strconv.FormatInt(pr.Offset, 10))
+	v.Set("limit", strconv.FormatInt(pr.Limit, 10))
+
+	return v
+}
+
+func (pr ProjectSingleGetRequest) url() url.Values {
+
+	v := url.Values{}
+
+	if len(pr.Includes) > 0 {
+		v.Set(
+			"include",
+			strings.Join(
+				func() []string {
+					var is []string
+					for _, i := range pr.Includes {
+						is = append(is, i.String())
+					}
+					return is
+				}(),
+				",",
+			),
+		)
+	}
+
+	return v
+}
+
+func ProjectGetRequestFiltersInit() *ProjectGetRequestFilters {
+	return &ProjectGetRequestFilters{}
+}
+
+func (f *ProjectGetRequestFilters) StatusSet(status ProjectStatus) *ProjectGetRequestFilters {
+	f.status = &status
+	return f
+}
+
+func (f *ProjectGetRequestFilters) url(v *url.Values) {
+	if f.status != nil {
+		v.Set("status", strconv.FormatInt(int64(*f.status), 10))
+	}
 }
