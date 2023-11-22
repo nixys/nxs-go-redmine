@@ -1,4 +1,4 @@
-module github.com/nixys/nxs-go-redmine/v4
+module github.com/nixys/nxs-go-redmine/v5
 
 go 1.21
 
