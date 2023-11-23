@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-const (
+var (
 	testProjectName       = "test-project"
 	testProjectName2      = "test-project2"
 	testProjectIdentifier = "test_project"
@@ -17,7 +17,11 @@ func TestProjectsCRUDIdentifier(t *testing.T) {
 	var r Context
 
 	// Get env variables
-	testProjectTrackerID, _ := strconv.Atoi(os.Getenv("REDMINE_TRACKER_ID"))
+	testProjectTrackerID, err := strconv.ParseInt(os.Getenv("REDMINE_TRACKER_ID"), 10, 64)
+	if err != nil {
+		t.Fatal("Project test error: env variable `REDMINE_TRACKER_ID` is incorrect")
+	}
+
 	if testProjectTrackerID == 0 {
 		t.Fatal("Project test error: env variables `REDMINE_TRACKER_ID` does not set")
 	}
@@ -26,8 +30,12 @@ func TestProjectsCRUDIdentifier(t *testing.T) {
 	initTest(&r, t)
 
 	// Create and delete
-	pCreated := testProjectCreate(t, r, []int{testProjectTrackerID})
+	pCreated := testProjectCreate(t, r, []int64{testProjectTrackerID})
 	defer testProjectDetele(t, r, pCreated.Identifier)
+
+	// Archive and unarcheve
+	testProjectArchive(t, r, pCreated.Identifier)
+	testProjectUnarchive(t, r, pCreated.Identifier)
 
 	// Get
 	testProjectAllGet(t, r)
@@ -42,7 +50,11 @@ func TestProjectsCRUDID(t *testing.T) {
 	var r Context
 
 	// Get env variables
-	testProjectTrackerID, _ := strconv.Atoi(os.Getenv("REDMINE_TRACKER_ID"))
+	testProjectTrackerID, err := strconv.ParseInt(os.Getenv("REDMINE_TRACKER_ID"), 10, 64)
+	if err != nil {
+		t.Fatal("Project test error: env variable `REDMINE_TRACKER_ID` is incorrect")
+	}
+
 	if testProjectTrackerID == 0 {
 		t.Fatal("Project test error: env variables `REDMINE_TRACKER_ID` does not set")
 	}
@@ -51,26 +63,28 @@ func TestProjectsCRUDID(t *testing.T) {
 	initTest(&r, t)
 
 	// Create and delete
-	pCreated := testProjectCreate(t, r, []int{testProjectTrackerID})
-	defer testProjectDetele(t, r, strconv.Itoa(pCreated.ID))
+	pCreated := testProjectCreate(t, r, []int64{testProjectTrackerID})
+	defer testProjectDetele(t, r, strconv.FormatInt(pCreated.ID, 10))
 
 	// Get
 	testProjectAllGet(t, r)
-	testProjectSingleGet(t, r, strconv.Itoa(pCreated.ID))
+	testProjectSingleGet(t, r, strconv.FormatInt(pCreated.ID, 10))
 
 	// Update
-	testProjectUpdate(t, r, strconv.Itoa(pCreated.ID))
+	testProjectUpdate(t, r, strconv.FormatInt(pCreated.ID, 10))
 }
 
-func testProjectCreate(t *testing.T, r Context, trackerIDs []int) ProjectObject {
+func testProjectCreate(t *testing.T, r Context, trackerIDs []int64) ProjectObject {
 
-	p, _, err := r.ProjectCreate(ProjectCreateObject{
-		Name:           testProjectName,
-		Identifier:     testProjectIdentifier,
-		IsPublic:       false,
-		InheritMembers: false,
-		TrackerIDs:     trackerIDs,
-	})
+	p, _, err := r.ProjectCreate(
+		ProjectCreate{
+			Project: ProjectCreateObject{
+				Name:       testProjectName,
+				Identifier: testProjectIdentifier,
+				TrackerIDs: &trackerIDs,
+			},
+		},
+	)
 	if err != nil {
 		t.Fatal("Project create error:", err)
 	}
@@ -82,9 +96,14 @@ func testProjectCreate(t *testing.T, r Context, trackerIDs []int) ProjectObject 
 
 func testProjectUpdate(t *testing.T, r Context, id string) {
 
-	_, err := r.ProjectUpdate(id, ProjectUpdateObject{
-		Name: testProjectName2,
-	})
+	_, err := r.ProjectUpdate(
+		id,
+		ProjectUpdate{
+			Project: ProjectUpdateObject{
+				Name: &testProjectName2,
+			},
+		},
+	)
 	if err != nil {
 		t.Fatal("Project update error:", err)
 	}
@@ -104,12 +123,19 @@ func testProjectDetele(t *testing.T, r Context, id string) {
 
 func testProjectAllGet(t *testing.T, r Context) {
 
-	p, _, err := r.ProjectAllGet(ProjectAllGetRequest{
-		Includes: []string{"trackers", "issue_categories", "enabled_modules"},
-		Filters: ProjectGetRequestFilters{
-			Status: ProjectStatusActive,
+	p, _, err := r.ProjectAllGet(
+		ProjectAllGetRequest{
+			Includes: []ProjectInclude{
+				ProjectIncludeTrackers,
+				ProjectIncludeIssueCategories,
+				ProjectIncludeEnabledModules,
+				ProjectIncludeTimeEntryActivities,
+				ProjectIncludeIssueCustomFields,
+			},
+			Filters: ProjectGetRequestFiltersInit().
+				StatusSet(ProjectStatusActive),
 		},
-	})
+	)
 	if err != nil {
 		t.Fatal("Projects get error:", err)
 	}
@@ -126,12 +152,41 @@ func testProjectAllGet(t *testing.T, r Context) {
 
 func testProjectSingleGet(t *testing.T, r Context, id string) {
 
-	_, _, err := r.ProjectSingleGet(id, ProjectSingleGetRequest{
-		Includes: []string{"trackers", "issue_categories", "enabled_modules"},
-	})
+	_, _, err := r.ProjectSingleGet(
+		id,
+		ProjectSingleGetRequest{
+			Includes: []ProjectInclude{
+				ProjectIncludeTrackers,
+				ProjectIncludeIssueCategories,
+				ProjectIncludeEnabledModules,
+				ProjectIncludeTimeEntryActivities,
+				ProjectIncludeIssueCustomFields,
+			},
+		},
+	)
 	if err != nil {
 		t.Fatal("Project get error:", err)
 	}
 
 	t.Logf("Project get: success")
+}
+
+func testProjectArchive(t *testing.T, r Context, id string) {
+
+	_, err := r.ProjectArchive(id)
+	if err != nil {
+		t.Fatal("Project archive error:", err)
+	}
+
+	t.Logf("Project archive: success")
+}
+
+func testProjectUnarchive(t *testing.T, r Context, id string) {
+
+	_, err := r.ProjectUnarchive(id)
+	if err != nil {
+		t.Fatal("Project unarchive error:", err)
+	}
+
+	t.Logf("Project unarchive: success")
 }

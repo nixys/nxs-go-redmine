@@ -9,9 +9,11 @@ import (
 
 // TrackerObject struct used for trackers get operations
 type TrackerObject struct {
-	ID            int    `json:"id"`
-	Name          string `json:"name"`
-	DefaultStatus IDName `json:"default_status"` // Since 3.0
+	ID                    int64    `json:"id"`
+	Name                  string   `json:"name"`
+	DefaultStatus         IDName   `json:"default_status"`          // (since 3.0)
+	Description           *string  `json:"description"`             // (since 4.2.0)
+	EnabledStandardFields []string `json:"enabled_standard_fields"` // (since 5.0.0)
 }
 
 /* Internal types */
@@ -22,16 +24,18 @@ type trackerAllResult struct {
 
 // TrackerAllGet gets info for all trackers
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Trackers#GET
-func (r *Context) TrackerAllGet() ([]TrackerObject, int, error) {
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Trackers#GET
+func (r *Context) TrackerAllGet() ([]TrackerObject, StatusCode, error) {
 
 	var t trackerAllResult
 
-	ur := url.URL{
-		Path: "/trackers.json",
-	}
-
-	status, err := r.Get(&t, ur, http.StatusOK)
+	status, err := r.Get(
+		&t,
+		url.URL{
+			Path: "/trackers.json",
+		},
+		http.StatusOK,
+	)
 
 	return t.Trackers, status, err
 }

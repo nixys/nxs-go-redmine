@@ -9,23 +9,26 @@ import (
 
 // EnumerationPriorityObject struct used for priorities get operations
 type EnumerationPriorityObject struct {
-	ID        int    `json:"id"`
+	ID        int64  `json:"id"`
 	Name      string `json:"name"`
 	IsDefault bool   `json:"is_default"`
+	Active    bool   `json:"active"`
 }
 
 // EnumerationTimeEntryActivityObject struct used for time entry activities get operations
 type EnumerationTimeEntryActivityObject struct {
-	ID        int    `json:"id"`
+	ID        int64  `json:"id"`
 	Name      string `json:"name"`
 	IsDefault bool   `json:"is_default"`
+	Active    bool   `json:"active"`
 }
 
 // EnumerationDocumentCategoryObject struct used for document categories get operations
 type EnumerationDocumentCategoryObject struct {
-	ID        int    `json:"id"`
+	ID        int64  `json:"id"`
 	Name      string `json:"name"`
 	IsDefault bool   `json:"is_default"`
+	Active    bool   `json:"active"`
 }
 
 /* Internal types */
@@ -45,15 +48,17 @@ type enumerationDocumentCategoriesAllResult struct {
 // EnumerationPrioritiesAllGet gets info for all priority enumerations
 //
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_Enumerations#GET
-func (r *Context) EnumerationPrioritiesAllGet() ([]EnumerationPriorityObject, int, error) {
+func (r *Context) EnumerationPrioritiesAllGet() ([]EnumerationPriorityObject, StatusCode, error) {
 
 	var e enumerationPrioritiesAllResult
 
-	ur := url.URL{
-		Path: "/enumerations/issue_priorities.json",
-	}
-
-	status, err := r.Get(&e, ur, http.StatusOK)
+	status, err := r.Get(
+		&e,
+		url.URL{
+			Path: "/enumerations/issue_priorities.json",
+		},
+		http.StatusOK,
+	)
 
 	return e.Priorities, status, err
 }
@@ -61,15 +66,17 @@ func (r *Context) EnumerationPrioritiesAllGet() ([]EnumerationPriorityObject, in
 // EnumerationTimeEntryActivitiesAllGet gets info for all time entry activity enumerations
 //
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_Enumerations#GET-2
-func (r *Context) EnumerationTimeEntryActivitiesAllGet() ([]EnumerationTimeEntryActivityObject, int, error) {
+func (r *Context) EnumerationTimeEntryActivitiesAllGet() ([]EnumerationTimeEntryActivityObject, StatusCode, error) {
 
 	var e enumerationTimeEntryActivitiesAllResult
 
-	ur := url.URL{
-		Path: "/enumerations/time_entry_activities.json",
-	}
-
-	status, err := r.Get(&e, ur, http.StatusOK)
+	status, err := r.Get(
+		&e,
+		url.URL{
+			Path: "/enumerations/time_entry_activities.json",
+		},
+		http.StatusOK,
+	)
 
 	return e.TimeEntryActivities, status, err
 }
@@ -77,15 +84,17 @@ func (r *Context) EnumerationTimeEntryActivitiesAllGet() ([]EnumerationTimeEntry
 // EnumerationDocumentCategoriesAllGet gets info for all document category enumerations
 //
 // see: https://www.redmine.org/projects/redmine/wiki/Rest_Enumerations#GET-3
-func (r *Context) EnumerationDocumentCategoriesAllGet() ([]EnumerationDocumentCategoryObject, int, error) {
+func (r *Context) EnumerationDocumentCategoriesAllGet() ([]EnumerationDocumentCategoryObject, StatusCode, error) {
 
 	var e enumerationDocumentCategoriesAllResult
 
-	ur := url.URL{
-		Path: "/enumerations/document_categories.json",
-	}
-
-	status, err := r.Get(&e, ur, http.StatusOK)
+	status, err := r.Get(
+		&e,
+		url.URL{
+			Path: "/enumerations/document_categories.json",
+		},
+		http.StatusOK,
+	)
 
 	return e.DocumentCategories, status, err
 }

@@ -8,28 +8,29 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/nixys/nxs-go-redmine/v4/mimereader"
+	"github.com/nixys/nxs-go-redmine/v5/mimereader"
 )
 
 /* Get */
 
 // AttachmentObject struct used for attachments get operations
 type AttachmentObject struct {
-	ID          int    `json:"id"`
-	FileName    string `json:"filename"`
-	FileSize    string `json:"filesize"`
-	ContentType string `json:"content_type"`
-	Description string `json:"description"`
-	ContentURL  string `json:"content_url"`
-	Author      IDName `json:"author"`
-	CreatedOn   string `json:"created_on"`
+	ID           int64  `json:"id"`
+	FileName     string `json:"filename"`
+	FileSize     string `json:"filesize"`
+	ContentType  string `json:"content_type"`
+	Description  string `json:"description"`
+	ContentURL   string `json:"content_url"`
+	ThumbnailURL string `json:"thumbnail_url"`
+	Author       IDName `json:"author"`
+	CreatedOn    string `json:"created_on"`
 }
 
 /* Upload */
 
 // AttachmentUploadObject struct used for attachments upload operations
 type AttachmentUploadObject struct {
-	ID          int    `json:"id,omitempty"`
+	ID          *int64 `json:"id,omitempty"`
 	Token       string `json:"token"`
 	Filename    string `json:"filename"`     // This field fills in AttachmentUpload() function, not by Redmine. User can redefine this value manually
 	ContentType string `json:"content_type"` // This field fills in AttachmentUpload() function, not by Redmine. User can redefine this value manually
@@ -47,30 +48,28 @@ type attachmentUploadResult struct {
 
 // AttachmentSingleGet gets single attachment info
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_Attachments#GET
-func (r *Context) AttachmentSingleGet(id int) (AttachmentObject, int, error) {
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_Attachments#GET
+func (r *Context) AttachmentSingleGet(id int64) (AttachmentObject, StatusCode, error) {
 
 	var a attachmentSingleResult
 
-	ur := url.URL{
-		Path: "/attachments/" + strconv.Itoa(id) + ".json",
-	}
-
-	status, err := r.Get(&a, ur, http.StatusOK)
+	status, err := r.Get(
+		&a,
+		url.URL{
+			Path: "/attachments/" + strconv.FormatInt(id, 10) + ".json",
+		},
+		http.StatusOK,
+	)
 
 	return a.Attachment, status, err
 }
 
 // AttachmentUpload uploads file
 //
-// see: http://www.redmine.org/projects/redmine/wiki/Rest_api#Attaching-files
-func (r *Context) AttachmentUpload(filePath string) (AttachmentUploadObject, int, error) {
+// see: https://www.redmine.org/projects/redmine/wiki/Rest_api#Attaching-files
+func (r *Context) AttachmentUpload(filePath string) (AttachmentUploadObject, StatusCode, error) {
 
 	var a attachmentUploadResult
-
-	ur := url.URL{
-		Path: "/uploads.json",
-	}
 
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -80,7 +79,14 @@ func (r *Context) AttachmentUpload(filePath string) (AttachmentUploadObject, int
 
 	mr := mimereader.New(f)
 
-	status, err := r.uploadFile(mr, &a, ur, http.StatusCreated)
+	status, err := r.uploadFile(
+		mr,
+		&a,
+		url.URL{
+			Path: "/uploads.json",
+		},
+		http.StatusCreated,
+	)
 	if err != nil {
 		return a.Upload, status, err
 	}
@@ -92,17 +98,20 @@ func (r *Context) AttachmentUpload(filePath string) (AttachmentUploadObject, int
 }
 
 // AttachmentUploadStream uploads file as a stream.
-func (r *Context) AttachmentUploadStream(f io.Reader, fileName string) (AttachmentUploadObject, int, error) {
+func (r *Context) AttachmentUploadStream(f io.Reader, fileName string) (AttachmentUploadObject, StatusCode, error) {
 
 	var a attachmentUploadResult
 
-	ur := url.URL{
-		Path: "/uploads.json",
-	}
-
 	mr := mimereader.New(f)
 
-	status, err := r.uploadFile(mr, &a, ur, http.StatusCreated)
+	status, err := r.uploadFile(
+		mr,
+		&a,
+		url.URL{
+			Path: "/uploads.json",
+		},
+		http.StatusCreated,
+	)
 	if err != nil {
 		return a.Upload, status, err
 	}
@@ -113,7 +122,7 @@ func (r *Context) AttachmentUploadStream(f io.Reader, fileName string) (Attachme
 	return a.Upload, status, nil
 }
 
-func (r *Context) AttachmentDownload(id int, dstPath string) (AttachmentObject, int, error) {
+func (r *Context) AttachmentDownload(id int64, dstPath string) (AttachmentObject, StatusCode, error) {
 
 	s, o, status, err := r.AttachmentDownloadStream(id)
 	if err != nil {
@@ -133,7 +142,7 @@ func (r *Context) AttachmentDownload(id int, dstPath string) (AttachmentObject, 
 	return o, status, nil
 }
 
-func (r *Context) AttachmentDownloadStream(id int) (io.ReadCloser, AttachmentObject, int, error) {
+func (r *Context) AttachmentDownloadStream(id int64) (io.ReadCloser, AttachmentObject, StatusCode, error) {
 
 	o, status, err := r.AttachmentSingleGet(id)
 	if err != nil {

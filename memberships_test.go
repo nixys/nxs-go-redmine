@@ -11,8 +11,15 @@ func TestMembershipCRUD(t *testing.T) {
 	var r Context
 
 	// Get env variables
-	testMembershipRoleID1, _ := strconv.Atoi(os.Getenv("REDMINE_ROLE_ID_1"))
-	testMembershipRoleID2, _ := strconv.Atoi(os.Getenv("REDMINE_ROLE_ID_2"))
+	testMembershipRoleID1, err := strconv.ParseInt(os.Getenv("REDMINE_ROLE_ID_1"), 10, 64)
+	if err != nil {
+		t.Fatal("Membership test error: env variable `REDMINE_ROLE_ID_1` is incorrect")
+	}
+
+	testMembershipRoleID2, err := strconv.ParseInt(os.Getenv("REDMINE_ROLE_ID_2"), 10, 64)
+	if err != nil {
+		t.Fatal("Membership test error: env variable `REDMINE_ROLE_ID_2` is incorrect")
+	}
 
 	if testMembershipRoleID1 == 0 || testMembershipRoleID2 == 0 {
 		t.Fatal("Membership test error: env variables `REDMINE_ROLE_ID_1` or `REDMINE_ROLE_ID_2` does not set")
@@ -25,7 +32,7 @@ func TestMembershipCRUD(t *testing.T) {
 	uCreated := testUserCreate(t, r)
 	defer testUserDetele(t, r, uCreated.ID)
 
-	pCreated := testProjectCreate(t, r, []int{})
+	pCreated := testProjectCreate(t, r, []int64{})
 	defer testProjectDetele(t, r, pCreated.Identifier)
 
 	// Add and delete
@@ -42,12 +49,17 @@ func TestMembershipCRUD(t *testing.T) {
 	testMembershipSingleGet(t, r, mCreated.ID, testMembershipRoleID2)
 }
 
-func testMembershipAdd(t *testing.T, r Context, projectID string, userID, roleID int) MembershipObject {
+func testMembershipAdd(t *testing.T, r Context, projectID string, userID, roleID int64) MembershipObject {
 
-	m, _, err := r.MembershipAdd(projectID, MembershipAddObject{
-		UserID:  userID,
-		RoleIDs: []int{roleID},
-	})
+	m, _, err := r.MembershipAdd(
+		projectID,
+		MembershipAdd{
+			Membership: MembershipAddObject{
+				UserID:  userID,
+				RoleIDs: []int64{roleID},
+			},
+		},
+	)
 	if err != nil {
 		t.Fatal("Membership add error:", err)
 	}
@@ -57,11 +69,16 @@ func testMembershipAdd(t *testing.T, r Context, projectID string, userID, roleID
 	return m
 }
 
-func testMembershipUpdate(t *testing.T, r Context, id, roleID1, roleID2 int) {
+func testMembershipUpdate(t *testing.T, r Context, id, roleID1, roleID2 int64) {
 
-	_, err := r.MembershipUpdate(id, MembershipUpdateObject{
-		RoleIDs: []int{roleID1, roleID2},
-	})
+	_, err := r.MembershipUpdate(
+		id,
+		MembershipUpdate{
+			Membership: MembershipUpdateObject{
+				RoleIDs: []int64{roleID1, roleID2},
+			},
+		},
+	)
 	if err != nil {
 		t.Fatal("Membership update error:", err)
 	}
@@ -69,7 +86,7 @@ func testMembershipUpdate(t *testing.T, r Context, id, roleID1, roleID2 int) {
 	t.Logf("Membership update: success")
 }
 
-func testMembershipDetele(t *testing.T, r Context, id int) {
+func testMembershipDetele(t *testing.T, r Context, id int64) {
 
 	_, err := r.MembershipDelete(id)
 	if err != nil {
@@ -79,7 +96,7 @@ func testMembershipDetele(t *testing.T, r Context, id int) {
 	t.Logf("Membership delete: success")
 }
 
-func testMembershipAllGet(t *testing.T, r Context, id int, projectID string, roleID int) {
+func testMembershipAllGet(t *testing.T, r Context, id int64, projectID string, roleID int64) {
 
 	m, _, err := r.MembershipAllGet(projectID)
 	if err != nil {
@@ -102,7 +119,7 @@ func testMembershipAllGet(t *testing.T, r Context, id int, projectID string, rol
 	t.Fatal("Memberships get error: can't find added membership")
 }
 
-func testMembershipSingleGet(t *testing.T, r Context, id, roleID int) {
+func testMembershipSingleGet(t *testing.T, r Context, id, roleID int64) {
 
 	m, _, err := r.MembershipSingleGet(id)
 	if err != nil {
